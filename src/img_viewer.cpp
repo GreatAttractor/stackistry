@@ -108,7 +108,7 @@ bool c_ImageViewer::OnDraw(const Cairo::RefPtr<Cairo::Context>& cr)
     cr->fill();
 
     // Propagate the event outside, so that owners of c_ImageViewer
-    // can connect to its 'signal_button_press_event'
+    // can connect to its 'signal_draw'
     return on_draw(cr);
 }
 
