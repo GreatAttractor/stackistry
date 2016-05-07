@@ -917,7 +917,7 @@ void c_MainWindow::OnWorkerProgress()
     if (Worker::IsWaitingForReferencePoints())
     {
         struct Job_t &job = GetJobAt(*m_RunningJob);
-        c_SelectPointsDlg dlg(Worker::GetAlignedFirstImage8bit(), job.refPoints, { });
+        c_SelectPointsDlg dlg(Worker::GetAlignedFirstImage(), job.refPoints, { });
         dlg.set_title("Set reference points");
         dlg.SetInfoText("Place reference points by left-clicking on the image. Avoid blank areas "
                         "with little or no detail. Click Cancel to set points automatically.");

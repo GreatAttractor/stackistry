@@ -298,13 +298,12 @@ bool IsVisualizationEnabled()
     return Vars::enableVisualization;
 }
 
-libskry::c_Image GetAlignedFirstImage8bit()
+libskry::c_Image GetAlignedFirstImage()
 {
     // We can rewind the image sequence now, as the worker is between phases
     // (after quality estimation, before ref. point alignment)
     Vars::imgSeq->SeekStart();
-    return libskry::c_Image::ConvertPixelFormat(GetAlignedImage(*Vars::imgSeq, *Vars::imgAlignment),
-                                                SKRY_PIX_MONO8);
+    return GetAlignedImage(*Vars::imgSeq, *Vars::imgAlignment);
 }
 
 /// Returns true if the main thread needs to provide reference points

@@ -82,8 +82,8 @@ namespace Worker
 
     /// Returns true if the main thread needs to provide reference points
     bool IsWaitingForReferencePoints();
-    /// Returns the first active image after alignment, converted to SKRY_PIX_MONO8
-    libskry::c_Image GetAlignedFirstImage8bit();
+    /// Returns the first active image after alignment
+    libskry::c_Image GetAlignedFirstImage();
     /// Also notifies the worker thread that it may continue
     void SetReferencePoints(const std::vector<struct SKRY_point> refPoints);
 
