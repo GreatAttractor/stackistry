@@ -2,7 +2,7 @@
 
 Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
 
-wersja 0.0.1 (2016-05-01)
+wersja 0.0.2 (2016-05-08)
 
 *Niniejszy program ABSOLUTNIE nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jest to wolne oprogramowanie na licencji GNU GPL w wersji 3 (lub dowolnej późniejszej) i można je swobodnie rozpowszechniać pod pewnymi warunkami: zob. pełny tekst licencji w pliku LICENSE.*
 
@@ -190,6 +190,11 @@ Po zbudowaniu, Stackistry można uruchomić z linii poleceń MSYS (``./bin/stack
 ## 6. Historia zmian
 
 ```
+0.0.2 (2016-05-08)
+  Poprawki błędów:
+    - Naprawiono błędy podczas przetwarzania serii plików TIFF
+    - Wykorzystywane są wszystkie fragmenty, jeśli kryterium to "liczba najlepszych", a próg jest większy niż liczba aktywnych klatek
+
 0.0.1 (2016-05-01)
-    Pierwsza wersja.
+  Pierwsza wersja.
 ```

@@ -57,8 +57,8 @@ File description:
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 0
-#define VERSION_SUBMINOR 1
-#define VERSION_DATE "2016-05-01"
+#define VERSION_SUBMINOR 2
+#define VERSION_DATE "2016-05-08"
 
 namespace ActionName
 {
