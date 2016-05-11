@@ -169,11 +169,11 @@ void StartProcessing(libskry::c_ImageSequence &imgSeq,
     Vars::refPtSpacing = refPtSpacing;
     Vars::automaticRefPtPlacement = automaticRefPtPlacement;
     Vars::refPoints = refPoints;
-
-    Vars::workerThread = Glib::Threads::Thread::create(sigc::ptr_fun(&WorkerThreadFunc));
     Vars::qualCriterion = qualCriterion;
     Vars::qualThreshold = qualThreshold;
     Vars::flatField = flatFieldFileName;
+
+    Vars::workerThread = Glib::Threads::Thread::create(sigc::ptr_fun(&WorkerThreadFunc));
 }
 
 static void CreateImgAlignmentVisualization(const libskry::c_ImageAlignment &imgAlignment)
