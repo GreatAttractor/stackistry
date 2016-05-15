@@ -69,6 +69,9 @@ public:
     enum SKRY_output_format GetAutoSaveOutputFormat() const;
     void SetAutoSaveOutputFormat(enum SKRY_output_format outpFmt);
 
+    enum SKRY_CFA_pattern GetCFAPattern() const;
+    void SetCFAPattern(enum SKRY_CFA_pattern pattern);
+
 private:
     Gtk::ComboBoxText m_OutputSaveMode;
     Gtk::ComboBoxText m_VideoStbAnchorsMode;
@@ -82,6 +85,9 @@ private:
     Gtk::CheckButton m_FlatFieldCheckBtn;
     Gtk::ComboBoxText m_AutoSaveOutputFormat;
     Gtk::Label m_OutpFmtLabel;
+
+    Gtk::CheckButton m_TreatMonoAsCFA;
+    Gtk::ComboBoxText m_CFAPattern;
 
     void InitControls(const std::vector<std::string> &jobNames);
     Glib::RefPtr<Gtk::Adjustment> CreatePercentageAdj();

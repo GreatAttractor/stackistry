@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
     SKRY_initialize();
 //    SKRY_set_logging(
-//        //SKRY_LOG_REF_PT_ALIGNMENT |
+//        SKRY_LOG_REF_PT_ALIGNMENT |
 //        SKRY_LOG_QUALITY | SKRY_LOG_STACKING | SKRY_LOG_IMG_ALIGNMENT,
 //        SkryLogCallback);
     SKRY_set_clock_func(ClockSec);

@@ -31,6 +31,7 @@ File description:
 #include "settings_dlg.h"
 #include "utils.h"
 
+
 const char *stackingCriterionStr[] =
 {
     "percent of the best fragments",      // SKRY_PERCENTAGE_BEST
@@ -188,6 +189,19 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     get_content_area()->pack_start(*PackIntoHBox({ &m_FlatFieldCheckBtn, &m_FlatFieldChooser }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
+    m_TreatMonoAsCFA.set_label("Treat mono input as raw color:");
+    m_TreatMonoAsCFA.set_active(false);
+    m_TreatMonoAsCFA.show();
+
+    for (unsigned pattern = 0; pattern < SKRY_CFA_MAX; pattern++)
+    {
+        m_CFAPattern.append(SKRY_CFA_pattern_str[pattern]);
+    }
+    m_CFAPattern.set_active(0);
+    m_CFAPattern.show();
+    get_content_area()->pack_start(*PackIntoHBox({ &m_TreatMonoAsCFA, &m_CFAPattern }),
+                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+
     auto separator = Gtk::manage(new Gtk::Separator());
     separator->show();
     get_content_area()->pack_end(*separator, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
@@ -334,4 +348,14 @@ bool c_SettingsDlg::GetRefPointsAutomatic() const
 void c_SettingsDlg::SetRefPointsAutomatic(bool automatic)
 {
     m_RefPtPlacementMode.set_active(automatic ? 0 : 1);
+}
+
+enum SKRY_CFA_pattern c_SettingsDlg::GetCFAPattern() const
+{
+    return (enum SKRY_CFA_pattern)m_CFAPattern.get_active_row_number();
+}
+
+void c_SettingsDlg::SetCFAPattern(enum SKRY_CFA_pattern pattern)
+{
+    m_CFAPattern.set_active((unsigned)pattern);
 }
