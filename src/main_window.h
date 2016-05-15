@@ -84,6 +84,8 @@ private:
         std::vector<struct SKRY_point> refPoints; // used when 'automaticRefPointsPlacement' is false
         std::string flatFieldFileName; // if empty, no flat-fielding will be performed
         unsigned refPtSpacing;
+        /// If not SKRY_CFA_NONE, mono images will be treated as raw color with this filter pattern
+        enum SKRY_CFA_pattern cfaPattern;
     };
 
     class c_JobsListModelColumns: public Gtk::TreeModelColumnRecord

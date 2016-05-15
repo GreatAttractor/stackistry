@@ -191,6 +191,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
 
     m_TreatMonoAsCFA.set_label("Treat mono input as raw color:");
     m_TreatMonoAsCFA.set_active(false);
+    m_TreatMonoAsCFA.signal_toggled().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnTreatAsCFAToggle));
     m_TreatMonoAsCFA.show();
 
     for (unsigned pattern = 0; pattern < SKRY_CFA_MAX; pattern++)
@@ -198,6 +199,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
         m_CFAPattern.append(SKRY_CFA_pattern_str[pattern]);
     }
     m_CFAPattern.set_active(0);
+    m_CFAPattern.set_sensitive(false);
     m_CFAPattern.show();
     get_content_area()->pack_start(*PackIntoHBox({ &m_TreatMonoAsCFA, &m_CFAPattern }),
                                     Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
@@ -352,10 +354,22 @@ void c_SettingsDlg::SetRefPointsAutomatic(bool automatic)
 
 enum SKRY_CFA_pattern c_SettingsDlg::GetCFAPattern() const
 {
-    return (enum SKRY_CFA_pattern)m_CFAPattern.get_active_row_number();
+    if (m_TreatMonoAsCFA.get_active())
+        return (enum SKRY_CFA_pattern)m_CFAPattern.get_active_row_number();
+    else
+        return SKRY_CFA_NONE;
 }
 
 void c_SettingsDlg::SetCFAPattern(enum SKRY_CFA_pattern pattern)
 {
-    m_CFAPattern.set_active((unsigned)pattern);
+    m_TreatMonoAsCFA.set_active(pattern != SKRY_CFA_NONE);
+    if (pattern != SKRY_CFA_NONE)
+    {
+        m_CFAPattern.set_active((unsigned)pattern);
+    }
+}
+
+void c_SettingsDlg::OnTreatAsCFAToggle()
+{
+    m_CFAPattern.set_sensitive(m_TreatMonoAsCFA.get_active());
 }

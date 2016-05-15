@@ -99,6 +99,7 @@ private:
     void OnOutputSaveMode();
     void OnDestPathSet();
     void OnFlatFieldToggle();
+    void OnTreatAsCFAToggle();
 };
 
 

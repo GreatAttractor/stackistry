@@ -473,6 +473,7 @@ void c_MainWindow::OnSettings()
     dlg.SetFlatFieldFileName(job.flatFieldFileName);
     dlg.SetAnchorsAutomatic(!job.anchors.empty());
     dlg.SetQualityCriterion(job.qualityCriterion, job.qualityThreshold);
+    dlg.SetCFAPattern(job.cfaPattern);
 
     PrepareDialog(dlg);
     if (Gtk::ResponseType::RESPONSE_OK == dlg.run())
@@ -495,6 +496,8 @@ void c_MainWindow::OnSettings()
             job.qualityCriterion = dlg.GetQualityCriterion();
             job.qualityThreshold = dlg.GetQualityThreshold();
             job.outputFmt = dlg.GetAutoSaveOutputFormat();
+            job.cfaPattern = dlg.GetCFAPattern();
+            job.imgSeq.ReinterpretAsCFA(job.cfaPattern);
 
             job.anchors.clear();
             if (dlg.GetAnchorsAutomatic())
@@ -571,6 +574,7 @@ void c_MainWindow::SetDefaultSettings(c_MainWindow::Job_t &job)
     job.qualityCriterion = Utils::Const::Defaults::qualityCriterion;
     job.qualityThreshold = Utils::Const::Defaults::qualityThreshold;
     job.automaticRefPointsPlacement = true;
+    job.cfaPattern = SKRY_CFA_NONE;
     enum SKRY_result result;
     libskry::c_Image firstImg = GetFirstActiveImage(job.imgSeq, result);
     if (!firstImg)
