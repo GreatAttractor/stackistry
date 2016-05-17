@@ -1095,7 +1095,7 @@ void c_MainWindow::InitControls()
     m_Visualization.show();
     m_MainPaned.add2(m_Visualization);
 
-#if (GTKMM_MAJOR_VERSION >= 3 || (GTKMM_MAJOR_VERSION == 3 && GTKMM_MINOR_VERSION >= 16))
+#if (GTKMM_MAJOR_VERSION > 3 || (GTKMM_MAJOR_VERSION == 3 && GTKMM_MINOR_VERSION >= 16))
     m_MainPaned.set_wide_handle();
 #endif
 
@@ -1121,7 +1121,7 @@ bool c_MainWindow::OnDelete(GdkEventAny *event)
     get_position(posSize.gobj()->x, posSize.gobj()->y);
     get_size(posSize.gobj()->width, posSize.gobj()->height);
 
-#if (GTKMM_MAJOR_VERSION >= 4 || (GTKMM_MAJOR_VERSION == 3 && GTKMM_MINOR_VERSION >= 12))
+#if (GTKMM_MAJOR_VERSION > 3 || (GTKMM_MAJOR_VERSION == 3 && GTKMM_MINOR_VERSION >= 12))
     Configuration::MainWndMaximized = is_maximized();
     if (!is_maximized())
 #endif
