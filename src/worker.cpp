@@ -81,7 +81,8 @@ void WorkerThreadFunc();
 
 static libskry::c_Image GetAlignedImage(
     const libskry::c_ImageSequence &imgSeq,
-    const libskry::c_ImageAlignment &imgAlignment);
+    const libskry::c_ImageAlignment &imgAlignment,
+    enum SKRY_pixel_format asPixFmt = SKRY_PIX_BGRA8);
 
 
 // Function definitions ----------------------------
@@ -209,12 +210,15 @@ static void CreateQualityEstimationVisualization(
 
 static libskry::c_Image GetAlignedImage(
     const libskry::c_ImageSequence &imgSeq,
-    const libskry::c_ImageAlignment &imgAlignment)
+    const libskry::c_ImageAlignment &imgAlignment,
+    enum SKRY_pixel_format asPixFmt)
 {
     libskry::c_Image currImg = imgSeq.GetCurrentImage();
 
     if (currImg)
     {
+        currImg = libskry::c_Image::ConvertPixelFormat(currImg, SKRY_PIX_BGRA8, SKRY_DEMOSAIC_HQLINEAR);
+
         struct SKRY_rect intersection = imgAlignment.GetIntersection();
 
         struct SKRY_point currOffset = imgAlignment.GetImageOffset(imgSeq.GetCurrentImgIdxWithinActiveSubset());
