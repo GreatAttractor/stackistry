@@ -201,7 +201,9 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_CFAPattern.set_active(0);
     m_CFAPattern.set_sensitive(false);
     m_CFAPattern.show();
-    get_content_area()->pack_start(*PackIntoHBox({ &m_TreatMonoAsCFA, &m_CFAPattern }),
+    auto *lDemosaicComment = Gtk::manage(new Gtk::Label("(also overrides raw color format in SER videos)"));
+    lDemosaicComment->show();
+    get_content_area()->pack_start(*PackIntoHBox({ &m_TreatMonoAsCFA, &m_CFAPattern, lDemosaicComment }),
                                     Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     auto separator = Gtk::manage(new Gtk::Separator());
