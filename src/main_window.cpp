@@ -1268,7 +1268,10 @@ void c_MainWindow::OnAbout()
         "licensed under GNU General Public License v3 or any later version. "
         "See the LICENSE file for details.\n\n" +
 
-        Glib::ustring::format("Using ", numLogCpus, " logical CPU(s)."),
+        "Built with <a href='https://github.com/GreatAttractor/libskry'>libskry</a> " +
+
+        Glib::ustring::format("version ", LIBSKRY_MAJOR_VERSION, ".", LIBSKRY_MINOR_VERSION, ".", LIBSKRY_SUBMINOR_VERSION) + " (" + LIBSKRY_RELEASE_DATE + ")\n" +
+        Glib::ustring::format("Using ", numLogCpus, " logical CPU(s).\n"),
 
         true, Gtk::MessageType::MESSAGE_INFO, Gtk::ButtonsType::BUTTONS_OK, true);
 
