@@ -139,7 +139,7 @@ Kod źródłowy i pliki wykonywalne dla MS Windows można pobrać pod adresem:
 ----------------------------------------
 ## 5. Budowanie ze źródeł
 
-Budowanie ze źródeł wymaga narzędzi do kompilacji C++ (z obsługą C++11) oraz bibliotek GTKmm 3.0 i *libskry*.
+Budowanie ze źródeł wymaga narzędzi do kompilacji C++ (z obsługą C++11) oraz bibliotek GTKmm 3.0 i *libskry*. Wersje (tagi) Stackistry i *libskry* powinny być te same; można też użyć najnowszych rewizji obydwu projektów (aczkolwiek mogą być niestabilne).
 
 
 ----------------------------------------

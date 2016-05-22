@@ -131,7 +131,7 @@ Source code and MS Windows executables can be downloaded from:
 ----------------------------------------
 ## 5. Building from source code
 
-Building from sources requires a C++ compiler toolchain (with C++11 support) and GTKmm 3.0 and *libskry* libraries.
+Building from sources requires a C++ compiler toolchain (with C++11 support) and GTKmm 3.0 and *libskry* libraries. Versions (tags) of Stackistry and *libskry* should match; alternatively, one can use the latest revisions of both (note that they may be unstable).
 
 
 ----------------------------------------
