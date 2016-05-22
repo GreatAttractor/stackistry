@@ -4,7 +4,7 @@
 
 Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
 
-version 0.0.2 (2016-05-08)
+version 0.0.3 (2016-05-22)
 
 *This program comes with ABSOLUTELY NO WARRANTY. This is free software, licensed under GNU General Public License v3 or any later version and you are welcome to redistribute it under certain conditions. See the LICENSE file for details.*
 
@@ -38,7 +38,7 @@ For Windows binary distributions, use ``stackistry.bat`` to start the program (y
 Supported input formats:
 
 - AVI: uncompressed DIB (mono or RGB)
-- SER: mono or RGB
+- SER: mono, RGB, raw color
 - BMP: 8-, 24- and 32-bit uncompressed
 - TIFF: 8 and 16 bits per channel mono or RGB uncompressed
 
@@ -47,7 +47,7 @@ Supported output formats:
 - BMP: 8- and 24-bit uncompressed
 - TIFF: 16-bit mono or RGB uncompressed
 
-AVI files up to 2 GiB are supported. In case of 64-bit builds of Stackistry, there are no size limits for the remaining formats (other than the available memory).
+AVI files up to 2 GiB are supported. In case of 64-bit builds of Stackistry, there are no size limits for the remaining formats (other than the available memory). The user can choose to treat mono videos as raw color (enables demosaicing).
 
 
 ----------------------------------------
@@ -96,6 +96,12 @@ Regardless of this setting, every completed job’s image stack can be saved via
 - Flat-field
 
 A flat-field is an image used to compensate any brightness variations caused by the optical train (vignetting, etalon “sweet spot”, Newton rings etc.). Stackistry can use a flat-field created by an external tool (provided it is in one of the supported input formats); it can also create its own via ``File/Create flat-field from video...``. The video used for this purpose must show a uniformly lit and defocused view. Its absolute brightness is not important, however the tone curve must have the same characteristics as the video that is being processed (e.g. the camera’s gamma setting, if present, must be the same; shutter & gain settings may differ). For best results, use a video at least a few tens of frames long, so that any noise is averaged out.
+
+- Demosaicing of raw color
+
+Enabling the ``Treat mono input as raw color`` causes Stackistry to demosaic mono videos using the High Quality Linear Interpolation method (Malvar, He, Cutler). Stackistry does not detect the color filter pattern (RGGB, GRBG etc.) automatically, the user must choose the correct one (if it is unknown, can be done by trial and error, until the image in e.g. frame selection dialog is not showing checkerboard pattern nor reversed red/blue channels).
+
+The option can be left disabled for SER raw color videos, as they are demosaiced automatically. However, it may happen that a SER video specifies invalid color filter pattern; in such case, use this option to override it.
 
 
 ----------------------------------------
@@ -180,10 +186,18 @@ Once built, Stackistry can be launched from MSYS shell (``./bin/stackistry.exe``
 ## 6. Change log
 
 ```
+0.0.3 (2016-05-22)
+  New features:
+    - Demosaicing of raw color images
+  Bug fixes:
+    - Error on opening SER videos recorded by Genika software
+    - Incorrect RGB channel order when saving a BMP
+
 0.0.2 (2016-05-08)
   Bug fixes:
     - Fix errors when stacking a series of TIFFs
-    - Use all fragments if criterion is "number of the best" and the threshold is more than active images count
+    - Use all fragments if criterion is "number of the best"
+      and the threshold is more than active images count
     
 0.0.1 (2016-05-01)
   Initial revision.

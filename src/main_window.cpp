@@ -57,8 +57,8 @@ File description:
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 0
-#define VERSION_SUBMINOR 2
-#define VERSION_DATE "2016-05-08"
+#define VERSION_SUBMINOR 3
+#define VERSION_DATE "2016-05-22"
 
 namespace ActionName
 {
@@ -1270,7 +1270,7 @@ void c_MainWindow::OnAbout()
 
         "Built with <a href='https://github.com/GreatAttractor/libskry'>libskry</a> " +
 
-        Glib::ustring::format("version ", LIBSKRY_MAJOR_VERSION, ".", LIBSKRY_MINOR_VERSION, ".", LIBSKRY_SUBMINOR_VERSION) + " (" + LIBSKRY_RELEASE_DATE + ")\n" +
+        Glib::ustring::format("version ", LIBSKRY_MAJOR_VERSION, ".", LIBSKRY_MINOR_VERSION, ".", LIBSKRY_SUBMINOR_VERSION) + " (" + LIBSKRY_RELEASE_DATE + ").\n" +
         Glib::ustring::format("Using ", numLogCpus, " logical CPU(s).\n"),
 
         true, Gtk::MessageType::MESSAGE_INFO, Gtk::ButtonsType::BUTTONS_OK, true);

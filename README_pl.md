@@ -2,7 +2,7 @@
 
 Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
 
-wersja 0.0.2 (2016-05-08)
+wersja 0.0.3 (2016-05-22)
 
 *Niniejszy program ABSOLUTNIE nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jest to wolne oprogramowanie na licencji GNU GPL w wersji 3 (lub dowolnej późniejszej) i można je swobodnie rozpowszechniać pod pewnymi warunkami: zob. pełny tekst licencji w pliku LICENSE.*
 
@@ -36,7 +36,7 @@ By uruchomić program po pobraniu dystrybucji binarnej dla MS Windows, należy u
 Formaty wejściowe:
 
 - AVI: nieskompresowany DIB (mono lub RGB)
-- SER: mono lub RGB
+- SER: mono, RGB, „raw color”
 - BMP: nieskompresowany 8-, 24- i 32-bitowy
 - TIFF: 8 i 16 bitów na kanał nieskompresowany mono lub RGB
 
@@ -45,7 +45,7 @@ Formaty wyjściowe:
 - BMP: nieskompresowany 8- i 24-bitowy
 - TIFF: 16-bitowy nieskompresowany mono lub RGB
 
-Obsługiwane są pliki AVI do 2 GiB. 64-bitowe wersje Stackistry nie mają ograniczeń co do rozmiaru pozostałych formatów (poza ilością dostępnej pamięci operacyjnej).
+Obsługiwane są pliki AVI do 2 GiB. 64-bitowe wersje Stackistry nie mają ograniczeń co do rozmiaru pozostałych formatów (poza ilością dostępnej pamięci operacyjnej). Na życzenie użytkownika materiał mono może być traktowany jak „raw color” (Stackistry przeprowadzi demozaikowanie).
 
 
 ----------------------------------------
@@ -104,6 +104,12 @@ Niezależnie od wybranego trybu, w każdej chwili można zapisać *stack* dla ka
 - ``Use flat-field for stacking`` (Użyj *flatu* podczas *stackowania*)
 
 *Flat* (*flat-field*) to obraz stosowany w celu kompensacji różnic jasności mających źródło w torze optycznym (np. winietowanie, *sweet spot* etalonu, pierścienie Newtona itp.). Stackistry może wykorzystać *flat* stworzony w innym programie (o ile jest w jednym z obsługiwanych formatów), może też wygenerować go samodzielnie, zob. polecenie ``File/Create flat-field from video...`` (Utwórz *flat* z wideo). Wideo użyte do tego celu musi być niewyostrzone i przedstawiać jednolicie oświetlony widok (bez szczegółów). Bezwględny poziom jasności nie jest istotny, natomiast krzywa tonalna musi mieć tę samą charakterystykę, co w przetwarzanym materiale (np. ustawienie krzywej gamma, o ile obecne w kamerze, musi być identyczne; wartości migawki i wzmocnienia mogą się różnić). W celu osiągnięcia najlepszych efektów należy użyć wideo o długości co najmniej kilkudziesięciu klatek, by szum został uśredniony.
+
+- ``Treat mono input as raw color`` (Demozaikowanie materiału „raw color”)
+
+Po włączeniu tej funkcji Stackisty dokonuje demozaikowania materiału mono metodą interpolacji liniowej wysokiej jakości (Malar, He, Cutler). Układ filtrów kolorowych (RGGB, GRBG itp.) nie jest wykrywany automatycznie, użytkownik musi wybrać właściwy. Jeśli układ nie jest znany, można zrobić to metodą prób i błędów, sprawdzając efekt np. w oknie wyboru klatek; z niewłaściwym filtrem uzyskamy obraz z pikselami „w kratkę” lub z zamienionymi kanałami czerwonym i niebieskim.
+
+Funkcję można pozostawić wyłączoną dla plików wideo SER w formacie „raw color” (są demozaikowane automatycznie). Może się jednak zdarzyć, że układ filtrów wskazany w SER jest niewłaściwy; włączenie funkcji spowoduje wówczas wymuszenie właściwego układu.
 
 
 ----------------------------------------
@@ -190,10 +196,18 @@ Po zbudowaniu, Stackistry można uruchomić z linii poleceń MSYS (``./bin/stack
 ## 6. Historia zmian
 
 ```
+0.0.3 (2016-05-22)
+  Nowe funkcje:
+    - Demozaikowanie materiału „raw color”
+  Poprawki błędów:
+    - Błąd przy otwieraniu plików SER nagranych narzędziem Genika
+    - Zła kolejność kanałów RGB przy zapisywaniu BMP
+
 0.0.2 (2016-05-08)
   Poprawki błędów:
     - Naprawiono błędy podczas przetwarzania serii plików TIFF
-    - Wykorzystywane są wszystkie fragmenty, jeśli kryterium to "liczba najlepszych", a próg jest większy niż liczba aktywnych klatek
+    - Wykorzystywane są wszystkie fragmenty, jeśli kryterium to
+      „liczba najlepszych”, a próg jest większy niż liczba aktywnych klatek
 
 0.0.1 (2016-05-01)
   Pierwsza wersja.
