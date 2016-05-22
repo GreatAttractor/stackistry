@@ -36,9 +36,13 @@ OBJECTS = config.o \
           settings_dlg.o \
           utils.o \
           worker.o
-		  
+
+EXE_FLAGS =
+
 ifeq ($(OSTYPE),msys)
 OBJECTS += winres.o
+# Prevents creating a console window
+EXE_FLAGS += -Wl,--subsystem=windows
 endif
           
 OBJECTS_PREF = $(addprefix $(OBJ_DIR)/,$(OBJECTS))
@@ -55,7 +59,7 @@ clean:
 	$(REMOVE) -f $(BIN_DIR)/$(EXE_NAME)
 
 $(BIN_DIR)/$(EXE_NAME): $(OBJECTS_PREF)
-	$(CC) $(OBJECTS_PREF) $(shell pkg-config gtkmm-3.0 --libs) -L $(SKRY_LIB_PATH) -lskry -lgomp -s -o $(BIN_DIR)/$(EXE_NAME)
+	$(CC) $(OBJECTS_PREF) $(shell pkg-config gtkmm-3.0 --libs) $(EXE_FLAGS) -L $(SKRY_LIB_PATH) -lskry -lgomp -s -o $(BIN_DIR)/$(EXE_NAME)
 
 # pull in dependency info for existing object files
 -include $(OBJECTS_PREF:.o=.d)
