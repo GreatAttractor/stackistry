@@ -29,8 +29,10 @@ File description:
 
 #include <gdkmm.h>
 #include <glibmm/fileutils.h>
+#include <glibmm/i18n.h>
 #include <glibmm/miscutils.h>
 #include <glibmm/threads.h>
+#include <glibmm/ustring.h>
 #include <gtkmm/adjustment.h>
 #include <gtkmm/box.h>
 #include <gtkmm/cellrendererprogress.h>
@@ -137,15 +139,15 @@ void c_MainWindow::OnAddFolders()
 
 void c_MainWindow::OnAddImageSeries()
 {
-    Gtk::FileChooserDialog dlg(*this, "Add image series", Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
-    dlg.add_button("OK", Gtk::ResponseType::RESPONSE_OK);
-    dlg.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
+    Gtk::FileChooserDialog dlg(*this, _("Add image series"), Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
+    dlg.add_button(_("OK"), Gtk::ResponseType::RESPONSE_OK);
+    dlg.add_button(_("Cancel"), Gtk::ResponseType::RESPONSE_CANCEL);
     dlg.set_current_folder(Configuration::LastOpenDir);
     dlg.set_select_multiple();
 
     auto fltAll = Gtk::FileFilter::create();
     fltAll->add_pattern("*");
-    fltAll->set_name("All files");
+    fltAll->set_name(_("All files"));
     dlg.add_filter(fltAll);
 
     auto fltBmp = Gtk::FileFilter::create();
@@ -159,7 +161,7 @@ void c_MainWindow::OnAddImageSeries()
         std::vector<std::string> fileNames = dlg.get_filenames();
         if (fileNames.size() <= 1)
         {
-            ShowMsg(dlg, "Error", "At least two image files are required.", Gtk::MessageType::MESSAGE_ERROR);
+            ShowMsg(dlg, _("Error"), _("At least two image files are required."), Gtk::MessageType::MESSAGE_ERROR);
             return;
         }
 
@@ -175,7 +177,7 @@ void c_MainWindow::OnAddImageSeries()
         {
             auto row = *m_Jobs.data->append();
             row[m_Jobs.columns.jobSource] = newJob->sourcePath;
-            row[m_Jobs.columns.state]     = "Waiting";
+            row[m_Jobs.columns.state]     = _("Waiting");
             row[m_Jobs.columns.progressText] = "";
             row[m_Jobs.columns.job]       = newJob;
         }
@@ -228,8 +230,10 @@ bool c_MainWindow::SetAnchorsAutomatically(Job_t &job)
     libskry::c_Image firstImg = GetFirstActiveImage(job.imgSeq, result);
     if (!firstImg)
     {
-        ShowMsg(*this, "Error", std::string("Error loading the first image of ") + job.sourcePath + ":\n" +
-                                SKRY_get_error_message(result), Gtk::MessageType::MESSAGE_ERROR);
+        ShowMsg(*this, _("Error"),
+                Glib::ustring::compose(_("Error loading the first image of %1:\n%2"),
+                                 job.sourcePath.c_str(), SKRY_get_error_message(result)),
+                Gtk::MessageType::MESSAGE_ERROR);
         return false;
     }
     job.anchors.push_back(libskry::c_ImageAlignment::SuggestAnchorPos(
@@ -338,11 +342,11 @@ void c_MainWindow::OnStopProcessing()
         (*m_RunningJob)[m_Jobs.columns.progress] = 0;
         (*m_RunningJob)[m_Jobs.columns.percentageProgress] = 0;
         (*m_RunningJob)[m_Jobs.columns.progressText] = "";
-        (*m_RunningJob)[m_Jobs.columns.state] = "Waiting";
+        (*m_RunningJob)[m_Jobs.columns.state] = _("Waiting");
         GetJobAt(m_RunningJob).imgSeq.Deactivate();
 
         m_RunningJob = Gtk::ListStore::iterator(nullptr);
-        SetStatusBarText("Idle");
+        SetStatusBarText(_("Idle"));
     }
     while (!m_JobsToProcess.empty())
         m_JobsToProcess.pop();
@@ -362,8 +366,10 @@ bool c_MainWindow::SetAnchors(Job_t &job)
     libskry::c_Image firstImg = GetFirstActiveImage(job.imgSeq, result);
     if (!firstImg)
     {
-        ShowMsg(*this, "Error", std::string("Error loading the first image of ") + job.sourcePath + ":\n" +
-                                SKRY_get_error_message(result), Gtk::MessageType::MESSAGE_ERROR);
+        ShowMsg(*this, _("Error"),
+                Glib::ustring::compose(_("Error loading the first image of %1:\n%2"),
+                                 job.sourcePath.c_str(), SKRY_get_error_message(result)),
+                Gtk::MessageType::MESSAGE_ERROR);
 
         return false;
     }
@@ -372,9 +378,9 @@ bool c_MainWindow::SetAnchors(Job_t &job)
                           { libskry::c_ImageAlignment::SuggestAnchorPos(
                               firstImg, Utils::Const::Defaults::placementBrightnessThreshold,
                               Utils::Const::imgAlignmentRefBlockSize) });
-    dlg.set_title("Set video stabilization anchors");
-    dlg.SetInfoText("Automatic placement should work reliably in most cases. "
-                    "Otherwise, click the image to place anchors (one anchor is sufficient if there is not much image drift).");
+    dlg.set_title(_("Set video stabilization anchors"));
+    dlg.SetInfoText(_("Automatic placement should work reliably in most cases. "
+                    "Otherwise, click the image to place anchors (one anchor is sufficient if there is not much image drift)."));
     PrepareDialog(dlg);
     Utils::RestorePosSize(Configuration::AnchorSelectDlgPosSize, dlg);
     auto response = dlg.run();
@@ -412,9 +418,9 @@ void GetOutputFormatFromFilter(Glib::ustring filterName,
 
 void c_MainWindow::OnSaveStackedImage()
 {
-    Gtk::FileChooserDialog dlg("Save stacked image", Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE);
-    dlg.add_button("OK", Gtk::ResponseType::RESPONSE_OK);
-    dlg.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
+    Gtk::FileChooserDialog dlg(_("Save stacked image"), Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE);
+    dlg.add_button(_("OK"), Gtk::ResponseType::RESPONSE_OK);
+    dlg.add_button(_("Cancel"), Gtk::ResponseType::RESPONSE_CANCEL);
     bool hiBitDepthFilterSelected = false;
     for (Utils::Vars::OutputFormatDescr_t &outFmt: Utils::Vars::outputFormatDescription)
     {
@@ -448,8 +454,11 @@ void c_MainWindow::OnSaveStackedImage()
         {
             std::cout << "Failed to save image" << std::endl;
 
-            ShowMsg(*this, "Error", std::string("Error saving output image ") + dlg.get_filename() + ":\n" +
-                                    SKRY_get_error_message(result), Gtk::MessageType::MESSAGE_ERROR);
+            ShowMsg(*this, _("Error"),
+                    Glib::ustring::compose(_("Error saving output image %1:\n%2"),
+                                     dlg.get_filename().c_str(),
+                                     SKRY_get_error_message(result)),
+                    Gtk::MessageType::MESSAGE_ERROR);
         }
     }
 }
@@ -579,8 +588,11 @@ void c_MainWindow::SetDefaultSettings(c_MainWindow::Job_t &job)
     libskry::c_Image firstImg = GetFirstActiveImage(job.imgSeq, result);
     if (!firstImg)
     {
-        ShowMsg(*this, "Error", std::string("Error loading the first image of ") + job.sourcePath + ":\n" +
-                                SKRY_get_error_message(result), Gtk::MessageType::MESSAGE_ERROR);
+        ShowMsg(*this, _("Error"),
+                Glib::ustring::compose("Error loading the first image of %1:\n%2",
+                                 job.sourcePath.c_str(),
+                                 SKRY_get_error_message(result)),
+                Gtk::MessageType::MESSAGE_ERROR);
     }
     else
         job.anchors.push_back(libskry::c_ImageAlignment::SuggestAnchorPos(
@@ -591,15 +603,15 @@ void c_MainWindow::SetDefaultSettings(c_MainWindow::Job_t &job)
 
 void c_MainWindow::OnAddVideos()
 {
-    Gtk::FileChooserDialog dlg(*this, "Add video(s)", Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
-    dlg.add_button("OK", Gtk::ResponseType::RESPONSE_OK);
-    dlg.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
+    Gtk::FileChooserDialog dlg(*this, _("Add video(s)"), Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
+    dlg.add_button(_("OK"), Gtk::ResponseType::RESPONSE_OK);
+    dlg.add_button(_("Cancel"), Gtk::ResponseType::RESPONSE_CANCEL);
     dlg.set_current_folder(Configuration::LastOpenDir);
     dlg.set_select_multiple();
 
     auto fltAll = Gtk::FileFilter::create();
     fltAll->add_pattern("*");
-    fltAll->set_name("All files");
+    fltAll->set_name(_("All files"));
     dlg.add_filter(fltAll);
 
     auto fltAvi = Gtk::FileFilter::create();
@@ -621,8 +633,10 @@ void c_MainWindow::OnAddVideos()
             std::shared_ptr<Job_t> newJob = std::make_shared<Job_t>(Job_t { libskry::c_ImageSequence::InitVideoFile(fname.c_str(), &result) });
             if (!newJob->imgSeq)
             {
-                ShowMsg(dlg, "Error", std::string("Could not open video file ") + fname + ":\n" +
-                        SKRY_get_error_message(result), Gtk::MessageType::MESSAGE_ERROR);
+                ShowMsg(dlg, _("Error"),
+                        Glib::ustring::compose("Could not open video file %1:\n%2",
+                                         fname.c_str(), SKRY_get_error_message(result)),
+                        Gtk::MessageType::MESSAGE_ERROR);
                 continue;
             }
 
@@ -637,7 +651,7 @@ void c_MainWindow::OnAddVideos()
             {
                 auto row = *m_Jobs.data->append();
                 row[m_Jobs.columns.jobSource] = newJob->sourcePath;
-                row[m_Jobs.columns.state]     = "Waiting";
+                row[m_Jobs.columns.state]     = _("Waiting");
                 row[m_Jobs.columns.progressText] = "";
                 row[m_Jobs.columns.job]       = newJob;
             }
@@ -684,53 +698,53 @@ void c_MainWindow::OnQuit()
 void c_MainWindow::InitActions()
 {
     m_ActionGroup = Gtk::ActionGroup::create();
-    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuFile, "_File"));
+    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuFile, _("_File")));
     m_ActionGroup->add(Gtk::Action::create(ActionName::quit, Gtk::Stock::QUIT),
                   sigc::mem_fun(*this, &c_MainWindow::OnQuit));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::addImages, "Add image series...", "Add image series..."),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::addImages, _("Add image series..."), _("Add image series...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnAddImageSeries));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::addFolders, "Add image series from folder(s)..."),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::addFolders, _("Add image series from folder(s)...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnAddFolders));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::addVideos, "Add video(s)...", "Add video(s)..."),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::addVideos, _("Add video(s)..."), _("Add video(s)...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnAddVideos));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::saveStackedImage, "Save stacked image..."),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::saveStackedImage, _("Save stacked image...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnSaveStackedImage));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::createFlatField, "Create flat-field from video...",
-                                           "Create flat-field from video..."),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::createFlatField, _("Create flat-field from video..."),
+                                           _("Create flat-field from video...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnCreateFlatField));
 
-    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuEdit, "_Edit"));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::setAnchors, "Set video stabilization anchors..."),
+    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuEdit, _("_Edit")));
+    m_ActionGroup->add(Gtk::Action::create(ActionName::setAnchors, _("Set video stabilization anchors...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnSetAnchors));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::selectFrames, "Select frames..."),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::selectFrames, _("Select frames...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnSelectFrames));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::settings, "Processing settings...",
-                                           "Processing settings..."),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::settings, _("Processing settings..."),
+                                           _("Processing settings...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnSettings));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::removeJobs, "Remove from list", "Remove from list"),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::removeJobs, _("Remove from list"), _("Remove from list")),
                   sigc::mem_fun(*this, &c_MainWindow::OnRemoveJobs));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::preferences, "Preferences..."),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::preferences, _("Preferences...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnPreferences));
 
-    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuProcessing, "_Processing"));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::startProcessing, "Start processing",
-                                           "Start processing selected job(s)"),
+    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuProcessing, _("_Processing")));
+    m_ActionGroup->add(Gtk::Action::create(ActionName::startProcessing, _("Start processing"),
+                                           _("Start processing selected job(s)")),
                   sigc::mem_fun(*this, &c_MainWindow::OnStartProcessing));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::pauseResumeProcessing, "Pause processing"),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::pauseResumeProcessing, _("Pause processing")),
                   sigc::mem_fun(*this, &c_MainWindow::OnPauseResumeProcessing));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::stopProcessing, "Stop processing", "Stop processing"),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::stopProcessing, _("Stop processing"), _("Stop processing")),
                   sigc::mem_fun(*this, &c_MainWindow::OnStopProcessing));
-    m_ActVisualization = Gtk::ToggleAction::create(ActionName::toggleVisualization, "Show visualization", "Show visualization (slows down processing)");
+    m_ActVisualization = Gtk::ToggleAction::create(ActionName::toggleVisualization, _("Show visualization"), _("Show visualization (slows down processing)"));
     m_ActionGroup->add(m_ActVisualization, sigc::mem_fun(*this, &c_MainWindow::OnToggleVisualization));
 
-    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuTest, "_Test"));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::QUALITY_TEST, "Quality..."),
+    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuTest, _("_Test")));
+    m_ActionGroup->add(Gtk::Action::create(ActionName::QUALITY_TEST, _("Quality...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnQualityTest));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::backgroundTest, "Background..."),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::backgroundTest, _("Background...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnBackgroundTest));
 
-    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuAbout, "_About"));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::about, "About Stackistry..."),
+    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuAbout, _("_About")));
+    m_ActionGroup->add(Gtk::Action::create(ActionName::about, _("About Stackistry...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnAbout));
 
     m_UIManager = Gtk::UIManager::create();
@@ -817,16 +831,16 @@ void c_MainWindow::CreateJobsListView()
     m_Jobs.data = Gtk::ListStore::create(m_Jobs.columns);
     m_Jobs.view.set_model(m_Jobs.data);
 
-    m_Jobs.view.append_column("Job",  m_Jobs.columns.jobSource);
+    m_Jobs.view.append_column(_("Job"),  m_Jobs.columns.jobSource);
     m_Jobs.view.get_column(0)->set_resizable();
     auto crend = dynamic_cast<Gtk::CellRendererText *>(m_Jobs.view.get_column_cell_renderer(0));
     crend->property_ellipsize() = Pango::EllipsizeMode::ELLIPSIZE_START;
 
-    m_Jobs.view.append_column("State", m_Jobs.columns.state);
+    m_Jobs.view.append_column(_("State"), m_Jobs.columns.state);
     m_Jobs.view.get_column(1)->set_resizable();
 
     auto *crProgress = Gtk::manage(new Gtk::CellRendererProgress());
-    m_Jobs.view.append_column("Progress", *crProgress);
+    m_Jobs.view.append_column(_("Progress"), *crProgress);
     auto col = m_Jobs.view.get_column(2);
     col->add_attribute(crProgress->property_value(), m_Jobs.columns.percentageProgress);
     col->add_attribute(crProgress->property_text(), m_Jobs.columns.progressText);
@@ -922,9 +936,9 @@ void c_MainWindow::OnWorkerProgress()
     {
         struct Job_t &job = GetJobAt(*m_RunningJob);
         c_SelectPointsDlg dlg(Worker::GetAlignedFirstImage(), job.refPoints, { });
-        dlg.set_title("Set reference points");
-        dlg.SetInfoText("Place reference points by left-clicking on the image. Avoid blank areas "
-                        "with little or no detail. Click Cancel to set points automatically.");
+        dlg.set_title(_("Set reference points"));
+        dlg.SetInfoText(_("Place reference points by left-clicking on the image. Avoid blank areas "
+                        "with little or no detail. Click Cancel to set points automatically."));
         PrepareDialog(dlg);
         Utils::RestorePosSize(Configuration::SelectRefPointsDlgPosSize, dlg);
         auto response = dlg.run();
@@ -955,13 +969,14 @@ void c_MainWindow::OnWorkerProgress()
             Glib::ustring::format(Worker::GetStep(), "/", GetJobAt(m_RunningJob).imgSeq.GetActiveImageCount());
 
         SetStatusBarText((*m_RunningJob)[m_Jobs.columns.jobSource] + ": " +
-                        Worker::ProcPhaseStr[(int)Worker::GetPhase()] + ", step: " + (*m_RunningJob)[m_Jobs.columns.progressText]);
+                        Worker::ProcPhaseStr[(int)Worker::GetPhase()] + ", " + _("step") +
+                         " " + (*m_RunningJob)[m_Jobs.columns.progressText]);
 
         m_LastStepNotify = Worker::GetStep();
     }
     if (!Worker::IsRunning())
     {
-        SetStatusBarText("Idle");
+        SetStatusBarText(_("Idle"));
 
         (*m_RunningJob)[m_Jobs.columns.progress] = 0;
         (*m_RunningJob)[m_Jobs.columns.percentageProgress] = 0;
@@ -969,10 +984,10 @@ void c_MainWindow::OnWorkerProgress()
         if (Worker::GetLastResult() == SKRY_SUCCESS ||
             Worker::GetLastResult() == SKRY_LAST_STEP)
         {
-            (*m_RunningJob)[m_Jobs.columns.state] = "Processed";
+            (*m_RunningJob)[m_Jobs.columns.state] = _("Processed");
         }
         else
-            (*m_RunningJob)[m_Jobs.columns.state] = std::string("Error: ") + SKRY_get_error_message(Worker::GetLastResult());
+            (*m_RunningJob)[m_Jobs.columns.state] = Glib::ustring::compose(_("Error: %1"), SKRY_get_error_message(Worker::GetLastResult()));
 
         Worker::WaitUntilFinished();
 
@@ -1104,7 +1119,7 @@ void c_MainWindow::InitControls()
     m_MainPaned.show();
 
     m_StatusBar.show();
-    SetStatusBarText("Idle");
+    SetStatusBarText(_("Idle"));
 
     box->pack_start(m_MainPaned);
     box->pack_end(m_StatusBar, Gtk::PackOptions::PACK_SHRINK);
@@ -1141,8 +1156,8 @@ void c_MainWindow::OnPreferences()
     while ((response = dlg.run()) == Gtk::ResponseType::RESPONSE_OK
            && !dlg.HasCorrectInput())
     {
-        Gtk::MessageDialog msg(dlg, "Invalid value.", false, Gtk::MessageType::MESSAGE_ERROR);
-        msg.set_title("Error");
+        Gtk::MessageDialog msg(dlg, _("Invalid value."), false, Gtk::MessageType::MESSAGE_ERROR);
+        msg.set_title(_("Error"));
         msg.run();
     }
 
@@ -1182,13 +1197,13 @@ void c_MainWindow::OnRemoveJobs()
 
 void c_MainWindow::OnCreateFlatField()
 {
-    Gtk::FileChooserDialog dlgOpen(*this, "Choose video file", Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
-    dlgOpen.add_button("OK", Gtk::ResponseType::RESPONSE_OK);
-    dlgOpen.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
+    Gtk::FileChooserDialog dlgOpen(*this, _("Choose video file"), Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
+    dlgOpen.add_button(_("OK"), Gtk::ResponseType::RESPONSE_OK);
+    dlgOpen.add_button(_("Cancel"), Gtk::ResponseType::RESPONSE_CANCEL);
 
     auto fltAll = Gtk::FileFilter::create();
     fltAll->add_pattern("*");
-    fltAll->set_name("All files");
+    fltAll->set_name(_("All files"));
     dlgOpen.add_filter(fltAll);
 
     auto fltAvi = Gtk::FileFilter::create();
@@ -1203,8 +1218,9 @@ void c_MainWindow::OnCreateFlatField()
         libskry::c_ImageSequence imgSeq = libskry::c_ImageSequence::InitVideoFile(dlgOpen.get_filename().c_str(), &result);
         if (!imgSeq)
         {
-            ShowMsg(dlgOpen, "Error", std::string("Error opening ") + dlgOpen.get_filename() + ":\n"
-                    + SKRY_get_error_message(result),
+            ShowMsg(dlgOpen, _("Error"),
+                    Glib::ustring::compose(_("Error opening %1:\n%2"), dlgOpen.get_filename().c_str(),
+                                     SKRY_get_error_message(result)),
                     Gtk::MessageType::MESSAGE_ERROR);
             return;
         }
@@ -1212,15 +1228,16 @@ void c_MainWindow::OnCreateFlatField()
         libskry::c_Image flatField = imgSeq.CreateFlatField(&result);
         if (!flatField)
         {
-            ShowMsg(dlgOpen, "Error", std::string("Failed to create flat-field:\n")
-                    + SKRY_get_error_message(result),
+            ShowMsg(dlgOpen, _("Error"),
+                    Glib::ustring::compose(_("Failed to create flat-field:\n%1"),
+                                     SKRY_get_error_message(result)),
                     Gtk::MessageType::MESSAGE_ERROR);
             return;
         }
 
-        Gtk::FileChooserDialog dlgSave("Save flat-field", Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE);
-        dlgSave.add_button("OK", Gtk::ResponseType::RESPONSE_OK);
-        dlgSave.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
+        Gtk::FileChooserDialog dlgSave(_("Save flat-field"), Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE);
+        dlgSave.add_button(_("OK"), Gtk::ResponseType::RESPONSE_OK);
+        dlgSave.add_button(_("Cancel"), Gtk::ResponseType::RESPONSE_CANCEL);
         for (Utils::Vars::OutputFormatDescr_t &outFmt: Utils::Vars::outputFormatDescription)
         {
             auto filter = Gtk::FileFilter::create();
@@ -1242,8 +1259,11 @@ void c_MainWindow::OnCreateFlatField()
             libskry::c_Image finalImg = libskry::c_Image::ConvertPixelFormat(flatField, pixFmt);
             if (SKRY_SUCCESS != (result = finalImg.Save(dlgSave.get_filename().c_str(), outpFmt)))
             {
-                ShowMsg(dlgSave, "Error", std::string("Error saving ") + dlgSave.get_filename() + ":\n"
-                        + SKRY_get_error_message(result), Gtk::MessageType::MESSAGE_ERROR);
+                ShowMsg(dlgSave, _("Error"),
+                        Glib::ustring::compose(_("Error saving %1:\n%2"),
+                                         dlgSave.get_filename().c_str(),
+                                         SKRY_get_error_message(result)),
+                        Gtk::MessageType::MESSAGE_ERROR);
             }
         }
     }
@@ -1262,20 +1282,21 @@ void c_MainWindow::OnAbout()
         std::string("<big><big><b>Stackistry</b></big></big>\n\n") +
 
         "Copyright \u00A9 2016 Filip Szczerek (ga.software@yahoo.com)\n" +
-        Glib::ustring::format("version ", VERSION_MAJOR, ".", VERSION_MINOR, ".", VERSION_SUBMINOR) + " (" + VERSION_DATE + ")\n\n"
+        Glib::ustring::compose(_("version %1.%2.%3 (%4)\n\n"), VERSION_MAJOR, VERSION_MINOR, VERSION_SUBMINOR, VERSION_DATE) +
 
-        "This program comes with ABSOLUTELY NO WARRANTY. This is free software, "
+        _("This program comes with ABSOLUTELY NO WARRANTY. This is free software, "
         "licensed under GNU General Public License v3 or any later version. "
-        "See the LICENSE file for details.\n\n" +
+        "See the LICENSE file for details.") + "\n\n" +
 
-        "Built with <a href='https://github.com/GreatAttractor/libskry'>libskry</a> " +
+        Glib::ustring::compose(_("Built with <a href='https://github.com/GreatAttractor/libskry'>libskry</a> "
 
-        Glib::ustring::format("version ", LIBSKRY_MAJOR_VERSION, ".", LIBSKRY_MINOR_VERSION, ".", LIBSKRY_SUBMINOR_VERSION) + " (" + LIBSKRY_RELEASE_DATE + ").\n" +
-        Glib::ustring::format("Using ", numLogCpus, " logical CPU(s).\n"),
+        "version %1.%2.%3 (%4).\n"), LIBSKRY_MAJOR_VERSION, LIBSKRY_MINOR_VERSION, LIBSKRY_SUBMINOR_VERSION, LIBSKRY_RELEASE_DATE) +
+
+        Glib::ustring::compose(_("Using %1 logical CPU(s).\n"), numLogCpus),
 
         true, Gtk::MessageType::MESSAGE_INFO, Gtk::ButtonsType::BUTTONS_OK, true);
 
-    msg.set_title("About Stackistry");
+    msg.set_title(_("About Stackistry"));
     auto img = Gtk::manage(new Gtk::Image(Utils::LoadIcon("stackistry-app.svg", 128, 128)));
     img->show();
     msg.set_image(*img);
