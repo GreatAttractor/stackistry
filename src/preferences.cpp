@@ -23,6 +23,7 @@ File description:
 
 #include <sstream>
 
+#include <glibmm/i18n.h>
 #include <gtkmm/box.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/label.h>
@@ -51,7 +52,7 @@ bool ConvertString(const char *str,
 
 c_PreferencesDlg::c_PreferencesDlg()
 {
-    set_title("Preferences");
+    set_title(_("Preferences"));
     InitControls();
     signal_response().connect(sigc::mem_fun(*this, &c_PreferencesDlg::OnResponse));
     Utils::RestorePosSize(Configuration::PreferencesDlgPosSize, *this);
@@ -68,7 +69,7 @@ void c_PreferencesDlg::InitControls()
         m_ToolIconSize.add_mark(sizeMark, Gtk::PositionType::POS_TOP, Glib::ustring::format(sizeMark));
 
     Gtk::HBox *boxToolIconSize = Gtk::manage(new Gtk::HBox());
-    boxToolIconSize->pack_start(*Gtk::manage(new Gtk::Label("Tool icon size:")), Gtk::PackOptions::PACK_SHRINK);
+    boxToolIconSize->pack_start(*Gtk::manage(new Gtk::Label(_("Tool icon size:"))), Gtk::PackOptions::PACK_SHRINK);
     boxToolIconSize->pack_start(m_ToolIconSize);
     boxToolIconSize->set_spacing(10);
     //?boxToolIconSize->set_baseline_position(Gtk::BaselinePosition::BASELINE_POSITION_BOTTOM);
@@ -81,8 +82,8 @@ void c_PreferencesDlg::InitControls()
     get_content_area()->pack_end(*separator, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
 
-    add_button("OK", Gtk::RESPONSE_OK);
-    add_button("Cancel", Gtk::RESPONSE_CANCEL);
+    add_button(_("OK"), Gtk::RESPONSE_OK);
+    add_button(_("Cancel"), Gtk::RESPONSE_CANCEL);
 
     //FIXME: not working when a Gtk::Entry has focus! #### set_default(*get_widget_for_response(Gtk::ResponseType::RESPONSE_OK));
 }

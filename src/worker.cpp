@@ -28,7 +28,6 @@ File description:
 #include <iostream>
 #include <memory>
 
-#include <gdkmm/pixbuf.h> //TESTING ###########
 #include <glibmm/dispatcher.h>
 #include <glibmm/thread.h>
 #include <glibmm/threads.h>
@@ -348,7 +347,7 @@ void WorkerThreadFunc()
 
     if (!imgAlignment)
     {
-        std::cout << "Could not initialize image alignment." << std::endl;
+        std::cerr << "Could not initialize image alignment." << std::endl;
         { LOCK();
             Vars::isWorkerRunning = false;
             NotifyMainThread();
@@ -379,7 +378,7 @@ void WorkerThreadFunc()
     libskry::c_QualityEstimation qualEstimation(imgAlignment, /*TODO: make it a param*/40, 3);
     if (!qualEstimation)
     {
-        std::cout << "Could not initialize quality estimation." << std::endl;
+        std::cerr << "Could not initialize quality estimation." << std::endl;
         { LOCK();
             Vars::isWorkerRunning = false;
             Vars::lastResult = SKRY_OUT_OF_MEMORY;
@@ -433,7 +432,7 @@ void WorkerThreadFunc()
                                                 Vars::refPtSpacing);
     if (!refPtAlignment)
     {
-        std::cout << "Could not initialize reference point alignment." << std::endl;
+        std::cerr << "Could not initialize reference point alignment." << std::endl;
         { LOCK();
             Vars::isWorkerRunning = false;
             Vars::lastResult = SKRY_OUT_OF_MEMORY;
@@ -478,7 +477,7 @@ void WorkerThreadFunc()
                                  &Vars::lastResult);
     if (!stacking)
     {
-        std::cout << "Could not initialize stacking." << std::endl;
+        std::cerr << "Could not initialize stacking." << std::endl;
         { LOCK();
             Vars::isWorkerRunning = false;
             NotifyMainThread();
@@ -502,7 +501,7 @@ void WorkerThreadFunc()
     Vars::stackedImg = stacking.GetFinalImageStack();
     if (!Vars::stackedImg)
     {
-        std::cout << "Failed to obtain the final image stack." << std::endl;
+        std::cerr << "Failed to obtain the final image stack." << std::endl;
     }
 
     { LOCK();

@@ -23,6 +23,7 @@ File description:
 
 #include <iostream>
 
+#include <glibmm/i18n.h>
 #include <gtkmm/button.h>
 #include <gtkmm/box.h>
 #include <gtkmm/label.h>
@@ -63,8 +64,8 @@ Gtk::Box *c_FrameSelectDlg::CreateFrameListBox()
     m_FrameList.data = Gtk::ListStore::create(m_FrameList.columns);
     m_FrameList.view.set_model(m_FrameList.data);
     m_FrameList.view.set_activate_on_single_click(false);
-    m_FrameList.view.append_column_editable("Active", m_FrameList.columns.active);
-    m_FrameList.view.append_column("Index", m_FrameList.columns.index);
+    m_FrameList.view.append_column_editable(_("Active"), m_FrameList.columns.active);
+    m_FrameList.view.append_column(_("Index"), m_FrameList.columns.index);
 
     m_FrameList.view.show();
     const uint8_t *activeFlags = m_ImgSeq.GetImgActiveFlags();
@@ -84,7 +85,7 @@ Gtk::Box *c_FrameSelectDlg::CreateFrameListBox()
     listScrWin->add(m_FrameList.view);
     listScrWin->show();
 
-    auto btnActAll = Gtk::manage(new Gtk::Button("Activate all"));
+    auto btnActAll = Gtk::manage(new Gtk::Button(_("Activate all")));
     btnActAll->signal_clicked().connect(sigc::mem_fun(*this, &c_FrameSelectDlg::OnActivateAll));
     btnActAll->show();
 
@@ -93,7 +94,7 @@ Gtk::Box *c_FrameSelectDlg::CreateFrameListBox()
     auto iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("sync.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     m_SyncListWSlider.set_image(*iconImg);
-    m_SyncListWSlider.set_tooltip_text("Synchronize frame list with slider");
+    m_SyncListWSlider.set_tooltip_text(_("Synchronize frame list with slider"));
     m_SyncListWSlider.set_active(true);
     m_SyncListWSlider.signal_toggled().connect(sigc::mem_fun(*this, &c_FrameSelectDlg::OnSyncToggled));
     m_SyncListWSlider.show();
@@ -146,14 +147,14 @@ void c_FrameSelectDlg::InitControls()
     separator->show();
     get_content_area()->pack_end(*separator, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
-    add_button("OK", Gtk::RESPONSE_OK);
-    add_button("Cancel", Gtk::RESPONSE_CANCEL);
+    add_button(_("OK"), Gtk::RESPONSE_OK);
+    add_button(_("Cancel"), Gtk::RESPONSE_CANCEL);
 }
 
 c_FrameSelectDlg::c_FrameSelectDlg(libskry::c_ImageSequence &imgSeq)
 : Gtk::Dialog(), m_ImgSeq(imgSeq), m_ActiveFlags(nullptr)
 {
-    set_title("Select frames for processing");
+    set_title(_("Select frames for processing"));
     InitControls();
     signal_response().connect(sigc::mem_fun(*this, &c_FrameSelectDlg::OnResponse));
     Utils::RestorePosSize(Configuration::FrameSelectDlgPosSize, *this);

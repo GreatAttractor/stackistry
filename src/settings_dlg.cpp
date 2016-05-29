@@ -22,7 +22,9 @@ File description:
 */
 
 #include <vector>
+#include <string>
 
+#include <glibmm/i18n.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/separator.h>
 #include <gtkmm/textview.h>
@@ -31,24 +33,31 @@ File description:
 #include "settings_dlg.h"
 #include "utils.h"
 
-
-const char *stackingCriterionStr[] =
+static
+std::vector<std::string> GetStackingCriteriaStrings()
 {
-    "percent of the best fragments",      // SKRY_PERCENTAGE_BEST
-    "percent or better relative quality", // SKRY_MIN_REL_QUALITY
-    "best fragments",                     // SKRY_NUMBER_BEST
-};
+    return
+    {
+        _("percent of the best fragments"),      // SKRY_PERCENTAGE_BEST
+        _("percent or better relative quality"), // SKRY_MIN_REL_QUALITY
+        _("best fragments"),                     // SKRY_NUMBER_BEST
+    };
+}
 
-const char *outputSaveModeStr[] =
+static
+std::vector<std::string> GetOutputSaveModeStrings()
 {
-    "disabled",                   // OutputSaveMode::NONE
-    "in source video's folder",   // OutputSaveMode::SOURCE_PATH
-    "specify folder"              // OutputSaveMode::SPECIFIED_PATH
-};
+    return
+    {
+        _("disabled"),                   // OutputSaveMode::NONE
+        _("in source video's folder"),   // OutputSaveMode::SOURCE_PATH
+        _("specify folder")              // OutputSaveMode::SPECIFIED_PATH
+    };
+}
 
 c_SettingsDlg::c_SettingsDlg(const std::vector<std::string> &jobNames)
 {
-    set_title("Processing settings");
+    set_title(_("Processing settings"));
     InitControls(jobNames);
     Utils::RestorePosSize(Configuration::SettingsDlgPosSize,  *this);
 }
@@ -70,7 +79,7 @@ std::vector<Glib::RefPtr<Gtk::FileFilter>> GetInputImageFilters()
 
     auto fltAll = Gtk::FileFilter::create();
     fltAll->add_pattern("*");
-    fltAll->set_name("All files");
+    fltAll->set_name(_("All files"));
     result.push_back(fltAll);
 
     auto fltBmp = Gtk::FileFilter::create();
@@ -84,7 +93,7 @@ std::vector<Glib::RefPtr<Gtk::FileFilter>> GetInputImageFilters()
 
 void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
 {
-    auto lJobs = Gtk::manage(new Gtk::Label("Settings for job(s):", Gtk::Align::ALIGN_START, Gtk::Align::ALIGN_CENTER));
+    auto lJobs = Gtk::manage(new Gtk::Label(_("Settings for job(s):"), Gtk::Align::ALIGN_START, Gtk::Align::ALIGN_CENTER));
     lJobs->show();
     get_content_area()->pack_start(*lJobs, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
@@ -106,37 +115,37 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     get_content_area()->pack_start(*jobsSeparator, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     auto lStab = Gtk::manage(new Gtk::Label());
-    lStab->set_text("Video stabilization anchors placement:");
+    lStab->set_text(_("Video stabilization anchors placement:"));
     lStab->show();
-    m_VideoStbAnchorsMode.append("automatic");
-    m_VideoStbAnchorsMode.append("manual");
+    m_VideoStbAnchorsMode.append(_("automatic"));
+    m_VideoStbAnchorsMode.append(_("manual"));
     m_VideoStbAnchorsMode.set_active(0);
     m_VideoStbAnchorsMode.show();
     get_content_area()->pack_start(*PackIntoHBox({ lStab, &m_VideoStbAnchorsMode }), Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     auto lRefPt = Gtk::manage(new Gtk::Label());
-    lRefPt->set_text("Reference points placement:");
+    lRefPt->set_text(_("Reference points placement:"));
     lRefPt->show();
-    m_RefPtPlacementMode.append("automatic");
-    m_RefPtPlacementMode.append("manual");
-    m_RefPtPlacementMode.set_tooltip_text("If set to manual, a selection dialog will be shown later during processing");
+    m_RefPtPlacementMode.append(_("automatic"));
+    m_RefPtPlacementMode.append(_("manual"));
+    m_RefPtPlacementMode.set_tooltip_text(_("If set to manual, a selection dialog will be shown later during processing"));
     m_RefPtPlacementMode.set_active(0);
     m_RefPtPlacementMode.signal_changed().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnRefPtMode));
     m_RefPtPlacementMode.show();
-    m_RefPtSpacingLabel.set_text(", spacing in pixels:");
+    m_RefPtSpacingLabel.set_text(_(", spacing in pixels:"));
     m_RefPtSpacingLabel.show();
     m_RefPtSpacing.set_adjustment(Gtk::Adjustment::create(/*TODO: make the default a constant*/40, 20, 80, 5));
     m_RefPtSpacing.show();
     get_content_area()->pack_start(*PackIntoHBox({ lRefPt, &m_RefPtPlacementMode, &m_RefPtSpacingLabel, &m_RefPtSpacing}),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
-    auto lStack = Gtk::manage(new Gtk::Label("Stacking criterion:"));
+    auto lStack = Gtk::manage(new Gtk::Label(_("Stacking criterion:")));
     lStack->show();
 
     m_QualityThreshold.set_adjustment(CreatePercentageAdj());
     m_QualityThreshold.show();
 
-    for (auto &criterionStr: stackingCriterionStr)
+    for (auto &criterionStr: GetStackingCriteriaStrings())
         m_QualityCriterion.append(criterionStr);
 
     m_QualityCriterion.set_active(SKRY_quality_criterion::SKRY_MIN_REL_QUALITY);
@@ -148,10 +157,10 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
 
 
     auto lOutp = Gtk::manage(new Gtk::Label());
-    lOutp->set_text("Save stacked image automatically:");
+    lOutp->set_text(_("Save stacked image automatically:"));
     lOutp->show();
 
-    for (auto &saveModeStr: outputSaveModeStr)
+    for (auto &saveModeStr: GetOutputSaveModeStrings())
         m_OutputSaveMode.append(saveModeStr);
 
     m_OutputSaveMode.signal_changed().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnOutputSaveMode));
@@ -165,7 +174,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     get_content_area()->pack_start(*PackIntoHBox({ lOutp, &m_OutputSaveMode, &m_DestFolderChooser }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
-    m_OutpFmtLabel.set_text("Output format:");
+    m_OutpFmtLabel.set_text(_("Output format:"));
     m_OutpFmtLabel.show();
     for (Utils::Vars::OutputFormatDescr_t &outFmt: Utils::Vars::outputFormatDescription)
     {
@@ -175,7 +184,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     get_content_area()->pack_start(*PackIntoHBox({&m_OutpFmtLabel, &m_AutoSaveOutputFormat }),
         Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
-    m_FlatFieldCheckBtn.set_label("Use flat-field for stacking:");
+    m_FlatFieldCheckBtn.set_label(_("Use flat-field for stacking:"));
     m_FlatFieldCheckBtn.set_active(false);
     m_FlatFieldCheckBtn.signal_toggled().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnFlatFieldToggle));
     m_FlatFieldCheckBtn.show();
@@ -183,13 +192,13 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     {
         m_FlatFieldChooser.add_filter(filter);
     }
-    m_FlatFieldChooser.set_title("Select flat-field image");
+    m_FlatFieldChooser.set_title(_("Select flat-field image"));
     m_FlatFieldChooser.set_sensitive(false);
     m_FlatFieldChooser.show();
     get_content_area()->pack_start(*PackIntoHBox({ &m_FlatFieldCheckBtn, &m_FlatFieldChooser }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
-    m_TreatMonoAsCFA.set_label("Treat mono input as raw color:");
+    m_TreatMonoAsCFA.set_label(_("Treat mono input as raw color:"));
     m_TreatMonoAsCFA.set_active(false);
     m_TreatMonoAsCFA.signal_toggled().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnTreatAsCFAToggle));
     m_TreatMonoAsCFA.show();
@@ -201,7 +210,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_CFAPattern.set_active(0);
     m_CFAPattern.set_sensitive(false);
     m_CFAPattern.show();
-    auto *lDemosaicComment = Gtk::manage(new Gtk::Label("(also overrides raw color format in SER videos)"));
+    auto *lDemosaicComment = Gtk::manage(new Gtk::Label(_("(also overrides raw color format in SER videos)")));
     lDemosaicComment->show();
     get_content_area()->pack_start(*PackIntoHBox({ &m_TreatMonoAsCFA, &m_CFAPattern, lDemosaicComment }),
                                     Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
@@ -210,8 +219,8 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     separator->show();
     get_content_area()->pack_end(*separator, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
-    add_button("OK",  Gtk::ResponseType::RESPONSE_OK);
-    add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
+    add_button(_("OK"),  Gtk::ResponseType::RESPONSE_OK);
+    add_button(_("Cancel"), Gtk::ResponseType::RESPONSE_CANCEL);
 }
 
 void c_SettingsDlg::OnDestPathSet()

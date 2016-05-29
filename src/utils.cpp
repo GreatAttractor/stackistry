@@ -28,6 +28,7 @@ File description:
 
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
+#include <glibmm/i18n.h>
 #include <glibmm/miscutils.h>
 
 #include "config.h"
@@ -97,19 +98,19 @@ void EnumerateSupportedOutputFmts()
         switch (supportedFmts[i])
         {
         case SKRY_BMP_8:
-            descr.name = "BMP 8-bit";
+            descr.name = _("BMP 8-bit");
             descr.patterns = { "*.bmp" };
             descr.defaultExtension = ".bmp";
             break;
 
         case SKRY_TIFF_16:
-            descr.name = "TIFF 16-bit (uncompressed)";
+            descr.name = _("TIFF 16-bit (uncompressed)");
             descr.patterns = { "*.tif", "*.tiff" };
             descr.defaultExtension = ".tif";
             break;
 
         case SKRY_PNG_8:
-            descr.name = "PNG 8-bit";
+            descr.name = _("PNG 8-bit");
             descr.patterns = { "*.png" };
             descr.defaultExtension = ".png";
             break;

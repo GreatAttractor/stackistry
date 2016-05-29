@@ -22,6 +22,7 @@ File description:
 */
 
 #include <cairomm/surface.h>
+#include <glibmm/i18n.h>
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/separator.h>
 
@@ -72,24 +73,24 @@ void c_SelectPointsDlg::InitControls(bool hasAutoBtn)
     m_ImgView.signal_button_press_event().connect(sigc::mem_fun(*this, &c_SelectPointsDlg::OnImageBtnPress));
     m_ImgView.show();
 
-    Gtk::Button *btnRemovePts = Gtk::manage(new Gtk::Button("Remove points"));
+    Gtk::Button *btnRemovePts = Gtk::manage(new Gtk::Button(_("Remove points")));
     btnRemovePts->signal_clicked().connect(sigc::mem_fun(*this, &c_SelectPointsDlg::OnRemoveClick));
     btnRemovePts->show();
 
     Gtk::Button *btnAuto = 0;
     if (hasAutoBtn)
     {
-        btnAuto = Gtk::manage(new Gtk::Button("Automatic")); //TEST (?) ##########
+        btnAuto = Gtk::manage(new Gtk::Button(_("Automatic")));
         btnAuto->signal_clicked().connect(sigc::mem_fun(*this, &c_SelectPointsDlg::OnAutoClick));
         btnAuto->show();
     }
 
     Gtk::HButtonBox *btnBox = Gtk::manage(new Gtk::HButtonBox());
     btnBox->set_layout(Gtk::ButtonBoxStyle::BUTTONBOX_START);
-    btnBox->pack_start(*btnRemovePts, Gtk::PackOptions::PACK_SHRINK/*, Utils::Const::widgetPaddingInPixels*/);
+    btnBox->pack_start(*btnRemovePts, Gtk::PackOptions::PACK_SHRINK);
     if (hasAutoBtn)
     {
-        btnBox->pack_start(*btnAuto, Gtk::PackOptions::PACK_SHRINK/*, Utils::Const::widgetPaddingInPixels*/);
+        btnBox->pack_start(*btnAuto, Gtk::PackOptions::PACK_SHRINK);
     }
     btnBox->show();
     get_content_area()->pack_start(*btnBox, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
@@ -105,8 +106,8 @@ void c_SelectPointsDlg::InitControls(bool hasAutoBtn)
     separator->show();
     get_content_area()->pack_end(*separator, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
-    add_button("OK", Gtk::RESPONSE_OK);
-    add_button("Cancel", Gtk::RESPONSE_CANCEL);
+    add_button(_("OK"), Gtk::RESPONSE_OK);
+    add_button(_("Cancel"), Gtk::RESPONSE_CANCEL);
 }
 
 void c_SelectPointsDlg::DrawPointAndRefresh(int x, int y)
