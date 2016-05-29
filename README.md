@@ -180,6 +180,18 @@ Before building, set PATH appropriately. For 64-bit GCC execute:
 export PATH=/mingw64/bin:$PATH
 ```
 
+MSYS mounts the drives as `/<drive_letter>`, so if Stackistry sources have been placed in:
+
+```
+C:\Users\MyUsername\Documents\stackistry
+```
+
+they can be accessed from MSYS shell at:
+
+```
+/c/Users/MyUsername/Documents/stackistry
+```
+
 Once built, Stackistry can be launched from MSYS shell (``./bin/stackistry.exe``). In order to run it directly from Windows Explorer, the necessary runtime DLLs must be placed in specific relative locations (see a Stackistry binary Windows distribution for reference).
 
 ----------------------------------------

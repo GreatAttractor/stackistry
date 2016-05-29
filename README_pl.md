@@ -189,6 +189,18 @@ Przed budowaniem należy odpowiednio ustawić zmienną PATH. Dla 64-bitowego GCC
 export PATH=/mingw64/bin:$PATH
 ```
 
+MSYS montuje napędy jako `/<litera_dysku>`, więc jeśli źródła Stackistry zostały umieszczone w:
+
+```
+C:\Users\NazwaUżytkownika\Documents\stackistry
+```
+
+będą widoczne z poziomu MSYS jako:
+
+```
+/c/Users/NazwaUżytkownika/Documents/stackistry
+```
+
 Po zbudowaniu, Stackistry można uruchomić z linii poleceń MSYS (``./bin/stackistry.exe``). By możliwe było uruchomienie programu bezpośrednio z Eksploratora Windows, niezbędne pliki DLL muszą być umieszczone w odpowiednich (względem ``stackistry.exe``) miejscach (zob. binarną dystrybucję Stackistry dla porównania).
 
 
