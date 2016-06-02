@@ -118,6 +118,10 @@ Glib::RefPtr<Gdk::Pixbuf> LoadIcon(const char *fileName, ///< Just the filename+
                                    int width, int height);
 
 void SetAppLaunchPath(const char *appLaunchPath);
+
+/// Returns a localized error message
+std::string GetErrorMsg(enum SKRY_result errorCode);
+
 }
 
 #endif // STACKISTRY_UTILS_HEADER

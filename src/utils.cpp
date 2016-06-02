@@ -181,4 +181,37 @@ void SetAppLaunchPath(const char *appLaunchPath)
     Vars::appLaunchPath = appLaunchPath;
 }
 
+std::string GetErrorMsg(enum SKRY_result errorCode)
+{
+    switch (errorCode)
+    {
+    case SKRY_SUCCESS:                          return _("Success");
+    case SKRY_INVALID_PARAMETERS:               return _("Invalid parameters");
+    case SKRY_LAST_STEP:                        return _("Last step");
+    case SKRY_NO_MORE_IMAGES:                   return _("No more images");
+    case SKRY_NO_PALETTE:                       return _("No palette");
+    case SKRY_CANNOT_OPEN_FILE:                 return _("Cannot open file");
+    case SKRY_BMP_MALFORMED_FILE:               return _("Malformed BMP file");
+    case SKRY_UNSUPPORTED_BMP_FILE:             return _("Unsupported BMP file");
+    case SKRY_UNSUPPORTED_FILE_FORMAT:          return _("Unsupported file format");
+    case SKRY_OUT_OF_MEMORY:                    return _("Out of memory");
+    case SKRY_CANNOT_CREATE_FILE:               return _("Cannot create file");
+    case SKRY_TIFF_INCOMPLETE_HEADER:           return _("Incomplete TIFF header");
+    case SKRY_TIFF_UNKNOWN_VERSION:             return _("Unknown TIFF version");
+    case SKRY_TIFF_NUM_DIR_ENTR_TAG_INCOMPLETE: return _("Incomplete TIFF tag: number of directory entries");
+    case SKRY_TIFF_INCOMPLETE_FIELD:            return _("Incomplete TIFF field");
+    case SKRY_TIFF_DIFF_CHANNEL_BIT_DEPTHS:     return _("Channels have different bit depths");
+    case SKRY_TIFF_COMPRESSED:                  return _("TIFF compression is not supported");
+    case SKRY_TIFF_UNSUPPORTED_PLANAR_CONFIG:   return _("Unsupported TIFF planar configuration");
+    case SKRY_UNSUPPORTED_PIXEL_FORMAT:         return _("Unsupported pixel format");
+    case SKRY_TIFF_INCOMPLETE_PIXEL_DATA:       return _("Incomplete TIFF pixel data");
+    case SKRY_AVI_MALFORMED_FILE:               return _("Malformed AVI file");
+    case SKRY_AVI_UNSUPPORTED_FORMAT:           return _("Unsupported AVI DIB format");
+    case SKRY_INVALID_IMG_DIMENSIONS:           return _("Invalid image dimensions");
+    case SKRY_SER_MALFORMED_FILE:               return _("Malformed SER file");
+    case SKRY_SER_UNSUPPORTED_FORMAT:           return _("Unsupported SER format");
+    default:                                    return _("Unknown error");
+    }
+}
+
 }

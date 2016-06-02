@@ -232,7 +232,7 @@ bool c_MainWindow::SetAnchorsAutomatically(Job_t &job)
     {
         ShowMsg(*this, _("Error"),
                 Glib::ustring::compose(_("Error loading the first image of %1:\n%2"),
-                                 job.sourcePath.c_str(), SKRY_get_error_message(result)),
+                                 job.sourcePath.c_str(), Utils::GetErrorMsg(result)),
                 Gtk::MessageType::MESSAGE_ERROR);
         return false;
     }
@@ -368,7 +368,7 @@ bool c_MainWindow::SetAnchors(Job_t &job)
     {
         ShowMsg(*this, _("Error"),
                 Glib::ustring::compose(_("Error loading the first image of %1:\n%2"),
-                                 job.sourcePath.c_str(), SKRY_get_error_message(result)),
+                                 job.sourcePath.c_str(), Utils::GetErrorMsg(result)),
                 Gtk::MessageType::MESSAGE_ERROR);
 
         return false;
@@ -457,7 +457,7 @@ void c_MainWindow::OnSaveStackedImage()
             ShowMsg(*this, _("Error"),
                     Glib::ustring::compose(_("Error saving output image %1:\n%2"),
                                      dlg.get_filename().c_str(),
-                                     SKRY_get_error_message(result)),
+                                     Utils::GetErrorMsg(result)),
                     Gtk::MessageType::MESSAGE_ERROR);
         }
     }
@@ -591,7 +591,7 @@ void c_MainWindow::SetDefaultSettings(c_MainWindow::Job_t &job)
         ShowMsg(*this, _("Error"),
                 Glib::ustring::compose("Error loading the first image of %1:\n%2",
                                  job.sourcePath.c_str(),
-                                 SKRY_get_error_message(result)),
+                                 Utils::GetErrorMsg(result)),
                 Gtk::MessageType::MESSAGE_ERROR);
     }
     else
@@ -635,7 +635,7 @@ void c_MainWindow::OnAddVideos()
             {
                 ShowMsg(dlg, _("Error"),
                         Glib::ustring::compose("Could not open video file %1:\n%2",
-                                         fname.c_str(), SKRY_get_error_message(result)),
+                                         fname.c_str(), Utils::GetErrorMsg(result)),
                         Gtk::MessageType::MESSAGE_ERROR);
                 continue;
             }
@@ -987,7 +987,7 @@ void c_MainWindow::OnWorkerProgress()
             (*m_RunningJob)[m_Jobs.columns.state] = _("Processed");
         }
         else
-            (*m_RunningJob)[m_Jobs.columns.state] = Glib::ustring::compose(_("Error: %1"), SKRY_get_error_message(Worker::GetLastResult()));
+            (*m_RunningJob)[m_Jobs.columns.state] = Glib::ustring::compose(_("Error: %1"), Utils::GetErrorMsg(Worker::GetLastResult()));
 
         Worker::WaitUntilFinished();
 
@@ -1220,7 +1220,7 @@ void c_MainWindow::OnCreateFlatField()
         {
             ShowMsg(dlgOpen, _("Error"),
                     Glib::ustring::compose(_("Error opening %1:\n%2"), dlgOpen.get_filename().c_str(),
-                                     SKRY_get_error_message(result)),
+                                     Utils::GetErrorMsg(result)),
                     Gtk::MessageType::MESSAGE_ERROR);
             return;
         }
@@ -1230,7 +1230,7 @@ void c_MainWindow::OnCreateFlatField()
         {
             ShowMsg(dlgOpen, _("Error"),
                     Glib::ustring::compose(_("Failed to create flat-field:\n%1"),
-                                     SKRY_get_error_message(result)),
+                                     Utils::GetErrorMsg(result)),
                     Gtk::MessageType::MESSAGE_ERROR);
             return;
         }
@@ -1262,7 +1262,7 @@ void c_MainWindow::OnCreateFlatField()
                 ShowMsg(dlgSave, _("Error"),
                         Glib::ustring::compose(_("Error saving %1:\n%2"),
                                          dlgSave.get_filename().c_str(),
-                                         SKRY_get_error_message(result)),
+                                         Utils::GetErrorMsg(result)),
                         Gtk::MessageType::MESSAGE_ERROR);
             }
         }

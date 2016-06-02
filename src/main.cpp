@@ -23,6 +23,7 @@ File description:
 
 #include <chrono>
 #include <iostream>
+#include <glibmm/i18n.h>
 #include <gtkmm.h>
 extern "C" {
 #include <skry/skry.h>
@@ -68,6 +69,9 @@ int main(int argc, char *argv[])
     Configuration::Initialize();
 
     Utils::EnumerateSupportedOutputFmts();
+
+    textdomain("stackistry");
+    bindtextdomain("stackistry", "./lang");
 
     auto app =
       Gtk::Application::create(argc, argv, "Stackistry-application");
