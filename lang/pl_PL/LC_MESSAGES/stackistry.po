@@ -1,0 +1,537 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-06-02 20:20+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/frame_select.cpp:67
+msgid "Active"
+msgstr "Aktywna"
+
+#: src/frame_select.cpp:68
+msgid "Index"
+msgstr "Indeks"
+
+#: src/frame_select.cpp:88
+msgid "Activate all"
+msgstr "Aktywuj wszystkie"
+
+#: src/frame_select.cpp:97
+msgid "Synchronize frame list with slider"
+msgstr "Synchronizuj listę klatek z suwakiem"
+
+#: src/frame_select.cpp:150 src/main_window.cpp:143 src/main_window.cpp:422
+#: src/main_window.cpp:607 src/main_window.cpp:1201 src/main_window.cpp:1239
+#: src/preferences.cpp:85 src/select_points.cpp:109 src/settings_dlg.cpp:222
+msgid "OK"
+msgstr "OK"
+
+#: src/frame_select.cpp:151 src/main_window.cpp:144 src/main_window.cpp:423
+#: src/main_window.cpp:608 src/main_window.cpp:1202 src/main_window.cpp:1240
+#: src/preferences.cpp:86 src/select_points.cpp:110 src/settings_dlg.cpp:223
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: src/frame_select.cpp:157
+msgid "Select frames for processing"
+msgstr "Wybór klatek do przetwarzania"
+
+#: src/main_window.cpp:142
+msgid "Add image series"
+msgstr "Dodaj serię obrazów"
+
+#: src/main_window.cpp:150 src/main_window.cpp:614 src/main_window.cpp:1206
+#: src/settings_dlg.cpp:82
+msgid "All files"
+msgstr "Wszystkie pliki"
+
+#: src/main_window.cpp:164 src/main_window.cpp:233 src/main_window.cpp:369
+#: src/main_window.cpp:457 src/main_window.cpp:591 src/main_window.cpp:636
+#: src/main_window.cpp:1160 src/main_window.cpp:1221 src/main_window.cpp:1231
+#: src/main_window.cpp:1262
+msgid "Error"
+msgstr "Błąd"
+
+#: src/main_window.cpp:164
+msgid "At least two image files are required."
+msgstr "Wymagane są co najmniej dwa pliki"
+
+#: src/main_window.cpp:180 src/main_window.cpp:345 src/main_window.cpp:654
+msgid "Waiting"
+msgstr "Oczekiwanie"
+
+#: src/main_window.cpp:234 src/main_window.cpp:370
+msgid ""
+"Error loading the first image of %1:\n"
+"%2"
+msgstr ""
+"Błąd podczas ładowania pierwszego obrazu %1:\n"
+"%2"
+
+#: src/main_window.cpp:349 src/main_window.cpp:979 src/main_window.cpp:1122
+msgid "Idle"
+msgstr ""
+
+#: src/main_window.cpp:381
+msgid "Set video stabilization anchors"
+msgstr "Wybierz punkty kotwiczące stabilizacji wideo"
+
+#: src/main_window.cpp:382
+msgid ""
+"Automatic placement should work reliably in most cases. Otherwise, click the "
+"image to place anchors (one anchor is sufficient if there is not much image "
+"drift)."
+msgstr ""
+"Rozmieszczanie automatyczne powinno działać zadowalająco w większości przypadków. "
+"Jeśli tak nie jest, dodaj punkty kotwiczące klikając na obraz (wystarczy jeden "
+"punkt, jeśli nie występuje nadmierny dryf)."
+
+#: src/main_window.cpp:421
+msgid "Save stacked image"
+msgstr "Zapisz stack"
+
+#: src/main_window.cpp:458
+msgid ""
+"Error saving output image %1:\n"
+"%2"
+msgstr ""
+"Błąd podczas zapisu obrazu wynikowego %1:\n"
+"%2"
+
+#: src/main_window.cpp:606
+msgid "Add video(s)"
+msgstr "Dodaj plik(i) wideo"
+
+#: src/main_window.cpp:701
+msgid "_File"
+msgstr "_Plik"
+
+#: src/main_window.cpp:704
+msgid "Add image series..."
+msgstr "Dodaj serię obrazów..."
+
+#: src/main_window.cpp:706
+msgid "Add image series from folder(s)..."
+msgstr "Dodaj serię obrazów z folder(ów)..."
+
+#: src/main_window.cpp:708
+msgid "Add video(s)..."
+msgstr "Dodaj plik(i) wideo..."
+
+#: src/main_window.cpp:710
+msgid "Save stacked image..."
+msgstr "Zapisz stack..."
+
+#: src/main_window.cpp:712 src/main_window.cpp:713
+msgid "Create flat-field from video..."
+msgstr "Wygeneruj flat z wideo..."
+
+#: src/main_window.cpp:716
+msgid "_Edit"
+msgstr "_Edycja"
+
+#: src/main_window.cpp:717
+msgid "Set video stabilization anchors..."
+msgstr "Ustaw punkty kotwiczące stabilizacji wideo..."
+
+#: src/main_window.cpp:719
+msgid "Select frames..."
+msgstr "Wybierz klatki..."
+
+#: src/main_window.cpp:721 src/main_window.cpp:722
+msgid "Processing settings..."
+msgstr "Ustawienia przetwarzania..."
+
+#: src/main_window.cpp:724
+msgid "Remove from list"
+msgstr "Usuń z listy"
+
+#: src/main_window.cpp:726
+msgid "Preferences..."
+msgstr "Preferencje..."
+
+#: src/main_window.cpp:729
+msgid "_Processing"
+msgstr "P_rzetwarzanie"
+
+#: src/main_window.cpp:730
+msgid "Start processing"
+msgstr "Rozpocznij przetwarzanie"
+
+#: src/main_window.cpp:731
+msgid "Start processing selected job(s)"
+msgstr "Rozpocznij przetwarzanie wybranych zadań"
+
+#: src/main_window.cpp:733
+msgid "Pause processing"
+msgstr "Wstrzymaj przetwarzanie"
+
+#: src/main_window.cpp:735
+msgid "Stop processing"
+msgstr "Przerwij przetwarzanie"
+
+#: src/main_window.cpp:737
+msgid "Show visualization"
+msgstr "Pokaż wizualizację"
+
+#: src/main_window.cpp:737
+msgid "Show visualization (slows down processing)"
+msgstr "Pokaż wizualizację (spowalnia przetwarzanie)"
+
+#: src/main_window.cpp:740
+msgid "_Test"
+msgstr ""
+
+#: src/main_window.cpp:741
+msgid "Quality..."
+msgstr ""
+
+#: src/main_window.cpp:743
+msgid "Background..."
+msgstr ""
+
+#: src/main_window.cpp:746
+msgid "_About"
+msgstr "_O programie"
+
+#: src/main_window.cpp:747
+msgid "About Stackistry..."
+msgstr "O Stackistry..."
+
+#: src/main_window.cpp:834
+msgid "Job"
+msgstr "Zadanie"
+
+#: src/main_window.cpp:839
+msgid "State"
+msgstr "Stan"
+
+#: src/main_window.cpp:843
+msgid "Progress"
+msgstr "Postęp"
+
+#: src/main_window.cpp:939
+msgid "Set reference points"
+msgstr "Ustaw punkty odniesienia"
+
+#: src/main_window.cpp:940
+msgid ""
+"Place reference points by left-clicking on the image. Avoid blank areas with "
+"little or no detail. Click Cancel to set points automatically."
+msgstr ""
+"Rozmieść punkty odniesienia klikając lewym przyciskiem w obrębie obrazu. "
+"Unikaj obszarów pozbawionych wyraźnych szczegółów. Wybierz Anuluj, by rozmieścić "
+"punkty automatycznie."
+
+#: src/main_window.cpp:972
+msgid "step"
+msgstr "krok"
+
+#: src/main_window.cpp:987
+msgid "Processed"
+msgstr "Ukończone"
+
+#: src/main_window.cpp:990
+msgid "Error: %1"
+msgstr "Błąd: %1"
+
+#: src/main_window.cpp:1159
+msgid "Invalid value."
+msgstr "Nieprawidłowa wartość."
+
+#: src/main_window.cpp:1200
+msgid "Choose video file"
+msgstr "Wybierz plik wideo"
+
+#: src/main_window.cpp:1222
+msgid ""
+"Error opening %1:\n"
+"%2"
+msgstr ""
+"Błąd podczas otwierania %1:\n"
+"%2"
+
+#: src/main_window.cpp:1232
+msgid ""
+"Failed to create flat-field:\n"
+"%1"
+msgstr ""
+"Błąd podczas tworzenia flatu:\n"
+"%1"
+
+#: src/main_window.cpp:1238
+msgid "Save flat-field"
+msgstr "Zapisz flat"
+
+#: src/main_window.cpp:1263
+msgid ""
+"Error saving %1:\n"
+"%2"
+msgstr ""
+"Błąd podczas zapisu %1:\n"
+"%2"
+
+#: src/main_window.cpp:1285
+msgid ""
+"version %1.%2.%3 (%4)\n"
+"\n"
+msgstr ""
+"wersja %1.%2.%3 (%4)\n"
+"\n"
+
+#: src/main_window.cpp:1287
+msgid ""
+"This program comes with ABSOLUTELY NO WARRANTY. This is free software, "
+"licensed under GNU General Public License v3 or any later version. See the "
+"LICENSE file for details."
+msgstr ""
+"Ten program ABSOLUTNIE nie jest objęty JAKĄKOLWIEK GWARANCJĄ.\n"
+"Jest to wolne oprogramowanie na licencji GNU GPL w wersji 3\n"
+"lub dowolnej późniejszej. Szczegóły w pliku LICENSE."
+
+#: src/main_window.cpp:1291
+msgid ""
+"Built with <a href='https://github.com/GreatAttractor/libskry'>libskry</a> "
+"version %1.%2.%3 (%4).\n"
+msgstr ""
+"Zbudowano z <a href='https://github.com/GreatAttractor/libskry'>libskry</a> "
+"w wersji %1.%2.%3 (%4).\n"
+
+#: src/main_window.cpp:1295
+msgid "Using %1 logical CPU(s).\n"
+msgstr "Liczba używanych procesorów logicznych: %1.\n"
+
+#: src/main_window.cpp:1299
+msgid "About Stackistry"
+msgstr "O Stackistry"
+
+#: src/preferences.cpp:55
+msgid "Preferences"
+msgstr "Preferencje"
+
+#: src/preferences.cpp:72
+msgid "Tool icon size:"
+msgstr "Wielkość ikon narzędziowych:"
+
+#: src/select_points.cpp:76
+msgid "Remove points"
+msgstr "Usuń punkty"
+
+#: src/select_points.cpp:83
+msgid "Automatic"
+msgstr "Automatycznie"
+
+#: src/settings_dlg.cpp:41
+msgid "percent of the best fragments"
+msgstr "procent najlepszych fragmentów"
+
+#: src/settings_dlg.cpp:42
+msgid "percent or better relative quality"
+msgstr "procent jakości względnej lub wyżej"
+
+#: src/settings_dlg.cpp:43
+msgid "best fragments"
+msgstr "(liczba najlepszych fragmentów)"
+
+#: src/settings_dlg.cpp:52
+msgid "disabled"
+msgstr "wyłączony"
+
+#: src/settings_dlg.cpp:53
+msgid "in source video's folder"
+msgstr "w folderze źródłowego wideo"
+
+#: src/settings_dlg.cpp:54
+msgid "specify folder"
+msgstr "wybierz folder"
+
+#: src/settings_dlg.cpp:60
+msgid "Processing settings"
+msgstr "Ustawienia przetwarzania"
+
+#: src/settings_dlg.cpp:96
+msgid "Settings for job(s):"
+msgstr "Ustawienia dla zadań:"
+
+#: src/settings_dlg.cpp:118
+msgid "Video stabilization anchors placement:"
+msgstr "Rozmieszczenie punktów kotwiczących stabilizacji wideo:"
+
+#: src/settings_dlg.cpp:120 src/settings_dlg.cpp:129
+msgid "automatic"
+msgstr "automatyczne"
+
+#: src/settings_dlg.cpp:121 src/settings_dlg.cpp:130
+msgid "manual"
+msgstr "ręczne"
+
+#: src/settings_dlg.cpp:127
+msgid "Reference points placement:"
+msgstr "Rozmieszczenie punktów odniesienia"
+
+#: src/settings_dlg.cpp:131
+msgid ""
+"If set to manual, a selection dialog will be shown later during processing"
+msgstr ""
+"Jeśli wybrano ręczne, w trakcie przetwarzania wyświetlone zostanie okno dialogowe wyboru punktów"
+
+#: src/settings_dlg.cpp:135
+msgid ", spacing in pixels:"
+msgstr ", odstęp w pikselach"
+
+#: src/settings_dlg.cpp:142
+msgid "Stacking criterion:"
+msgstr "Kryterium stackowania:"
+
+#: src/settings_dlg.cpp:160
+msgid "Save stacked image automatically:"
+msgstr "Automatyczny zapis stacku:"
+
+#: src/settings_dlg.cpp:177
+msgid "Output format:"
+msgstr "Format wyjściowy:"
+
+#: src/settings_dlg.cpp:187
+msgid "Use flat-field for stacking:"
+msgstr "Użyj flatu:"
+
+#: src/settings_dlg.cpp:195
+msgid "Select flat-field image"
+msgstr "Wybierz flat"
+
+#: src/settings_dlg.cpp:201
+msgid "Treat mono input as raw color:"
+msgstr "Traktuj materiał mono jako „raw color”:"
+
+#: src/settings_dlg.cpp:213
+msgid "(also overrides raw color format in SER videos)"
+msgstr "(wymusza również format „raw color” dla plików SER)"
+
+#: src/utils.cpp:101
+msgid "BMP 8-bit"
+msgstr "BMP 8-bitowy"
+
+#: src/utils.cpp:107
+msgid "TIFF 16-bit (uncompressed)"
+msgstr "TIFF 16-bitowy (nieskompresowany)"
+
+#: src/utils.cpp:113
+msgid "PNG 8-bit"
+msgstr "PNG 8-bitowy"
+
+#: src/utils.cpp:188
+msgid "Success"
+msgstr "Operacja powiodła się"
+
+#: src/utils.cpp:189
+msgid "Invalid parameters"
+msgstr "Błędne parametry"
+
+#: src/utils.cpp:190
+msgid "Last step"
+msgstr "Ostatni krok"
+
+#: src/utils.cpp:191
+msgid "No more images"
+msgstr "Nie ma więcej obrazów"
+
+#: src/utils.cpp:192
+msgid "No palette"
+msgstr "Brak palety"
+
+#: src/utils.cpp:193
+msgid "Cannot open file"
+msgstr "Nie można otworzyć pliku"
+
+#: src/utils.cpp:194
+msgid "Malformed BMP file"
+msgstr "Nieprawidłowa struktura pliku BMP"
+
+#: src/utils.cpp:195
+msgid "Unsupported BMP file"
+msgstr "Nieobsługiwany plik BMP"
+
+#: src/utils.cpp:196
+msgid "Unsupported file format"
+msgstr "Nieobsługiwany format pliku"
+
+#: src/utils.cpp:197
+msgid "Out of memory"
+msgstr "Brak pamięci"
+
+#: src/utils.cpp:198
+msgid "Cannot create file"
+msgstr "Nie można utworzyć pliku"
+
+#: src/utils.cpp:199
+msgid "Incomplete TIFF header"
+msgstr "Niekompletny nagłówek TIFF"
+
+#: src/utils.cpp:200
+msgid "Unknown TIFF version"
+msgstr "Nieznana wersja TIFF"
+
+#: src/utils.cpp:201
+msgid "Incomplete TIFF tag: number of directory entries"
+msgstr "Niekompletny tag TIFF: liczba wpisów w katalogu"
+
+#: src/utils.cpp:202
+msgid "Incomplete TIFF field"
+msgstr "Niekompletne pole TIFF"
+
+#: src/utils.cpp:203
+msgid "Channels have different bit depths"
+msgstr "Kanały różnią się głębią bitową"
+
+#: src/utils.cpp:204
+msgid "TIFF compression is not supported"
+msgstr "Kompresja TIFF nie jest obsługiwana"
+
+#: src/utils.cpp:205
+msgid "Unsupported TIFF planar configuration"
+msgstr "Nieobsługiwana konfiguracja płatowa w pliku TIFF"
+
+#: src/utils.cpp:206
+msgid "Unsupported pixel format"
+msgstr "Nieobsługiwany format pikseli"
+
+#: src/utils.cpp:207
+msgid "Incomplete TIFF pixel data"
+msgstr "Niekompletne dane wartości pikseli w pliku TIFF"
+
+#: src/utils.cpp:208
+msgid "Malformed AVI file"
+msgstr "Nieprawidłowa struktura pliku AVI"
+
+#: src/utils.cpp:209
+msgid "Unsupported AVI DIB format"
+msgstr "Nieobsługiwany format DIB w pliku AVI"
+
+#: src/utils.cpp:210
+msgid "Invalid image dimensions"
+msgstr "Błędny rozmiar obrazu"
+
+#: src/utils.cpp:211
+msgid "Malformed SER file"
+msgstr "Nieprawidłowa struktura pliku SER"
+
+#: src/utils.cpp:212
+msgid "Unsupported SER format"
+msgstr "Nieobsługiwany format SER"
+
+#: src/utils.cpp:213
+msgid "Unknown error"
+msgstr "Nieznany błąd"
