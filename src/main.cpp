@@ -23,6 +23,10 @@ File description:
 
 #include <chrono>
 #include <iostream>
+#if _WIN32
+#include <windows.h> // For locale functions
+#endif
+
 #include <glibmm/i18n.h>
 #include <gtkmm.h>
 extern "C" {
@@ -32,6 +36,7 @@ extern "C" {
 #include "config.h"
 #include "main_window.h"
 #include "utils.h"
+
 
 void SkryLogCallback(unsigned logEventType, const char *msg)
 {
@@ -58,6 +63,40 @@ int main(int argc, char *argv[])
 {
     std::cout << "argv[0] is " << argv[0] << std::endl;
     Utils::SetAppLaunchPath(argv[0]);
+    Configuration::Initialize();
+
+    if (std::string(Configuration::UILanguage) != Utils::Const::SYSTEM_DEFAULT_LANG)
+    {
+        // The "LANGUAGE" env. variable is later used by gettext() (the _() macro)
+        // to determine which language to use
+        Glib::setenv("LANGUAGE", (std::string(Configuration::UILanguage) + ".UTF-8").c_str(), 1);
+    }
+#if _WIN32
+    else
+    {
+        // "LANG" and "LANGUAGE" are not defined under Windows.
+        // In order to make gettext() use the system language,
+        // get the locale info via WinAPI.
+        LCID loc = GetSystemDefaultLangID();
+
+        int numChars = GetLocaleInfo(loc, LOCALE_SISO639LANGNAME, NULL, 0);
+        std::unique_ptr<TCHAR> langCode(new TCHAR[numChars]);
+        GetLocaleInfo(loc, LOCALE_SISO639LANGNAME, langCode.get(), numChars);
+
+        numChars = GetLocaleInfo(loc, LOCALE_SISO3166CTRYNAME, NULL, 0);
+        std::unique_ptr<TCHAR> langCountry(new TCHAR[numChars]);
+        GetLocaleInfo(loc, LOCALE_SISO3166CTRYNAME, langCountry.get(), numChars);
+
+        Glib::setenv("LANGUAGE", (std::string(langCode.get()) + "_" + langCountry.get() + ".UTF-8").c_str(), 1);
+    }
+#endif
+
+    const char *langFileName = "stackistry"; // name of Stackistry's *.mo file
+    textdomain(langFileName);
+    bindtextdomain(
+        langFileName,
+        Glib::build_filename(Glib::path_get_dirname(argv[0]), "..", "lang").c_str());
+    bind_textdomain_codeset(langFileName, "UTF-8");
 
     SKRY_initialize();
 //    SKRY_set_logging(
@@ -66,15 +105,11 @@ int main(int argc, char *argv[])
 //        SkryLogCallback);
     SKRY_set_clock_func(ClockSec);
 
-    Configuration::Initialize();
-
-    Utils::EnumerateSupportedOutputFmts();
-
-    textdomain("stackistry");
-    bindtextdomain("stackistry", "./lang");
-
     auto app =
       Gtk::Application::create(argc, argv, "Stackistry-application");
+
+    // Needs to be called after creating 'app', otherwise _() (called internally) does not work (why?)
+    Utils::EnumerateSupportedOutputFmts();
 
     c_MainWindow window;
     window.set_default_size(200, 200);
@@ -83,7 +118,7 @@ int main(int argc, char *argv[])
     std::vector<Glib::RefPtr<Gdk::Pixbuf>> appIcons;
     for (unsigned size: { 16, 24, 32, 40, 64 })
     {
-        appIcons.push_back(Utils::LoadIcon("stackistry-app.svg", size, size));
+        appIcons.push_back(Utils::LoadIconFromFile("stackistry-app.svg", size, size));
     }
     window.set_default_icon_list(appIcons);
 

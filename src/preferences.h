@@ -24,8 +24,11 @@ File description:
 #ifndef STACKISTRY_PREFERENCES_DIALOG_HEADER
 #define STACKISTRY_PREFERENCES_DIALOG_HEADER
 
+#include <string>
+
 #include <gtkmm/dialog.h>
 #include <gtkmm/scale.h>
+#include <gtkmm/comboboxtext.h>
 
 #include "utils.h"
 
@@ -33,6 +36,7 @@ File description:
 class c_PreferencesDlg: public Gtk::Dialog, public Utils::Types::IValidatedInput
 {
     Gtk::Scale m_ToolIconSize;
+    Gtk::ComboBoxText m_UILanguage;
 
     void InitControls();
 
@@ -42,6 +46,7 @@ public:
     c_PreferencesDlg();
     virtual bool HasCorrectInput();
     int GetToolIconSize();
+    std::string GetUILanguage();
 };
 
 #endif

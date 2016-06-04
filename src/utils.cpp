@@ -160,7 +160,7 @@ const Vars::OutputFormatDescr_t &GetOutputFormatDescr(enum SKRY_output_format ou
     assert(0);
 }
 
-Glib::RefPtr<Gdk::Pixbuf> LoadIcon(const char *fileName, int width, int height)
+Glib::RefPtr<Gdk::Pixbuf> LoadIconFromFile(const char *fileName, int width, int height)
 {
     try
     {
@@ -212,6 +212,18 @@ std::string GetErrorMsg(enum SKRY_result errorCode)
     case SKRY_SER_UNSUPPORTED_FORMAT:           return _("Unsupported SER format");
     default:                                    return _("Unknown error");
     }
+}
+
+Gtk::HBox *PackIntoHBox(std::vector<Gtk::Widget*> widgets, bool showAll)
+{
+    auto box = Gtk::manage(new Gtk::HBox());
+    for (auto &w: widgets)
+    {
+        w->show();
+        box->pack_start(*w, Gtk::PackOptions::PACK_SHRINK, Const::widgetPaddingInPixels);
+    }
+    box->show();
+    return box;
 }
 
 }

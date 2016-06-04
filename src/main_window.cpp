@@ -154,6 +154,11 @@ void c_MainWindow::OnAddImageSeries()
     fltBmp->add_pattern("*.bmp");
     fltBmp->set_name("BMP (*.bmp)");
     dlg.add_filter(fltBmp);
+    auto fltTiff = Gtk::FileFilter::create();
+    fltTiff->add_pattern("*.tif");
+    fltTiff->add_pattern("*.tiff");
+    fltTiff->set_name("TIFF (*.tif, *.tiff)");
+    dlg.add_filter(fltTiff);
 
     PrepareDialog(dlg);
     if (Gtk::ResponseType::RESPONSE_OK == dlg.run())
@@ -634,7 +639,7 @@ void c_MainWindow::OnAddVideos()
             if (!newJob->imgSeq)
             {
                 ShowMsg(dlg, _("Error"),
-                        Glib::ustring::compose("Could not open video file %1:\n%2",
+                        Glib::ustring::compose(_("Could not open video file %1:\n%2"),
                                          fname.c_str(), Utils::GetErrorMsg(result)),
                         Gtk::MessageType::MESSAGE_ERROR);
                 continue;
@@ -701,7 +706,7 @@ void c_MainWindow::InitActions()
     m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuFile, _("_File")));
     m_ActionGroup->add(Gtk::Action::create(ActionName::quit, Gtk::Stock::QUIT),
                   sigc::mem_fun(*this, &c_MainWindow::OnQuit));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::addImages, _("Add image series..."), _("Add image series...")),
+    m_ActionGroup->add(Gtk::Action::create(ActionName::addImages, Glib::ustring(_("Add image series...")), Glib::ustring(_("Add image series..."))),
                   sigc::mem_fun(*this, &c_MainWindow::OnAddImageSeries));
     m_ActionGroup->add(Gtk::Action::create(ActionName::addFolders, _("Add image series from folder(s)...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnAddFolders));
@@ -961,7 +966,7 @@ void c_MainWindow::OnWorkerProgress()
             if (Worker::GetVisualizationImage())
                 m_Visualization.SetImage(Worker::GetVisualizationImage());
 
-        (*m_RunningJob)[m_Jobs.columns.state] = Worker::ProcPhaseStr[(int)Worker::GetPhase()];
+        (*m_RunningJob)[m_Jobs.columns.state] = Worker::GetProcPhaseStr(Worker::GetPhase());
         (*m_RunningJob)[m_Jobs.columns.progress] = Worker::GetStep();
         (*m_RunningJob)[m_Jobs.columns.percentageProgress] =
             100*Worker::GetStep() / GetJobAt(m_RunningJob).imgSeq.GetActiveImageCount();
@@ -969,7 +974,7 @@ void c_MainWindow::OnWorkerProgress()
             Glib::ustring::format(Worker::GetStep(), "/", GetJobAt(m_RunningJob).imgSeq.GetActiveImageCount());
 
         SetStatusBarText((*m_RunningJob)[m_Jobs.columns.jobSource] + ": " +
-                        Worker::ProcPhaseStr[(int)Worker::GetPhase()] + ", " + _("step") +
+                        Worker::GetProcPhaseStr(Worker::GetPhase()) + ", " + _("step") +
                          " " + (*m_RunningJob)[m_Jobs.columns.progressText]);
 
         m_LastStepNotify = Worker::GetStep();
@@ -1050,35 +1055,35 @@ void c_MainWindow::SetToolbarIcons()
     int iconSizeInPx;
     Gtk::IconSize::lookup(Configuration::GetToolIconSize(), iconSizeInPx, iconSizeInPx);
 
-    auto iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("add_images.svg", iconSizeInPx, iconSizeInPx)));
+    auto iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("add_images.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     GetToolButton(ActionName::addImages)->set_icon_widget(*iconImg);
 
-    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("add_video.svg", iconSizeInPx, iconSizeInPx)));
+    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("add_video.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     GetToolButton(ActionName::addVideos)->set_icon_widget(*iconImg);
 
-    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("show_vis.svg", iconSizeInPx, iconSizeInPx)));
+    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("show_vis.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     GetToolButton(ActionName::toggleVisualization)->set_icon_widget(*iconImg);
 
-    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("settings.svg", iconSizeInPx, iconSizeInPx)));
+    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("settings.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     GetToolButton(ActionName::settings)->set_icon_widget(*iconImg);
 
-    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("stop.svg", iconSizeInPx, iconSizeInPx)));
+    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("stop.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     GetToolButton(ActionName::stopProcessing)->set_icon_widget(*iconImg);
 
-    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("flat-field.svg", iconSizeInPx, iconSizeInPx)));
+    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("flat-field.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     GetToolButton(ActionName::createFlatField)->set_icon_widget(*iconImg);
 
-    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("remove.svg", iconSizeInPx, iconSizeInPx)));
+    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("remove.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     GetToolButton(ActionName::removeJobs)->set_icon_widget(*iconImg);
 
-    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("start.svg", iconSizeInPx, iconSizeInPx)));
+    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("start.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     GetToolButton(ActionName::startProcessing)->set_icon_widget(*iconImg);
 }
@@ -1167,6 +1172,13 @@ void c_MainWindow::OnPreferences()
         auto *toolbar = dynamic_cast<Gtk::Toolbar *>(m_UIManager->get_widget(Glib::ustring("/") + WidgetName::Toolbar));
         toolbar->set_icon_size(Configuration::GetToolIconSize());
         SetToolbarIcons();
+
+        if (dlg.GetUILanguage() != std::string(Configuration::UILanguage))
+        {
+            ShowMsg(*this, _("Information"), _("You have to restart Stackistry for the changes to take effect."),
+                    Gtk::MessageType::MESSAGE_INFO);
+            Configuration::UILanguage = dlg.GetUILanguage();
+        }
     }
 }
 
@@ -1297,7 +1309,7 @@ void c_MainWindow::OnAbout()
         true, Gtk::MessageType::MESSAGE_INFO, Gtk::ButtonsType::BUTTONS_OK, true);
 
     msg.set_title(_("About Stackistry"));
-    auto img = Gtk::manage(new Gtk::Image(Utils::LoadIcon("stackistry-app.svg", 128, 128)));
+    auto img = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("stackistry-app.svg", 128, 128)));
     img->show();
     msg.set_image(*img);
     msg.run();

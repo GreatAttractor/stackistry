@@ -30,6 +30,7 @@ File description:
 #include <cairomm/context.h>
 #include <gdkmm/pixbuf.h>
 #include <gdkmm/rectangle.h>
+#include <gtkmm/box.h>
 #include <gtkmm/window.h>
 #include <skry/skry_cpp.hpp>
 
@@ -73,6 +74,8 @@ namespace Const
 
     enum OutputSaveMode { NONE, SOURCE_PATH, SPECIFIED_PATH };
 
+    const char * const SYSTEM_DEFAULT_LANG = "";
+
     namespace Defaults
     {
         const OutputSaveMode saveMode = SOURCE_PATH;
@@ -82,6 +85,21 @@ namespace Const
         const enum SKRY_quality_criterion qualityCriterion = SKRY_quality_criterion::SKRY_PERCENTAGE_BEST;
         const unsigned qualityThreshold = 30;
     }
+
+    typedef struct
+    {
+        const char *langId; // format: <language>_<country>, e.g. "pl_PL"
+        const char *name;
+    } Language_t;
+
+    const Language_t languages[] =
+    {
+        { SYSTEM_DEFAULT_LANG, "" }, // system language
+
+        // After creating a new translation, add a language entry below
+        { "pl_PL", "polski" },
+        { "en_US", "English" },
+    };
 }
 
 namespace Vars
@@ -114,13 +132,15 @@ enum SKRY_pixel_format FindMatchingFormat(enum SKRY_output_format outputFmt, siz
 const Vars::OutputFormatDescr_t &GetOutputFormatDescr(enum SKRY_output_format);
 
 /// Loads specified file from the 'icons' subdirectory
-Glib::RefPtr<Gdk::Pixbuf> LoadIcon(const char *fileName, ///< Just the filename+extension
-                                   int width, int height);
+Glib::RefPtr<Gdk::Pixbuf> LoadIconFromFile(const char *fileName, ///< Just the filename+extension
+                                           int width, int height);
 
 void SetAppLaunchPath(const char *appLaunchPath);
 
 /// Returns a localized error message
 std::string GetErrorMsg(enum SKRY_result errorCode);
+
+Gtk::HBox *PackIntoHBox(std::vector<Gtk::Widget*> widgets, bool showAll = true);
 
 }
 

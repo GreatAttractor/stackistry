@@ -55,6 +55,8 @@ namespace Key
     const char *ProgressColWidth = "ProgressColWidth";
     const char *LastOpenDir = "LastOpenDir";
     const char *mainWndPanedPos = "MainWndPanedPos";
+
+    const char *UIlanguage = "UILanguage";
 }
 
 const char *CONFIG_FILE_NAME = ".stackistry";
@@ -196,6 +198,10 @@ c_Property<bool> MainWndMaximized(
 c_Property<std::string> LastOpenDir(
     []() { return GetString(Group::UI, Key::LastOpenDir); },
     [](const std::string &dir) { configFile.set_string(Group::UI, Key::LastOpenDir, dir); });
+
+c_Property<std::string> UILanguage(
+    []() { return GetString(Group::UI, Key::UIlanguage); },
+    [](const std::string &lang) { configFile.set_string(Group::UI, Key::UIlanguage, lang); });
 
 bool Initialize()
 {

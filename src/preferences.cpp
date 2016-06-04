@@ -60,6 +60,18 @@ c_PreferencesDlg::c_PreferencesDlg()
 
 void c_PreferencesDlg::InitControls()
 {
+    for (const Utils::Const::Language_t &lang: Utils::Const::languages)
+    {
+        m_UILanguage.append(lang.name == Utils::Const::SYSTEM_DEFAULT_LANG ? _("System language") : lang.name);
+        if (lang.langId == std::string(Configuration::UILanguage))
+            m_UILanguage.set_active(m_UILanguage.get_model()->children().size()-1);
+    }
+
+    get_content_area()->pack_start(*Utils::PackIntoHBox( {
+                                        Gtk::manage(new Gtk::Label(_("User interface language:"))),
+                                        &m_UILanguage } ),
+                                   Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+
     int iconSizePx;
     Gtk::IconSize::lookup(Configuration::GetToolIconSize(), iconSizePx, iconSizePx);
     m_ToolIconSize.set_adjustment(Gtk::Adjustment::create(iconSizePx, MIN_ICON_SIZE_PIX, MAX_ICON_SIZE_PIX));
@@ -80,7 +92,6 @@ void c_PreferencesDlg::InitControls()
     auto separator = Gtk::manage(new Gtk::Separator());
     separator->show();
     get_content_area()->pack_end(*separator, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
-
 
     add_button(_("OK"), Gtk::RESPONSE_OK);
     add_button(_("Cancel"), Gtk::RESPONSE_CANCEL);
@@ -107,4 +118,9 @@ int c_PreferencesDlg::GetToolIconSize()
 //    ConvertString<int>(m_ToolIconSize.get_text().c_str(), &result);
 //    return result;
     return (int)m_ToolIconSize.get_value();
+}
+
+std::string c_PreferencesDlg::GetUILanguage()
+{
+    return Utils::Const::languages[m_UILanguage.get_active_row_number()].langId;
 }

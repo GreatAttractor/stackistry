@@ -62,17 +62,6 @@ c_SettingsDlg::c_SettingsDlg(const std::vector<std::string> &jobNames)
     Utils::RestorePosSize(Configuration::SettingsDlgPosSize,  *this);
 }
 
-Gtk::HBox *PackIntoHBox(std::vector<Gtk::Widget*> widgets)
-{
-    auto box = Gtk::manage(new Gtk::HBox());
-    for (auto &w: widgets)
-    {
-        box->pack_start(*w, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
-    }
-    box->show();
-    return box;
-}
-
 std::vector<Glib::RefPtr<Gtk::FileFilter>> GetInputImageFilters()
 {
     decltype(GetInputImageFilters()) result;
@@ -121,7 +110,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_VideoStbAnchorsMode.append(_("manual"));
     m_VideoStbAnchorsMode.set_active(0);
     m_VideoStbAnchorsMode.show();
-    get_content_area()->pack_start(*PackIntoHBox({ lStab, &m_VideoStbAnchorsMode }), Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+    get_content_area()->pack_start(*Utils::PackIntoHBox({ lStab, &m_VideoStbAnchorsMode }), Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     auto lRefPt = Gtk::manage(new Gtk::Label());
     lRefPt->set_text(_("Reference points placement:"));
@@ -136,7 +125,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_RefPtSpacingLabel.show();
     m_RefPtSpacing.set_adjustment(Gtk::Adjustment::create(/*TODO: make the default a constant*/40, 20, 80, 5));
     m_RefPtSpacing.show();
-    get_content_area()->pack_start(*PackIntoHBox({ lRefPt, &m_RefPtPlacementMode, &m_RefPtSpacingLabel, &m_RefPtSpacing}),
+    get_content_area()->pack_start(*Utils::PackIntoHBox({ lRefPt, &m_RefPtPlacementMode, &m_RefPtSpacingLabel, &m_RefPtSpacing}),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     auto lStack = Gtk::manage(new Gtk::Label(_("Stacking criterion:")));
@@ -152,7 +141,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_QualityCriterion.signal_changed().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnStackingThresholdType));
     m_QualityCriterion.show();
 
-    get_content_area()->pack_start(*PackIntoHBox({ lStack, &m_QualityThreshold, &m_QualityCriterion }),
+    get_content_area()->pack_start(*Utils::PackIntoHBox({ lStack, &m_QualityThreshold, &m_QualityCriterion }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
 
@@ -171,7 +160,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_DestFolderChooser.signal_file_set().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnDestPathSet));
     m_DestFolderChooser.set_sensitive(false);
     m_DestFolderChooser.show();
-    get_content_area()->pack_start(*PackIntoHBox({ lOutp, &m_OutputSaveMode, &m_DestFolderChooser }),
+    get_content_area()->pack_start(*Utils::PackIntoHBox({ lOutp, &m_OutputSaveMode, &m_DestFolderChooser }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     m_OutpFmtLabel.set_text(_("Output format:"));
@@ -181,7 +170,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
         m_AutoSaveOutputFormat.append(outFmt.name);
     }
     m_AutoSaveOutputFormat.show();
-    get_content_area()->pack_start(*PackIntoHBox({&m_OutpFmtLabel, &m_AutoSaveOutputFormat }),
+    get_content_area()->pack_start(*Utils::PackIntoHBox({&m_OutpFmtLabel, &m_AutoSaveOutputFormat }),
         Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     m_FlatFieldCheckBtn.set_label(_("Use flat-field for stacking:"));
@@ -195,7 +184,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_FlatFieldChooser.set_title(_("Select flat-field image"));
     m_FlatFieldChooser.set_sensitive(false);
     m_FlatFieldChooser.show();
-    get_content_area()->pack_start(*PackIntoHBox({ &m_FlatFieldCheckBtn, &m_FlatFieldChooser }),
+    get_content_area()->pack_start(*Utils::PackIntoHBox({ &m_FlatFieldCheckBtn, &m_FlatFieldChooser }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     m_TreatMonoAsCFA.set_label(_("Treat mono input as raw color:"));
@@ -212,7 +201,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_CFAPattern.show();
     auto *lDemosaicComment = Gtk::manage(new Gtk::Label(_("(also overrides raw color format in SER videos)")));
     lDemosaicComment->show();
-    get_content_area()->pack_start(*PackIntoHBox({ &m_TreatMonoAsCFA, &m_CFAPattern, lDemosaicComment }),
+    get_content_area()->pack_start(*Utils::PackIntoHBox({ &m_TreatMonoAsCFA, &m_CFAPattern, lDemosaicComment }),
                                     Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     auto separator = Gtk::manage(new Gtk::Separator());

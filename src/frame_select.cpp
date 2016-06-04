@@ -91,7 +91,7 @@ Gtk::Box *c_FrameSelectDlg::CreateFrameListBox()
 
     int iconSizeInPx;
     Gtk::IconSize::lookup(Configuration::GetToolIconSize(), iconSizeInPx, iconSizeInPx);
-    auto iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIcon("sync.svg", iconSizeInPx, iconSizeInPx)));
+    auto iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("sync.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     m_SyncListWSlider.set_image(*iconImg);
     m_SyncListWSlider.set_tooltip_text(_("Synchronize frame list with slider"));

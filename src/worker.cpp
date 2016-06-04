@@ -29,6 +29,7 @@ File description:
 #include <memory>
 
 #include <glibmm/dispatcher.h>
+#include <glibmm/i18n.h>
 #include <glibmm/thread.h>
 #include <glibmm/threads.h>
 #include <glibmm/timer.h>
@@ -532,6 +533,19 @@ libskry::c_Image GetStackedImage()
 enum SKRY_result GetLastResult()
 {
     return Vars::lastResult;
+}
+
+std::string GetProcPhaseStr(ProcPhase phase)
+{
+    switch (phase)
+    {
+        case ProcPhase::IDLE:                return _("Idle");
+        case ProcPhase::IMAGE_ALIGNMENT:     return _("Image alignment");
+        case ProcPhase::QUALITY_ESTIMATION:  return _("Quality estimation");
+        case ProcPhase::REF_POINT_ALIGNMENT: return _("Reference point alignment");
+        case ProcPhase::IMAGE_STACKING:      return _("Image stacking");
+        default: return "";
+    }
 }
 
 } // namespace Worker

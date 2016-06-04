@@ -74,6 +74,9 @@ namespace Configuration
     extern c_Property<int> MainWndPanedPos;
     extern c_Property<bool> MainWndMaximized;
     extern c_Property<std::string> LastOpenDir;
+
+    /// format: <language>_<country>, e.g. "pl_PL"; empty = system default language
+    extern c_Property<std::string> UILanguage;
 }
 
 #endif // STACKISTRY_CONFIGURATION_HEADER

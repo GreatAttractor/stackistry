@@ -36,12 +36,8 @@ File description:
 namespace Worker
 {
     enum class ProcPhase { IDLE = 0, IMAGE_ALIGNMENT, QUALITY_ESTIMATION, REF_POINT_ALIGNMENT, IMAGE_STACKING, NUM_PHASES };
-    const std::string ProcPhaseStr[(int)ProcPhase::NUM_PHASES] =
-        { "Idle",
-          "Image alignment",
-          "Quality estimation",
-          "Reference point alignment",
-          "Image stacking" };
+
+    std::string GetProcPhaseStr(ProcPhase phase);
 
     void StartProcessing(libskry::c_ImageSequence &imgSeq,
                          /// Must not be empty
