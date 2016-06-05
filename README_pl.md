@@ -55,9 +55,9 @@ Większość pozycji menu ma odpowiedniki wśród przycisków na pasku narzędzi
 
 Za pomocą standardowych kombinacji klawiszy (``Ctrl-klik``, ``Shift-klik``, ``Ctrl-A``, ``Shift-End`` itd.) zaznaczyć można na liście wiele zadań naraz. Poniższe polecenia wykonywane są dla wszystkich zaznaczonych zadań:
 
-- ``Edit/Processing settings...`` (Ustawienia przetwarzania)
-- ``Edit/Remove from list`` (Usuń z listy)
-- ``Processing/Start processing`` (Rozpocznij przetwarzanie)
+- ``Edycja/Ustawienia przetwarzania...``
+- ``EdycjaUsuń z listy``
+- ``Przetwarzanie/Rozpocznij przetwarzanie``
 
 W trakcie przetwarzania usuwanie i dodawanie zadań nie jest możliwe.
 
@@ -65,49 +65,41 @@ W trakcie przetwarzania usuwanie i dodawanie zadań nie jest możliwe.
 ----------------------------------------
 ### 3.1. Wybór klatek
 
-Użytkownik może wyłączyć niektóre klatki z przetwarzania używając polecenia ``Edit/Select frames...`` (Wybierz klatki); jest ono aktywne, gdy zaznaczono tylko jedno zadanie. W oknie dialogowym wyboru klatek można zaznaczyć ich wiele naraz za pomocą standardowych kombinacji klawiszy (``Ctrl-klik``, ``Shift-klik``, ``Ctrl-A``, ``Shift-End`` itd.). Naciśnięcie spacji przełącza stan wybranych klatek; klawisz ``Del`` deaktywuje je.
+Użytkownik może wyłączyć niektóre klatki z przetwarzania używając polecenia ``Edycja/Wybierz klatki...``; jest ono aktywne, gdy zaznaczono tylko jedno zadanie. W oknie dialogowym wyboru klatek można zaznaczyć ich wiele naraz za pomocą standardowych kombinacji klawiszy (``Ctrl-klik``, ``Shift-klik``, ``Ctrl-A``, ``Shift-End`` itd.). Naciśnięcie spacji przełącza stan wybranych klatek; klawisz ``Del`` deaktywuje je.
 
 
 ----------------------------------------
 ### 3.2. Ustawienia przetwarzania
 
-Ustawienia przetwarzania można zmieniać dla wielu zadań naraz po zaznaczeniu ich na liście i wybraniu ``Edit/Processing settings...``. Nazwy zadań, których ustawienia są edytowane, wymienione są w liście w górnej części okna dialogowego ``Processing settings``.
+Ustawienia przetwarzania można zmieniać dla wielu zadań naraz po zaznaczeniu ich na liście i wybraniu ``Edycja/Ustawienia przetwarzania...``. Nazwy zadań, których ustawienia są edytowane, wymienione są w liście w górnej części okna dialogowego ``Ustawienia przetwarzania``.
 
-- ``Video stabilization anchors placement`` (Rozmieszczenie punktów kotwiczących stabilizacji wideo)
+- ``Rozmieszczenie punktów kotwiczących stabilizacji wideo``
 
-Rozmieszczenie automatyczne (``automatic``) powinno sprawdzić się w większości przypadków. W razie wybrania trybu ręcznego (``manual``), okno dialogowe wyboru punktów zostanie wyświetlone w momencie rozpoczęcia przetwarzania danego zadania.
+Rozmieszczenie automatyczne powinno sprawdzić się w większości przypadków. W przypadku wybrania trybu ręcznego, okno dialogowe wyboru punktów zostanie wyświetlone w momencie rozpoczęcia przetwarzania danego zadania.
 
-- ``Reference points placement`` (Rozmieszczenie punktów odniesienia)
+- ``Rozmieszczenie punktów odniesienia``
 
-Obecnie rozmieszczenie automatyczne działa najlepiej dla wideo przedstawiających powierzchnię Słońca lub Księżyca. Dla wideo protuberancji z prześwietloną tarczą i wideo planetarnych niektóre punkty mogą zostać dodane w nieoptymalnych miejscach (gdzie ich dopasowanie będzie zawodne). W takim przypadku należy wybrać rozmieszczenie ręczne (``manual``); okno dialogowe wyboru punktów zostanie wyświetlone dla danego zadania w odpowiednim momencie w trakcie przetwarzania (tj. po zakończeniu fazy szacowania jakości). Należy unikać umieszczania punktów w obszarach z małą ilością szczegółów; dobrze sprawdzą się plamy słoneczne, filamenty, splątane fragmenty protuberancji, kratery, pasy chmur itp.).
+Obecnie rozmieszczenie automatyczne działa najlepiej dla wideo przedstawiających powierzchnię Słońca lub Księżyca. Dla wideo protuberancji z prześwietloną tarczą i wideo planetarnych niektóre punkty mogą zostać dodane w nieoptymalnych miejscach (gdzie ich śledzenie będzie zawodne). W takim przypadku należy wybrać rozmieszczenie ręczne; okno dialogowe wyboru punktów zostanie wyświetlone dla danego zadania w odpowiednim momencie w trakcie przetwarzania (tj. po zakończeniu fazy szacowania jakości). Należy unikać umieszczania punktów w obszarach z małą ilością szczegółów; dobrze sprawdzą się plamy słoneczne, filamenty, splątane fragmenty protuberancji, kratery, pasy chmur itp.
 
-- ``Stacking criterion`` (Kryterium *stackowania*)
+- ``Kryterium *stackowania*``
 
 Kryterium to dotyczy zarówno śledzenia punktów odniesienia, jak i fazy *stackowania* (końcowego sumowania fragmentów klatek):
 
-``percent of the best fragments``: odsetek najlepszych fragmentów  
-``percent or better relative quality``: minimalna względna jakość (w procentach)  
-``best fragments``: liczba najlepszych fragmentów
-
 Uwaga: zbytnie zwiększanie odsetka (lub liczby) akceptowanych fragmentów klatek wydłuża czas pracy i może pogorszyć jakoś wynikowego *stacku* (jako że zsumowanych będzie więcej fragmentów słabej jakości).
 
-- ``Save stacked image automatically`` (Automatyczny zapis wynikowego *stacku*)
-
-``disabled``: wyłączone  
-``in source video's folder``: w tym samym folderze, co wideo źródłowe  
-``specify folder``: wybierz folder
+- ``Automatyczny zapis *stacku*``
 
 Jeśli automatyczne zapisywanie nie jest wyłączone, plik wynikowy otrzyma nazwę taką samą jak wideo wejściowe z przyrostkiem ``_stacked``. W przypadku sekwencji plików graficznych nazwą będzie ``stack``.
 
-Niezależnie od wybranego trybu, w każdej chwili można zapisać *stack* dla każdego ukończonego zadania za pomocą polecenia ``File/Save stacked image...``.
+Niezależnie od wybranego trybu, w każdej chwili można zapisać *stack* dla każdego ukończonego zadania za pomocą polecenia ``Plik/Zapisz stack...``.
 
-- ``Use flat-field for stacking`` (Użyj *flatu* podczas *stackowania*)
+- ``Użyj *flatu*``
 
-*Flat* (*flat-field*) to obraz stosowany w celu kompensacji różnic jasności mających źródło w torze optycznym (np. winietowanie, *sweet spot* etalonu, pierścienie Newtona itp.). Stackistry może wykorzystać *flat* stworzony w innym programie (o ile jest w jednym z obsługiwanych formatów), może też wygenerować go samodzielnie, zob. polecenie ``File/Create flat-field from video...`` (Utwórz *flat* z wideo). Wideo użyte do tego celu musi być niewyostrzone i przedstawiać jednolicie oświetlony widok (bez szczegółów). Bezwględny poziom jasności nie jest istotny, natomiast krzywa tonalna musi mieć tę samą charakterystykę, co w przetwarzanym materiale (np. ustawienie krzywej gamma, o ile obecne w kamerze, musi być identyczne; wartości migawki i wzmocnienia mogą się różnić). W celu osiągnięcia najlepszych efektów należy użyć wideo o długości co najmniej kilkudziesięciu klatek, by szum został uśredniony.
+*Flat* (*flat-field*) to obraz stosowany w celu kompensacji różnic jasności mających źródło w torze optycznym (np. winietowanie, *sweet spot* etalonu, pierścienie Newtona itp.). Stackistry może wykorzystać *flat* stworzony w innym programie (o ile jest w jednym z obsługiwanych formatów), może też wygenerować go samodzielnie, zob. polecenie ``Plik/Wygeneruj flat z wideo...``. Wideo użyte do tego celu musi być niewyostrzone i przedstawiać jednolicie oświetlony widok (bez szczegółów). Bezwględny poziom jasności nie jest istotny, natomiast krzywa tonalna musi mieć tę samą charakterystykę, co w przetwarzanym materiale (np. ustawienie krzywej gamma, o ile obecne w kamerze, musi być identyczne; wartości migawki i wzmocnienia mogą się różnić). W celu osiągnięcia najlepszych efektów należy użyć wideo o długości co najmniej kilkudziesięciu klatek, by szum został uśredniony.
 
-- ``Treat mono input as raw color`` (Demozaikowanie materiału „raw color”)
+- ``Traktuj materiał mono jako „raw color”``
 
-Po włączeniu tej funkcji Stackisty dokonuje demozaikowania materiału mono metodą interpolacji liniowej wysokiej jakości (Malar, He, Cutler). Układ filtrów kolorowych (RGGB, GRBG itp.) nie jest wykrywany automatycznie, użytkownik musi wybrać właściwy. Jeśli układ nie jest znany, można zrobić to metodą prób i błędów, sprawdzając efekt np. w oknie wyboru klatek; z niewłaściwym filtrem uzyskamy obraz z pikselami „w kratkę” lub z zamienionymi kanałami czerwonym i niebieskim.
+Po włączeniu tej funkcji Stackisty dokonuje demozaikowania materiału mono metodą interpolacji liniowej wysokiej jakości (Malar, He, Cutler). Układ filtrów kolorowych (RGGB, GRBG itp.) nie jest wykrywany automatycznie, użytkownik musi wybrać właściwy. Jeśli układ nie jest znany, można zrobić to metodą prób i błędów, sprawdzając efekt np. w oknie wyboru klatek; z niewłaściwym układem uzyskamy obraz z pikselami „w kratkę” lub z zamienionymi kanałami czerwonym i niebieskim.
 
 Funkcję można pozostawić wyłączoną dla plików wideo SER w formacie „raw color” (są demozaikowane automatycznie). Może się jednak zdarzyć, że układ filtrów wskazany w SER jest niewłaściwy; włączenie funkcji spowoduje wówczas wymuszenie właściwego układu.
 
@@ -115,7 +107,7 @@ Funkcję można pozostawić wyłączoną dla plików wideo SER w formacie „raw
 ----------------------------------------
 ### 3.3. Stabilizacja obrazu
 
-Ważną cechą Stackistry jest zdolność do nienadzorowanego przetwarzania dużej liczby zadań, dlatego też automatyczne rozmieszczanie punktów kotwiczących stabilizacji działa zwykle zadowalająco. Jeśli jednak zawiedzie, należy użyć polecenia ``Edit/Set video stabilization anchors...`` (lub wybrać ręczne rozmieszczanie punktów kotwiczących w ustawieniach przetwarzania, zob. punkt 3.2). Podobnie jak w przypadku punktów odniesienia, punkty kotwiczące nie powinny znajdować się w obszarach o małej szczegółowości.
+Ważną cechą Stackistry jest zdolność do nienadzorowanego przetwarzania dużej liczby zadań, dlatego też automatyczne rozmieszczanie punktów kotwiczących stabilizacji działa zwykle zadowalająco. Jeśli jednak zawiedzie, należy użyć polecenia ``Edycja/Ustaw punkty kotwiczące stabilizacji wideo...`` (lub wybrać ręczne rozmieszczanie punktów kotwiczących w ustawieniach przetwarzania, zob. punkt 3.2). Podobnie jak w przypadku punktów odniesienia, punkty kotwiczące nie powinny znajdować się w obszarach o małej szczegółowości.
 
 Można dodać więcej niż jeden punkt, np. jeśli użytkownik wie, że niektóre z nich przemieszczą się poza kadr wskutek dryfu obrazu (wówczas Stackistry przełączy się na inny z dostępnych punktów). Nawet jeśli stanie się tak ze wszystkimi punktami, Stackistry automatycznie doda nowe w miarę potrzeby.
 
@@ -125,7 +117,7 @@ Jeśli nie występuje znaczny dryf obrazu, wystarczy zdefiniować jeden punkt ko
 ----------------------------------------
 ### 3.4. Wizualizacja
 
-Włączana/wyłączana poleceniem ``Processing/Show visualization...`` (można użyć go w każdej chwili), funkcja ta generuje „podgląd diagnostyczny” kolejnych etapów przetwarzania. Można użyć jej np. w celu zweryfikowania, że punkty kotwiczące działają prawidłowo, lub że punkty odniesienia są prawidłowo rozmieszczone i śledzone. Uwaga: włączona wizualizacja spowalnia pracę programu.
+Włączana/wyłączana poleceniem ``Przetwarzanie/Pokaż wizualizację`` (można użyć go w każdej chwili), funkcja ta generuje „podgląd diagnostyczny” kolejnych etapów przetwarzania. Można użyć jej np. w celu zweryfikowania, że punkty kotwiczące działają prawidłowo, lub że punkty odniesienia są prawidłowo rozmieszczone i śledzone. Uwaga: włączona wizualizacja spowalnia pracę programu.
 
 
 ----------------------------------------
@@ -139,19 +131,19 @@ Kod źródłowy i pliki wykonywalne dla MS Windows można pobrać pod adresem:
 ----------------------------------------
 ## 5. Budowanie ze źródeł
 
-Budowanie ze źródeł wymaga narzędzi do kompilacji C++ (z obsługą C++11) oraz bibliotek GTKmm 3.0 i *libskry*. Wersje (tagi) Stackistry i *libskry* powinny być te same; można też użyć najnowszych rewizji obydwu projektów (aczkolwiek mogą być niestabilne).
+Budowanie ze źródeł wymaga narzędzi do kompilacji C++ (z obsługą C++11) oraz bibliotek gtkmm 3.0 i *libskry*. Wersje (tagi) Stackistry i *libskry* powinny być te same; można też użyć najnowszych rewizji obydwu projektów (aczkolwiek mogą być niestabilne).
 
 
 ----------------------------------------
 ### 5.1. Budowanie w systemie Linux (i podobnych)
 
-Z kodem dostarczony jest plik ``Makefile`` zgodny z GNU Make. By zbudować aplikację, należy zainstalować biblioteki GTKmm 3.0 (których pakiety noszą zwykle nazwy ``gtkmm30`` i ``gtkmm30-devel`` lub podobne), pobrać (z ``https://github.com/GreatAttractor/libskry/releases``) i zbudować *libskry*, przejść do folderu z kodem źródłowym Stackistry, ustawić odpowiednio wartości w sekcji ``User-configurable variables`` w ``Makefile`` i wykonać:
+Z kodem dostarczony jest plik ``Makefile`` zgodny z GNU Make. By zbudować aplikację, należy zainstalować biblioteki gtkmm 3.0 (których pakiety noszą zwykle nazwy ``gtkmm30`` i ``gtkmm30-devel`` lub podobne), pobrać (z ``https://github.com/GreatAttractor/libskry/releases``) i zbudować *libskry*, przejść do folderu z kodem źródłowym Stackistry, ustawić odpowiednio wartości w sekcji ``User-configurable variables`` w ``Makefile`` i wykonać:
 
 ```
 $ make
 ```
 
-Utworzony zostanie plik wykonywalny ``./bin/stackistry``. Można przenieść go w dowolne miejsce, o ile folder ``./icons`` zostanie umieszczony na tym samym poziomie, co ``./bin``.
+Utworzony zostanie plik wykonywalny ``./bin/stackistry``. Można przenieść go w dowolne miejsce, o ile foldery ``./icons`` i ``./lang`` zostaną umieszczone na tym samym poziomie, co ``./bin``.
 
 
 ----------------------------------------
@@ -170,7 +162,7 @@ $ pacman -S make base-devel mingw-w64-x86_64-toolchain
 
 (pakiet 32-bitowy nosi nazwę ``mingw-w64-i686-toolchain``).
 
-By zainstalować 64-bitowe GTK i GTKmm, wykonać:
+By zainstalować 64-bitowe GTK i gtkmm, wykonać:
 
 ```
 $ pacman -S mingw-w64-x86_64-gtk3 mingw-w64-x86_64-gtkmm3

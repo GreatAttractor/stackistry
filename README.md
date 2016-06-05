@@ -117,7 +117,7 @@ When there is no severe image drift, one anchor is sufficient.
 ----------------------------------------
 ### 3.4. Visualization
 
-Toggled by ``Processing/Show visualization...`` (can be done at any time), this feature show a “visual diagnostic output” during processing. It can be used e.g. to verify that video stabilization anchors are handled correctly, to see if the reference points have been placed in adequate positions and are successfully tracked. Note that enabled visualization slows down processing.
+Toggled by ``Processing/Show visualization`` (can be done at any time), this feature show a “visual diagnostic output” during processing. It can be used e.g. to verify that video stabilization anchors are handled correctly, to see if the reference points have been placed in adequate positions and are successfully tracked. Note that enabled visualization slows down processing.
 
 
 ----------------------------------------
@@ -131,19 +131,19 @@ Source code and MS Windows executables can be downloaded from:
 ----------------------------------------
 ## 5. Building from source code
 
-Building from sources requires a C++ compiler toolchain (with C++11 support) and GTKmm 3.0 and *libskry* libraries. Versions (tags) of Stackistry and *libskry* should match; alternatively, one can use the latest revisions of both (note that they may be unstable).
+Building from sources requires a C++ compiler toolchain (with C++11 support) and gtkmm 3.0 and *libskry* libraries. Versions (tags) of Stackistry and *libskry* should match; alternatively, one can use the latest revisions of both (note that they may be unstable).
 
 
 ----------------------------------------
 ### 5.1. Building under Linux (and similar platforms)
 
-A GNU Make-compatible Makefile is provided. To build, install GTKmm 3.0 libraries (whose packages are usually named ``gtkmm30`` and ``gtkmm30-devel`` or similar), download (from ``https://github.com/GreatAttractor/libskry/releases``) and build *libskry*, navigate to the Stackistry source folder, set values in Makefile’s ``User-configurable variables`` section and execute:
+A GNU Make-compatible Makefile is provided. To build, install gtkmm 3.0 libraries (whose packages are usually named ``gtkmm30`` and ``gtkmm30-devel`` or similar), download (from ``https://github.com/GreatAttractor/libskry/releases``) and build *libskry*, navigate to the Stackistry source folder, set values in Makefile’s ``User-configurable variables`` section and execute:
 
 ```
 $ make
 ```
 
-This produces ``./bin/stackistry`` executable. It can be moved to any location, as long as the ``./icons`` folder is placed at the same level as ``./bin``.
+This produces ``./bin/stackistry`` executable. It can be moved to any location, as long as the ``./icons`` and ``./lang`` folders are placed at the same level as ``./bin``.
 
 
 ----------------------------------------
@@ -161,7 +161,7 @@ $ pacman -S make base-devel mingw-w64-x86_64-toolchain
 
 (the 32-bit package is called ``mingw-w64-i686-toolchain``).
 
-To install 64-bit GTK and GTKmm, execute:
+To install 64-bit GTK and gtkmm, execute:
 
 ```
 $ pacman -S mingw-w64-x86_64-gtk3 mingw-w64-x86_64-gtkmm3
