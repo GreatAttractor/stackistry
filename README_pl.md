@@ -2,7 +2,7 @@
 
 Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
 
-wersja 0.0.3 (2016-05-22)
+wersja 0.1.0 (2016-06-06)
 
 *Niniejszy program ABSOLUTNIE nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jest to wolne oprogramowanie na licencji GNU GPL w wersji 3 (lub dowolnej późniejszej) i można je swobodnie rozpowszechniać pod pewnymi warunkami: zob. pełny tekst licencji w pliku LICENSE.*
 
@@ -19,6 +19,7 @@ wersja 0.0.3 (2016-05-22)
 - 5\. Budowanie ze źródeł
   - 5\.1\. Budowanie w systemie Linux (i podobnych)
   - 5\.2\. Budowanie pod MS Windows
+  - 5\.3\. Język UI
 - 6\. Historia zmian
 
 
@@ -27,7 +28,7 @@ wersja 0.0.3 (2016-05-22)
 
 **Stackistry** realizuje metodę *lucky imaging* przetwarzania obrazów astronomicznych: tworzenie wysokiej jakości zdjęcia z wielu (nawet tysięcy) klatek niskiej jakości (rozmytych, zdeformowanych, z dużą ilością szumu). Wynikowy *stack* wymaga zwykle dodatkowej obróbki, w tym wyostrzania (np. dekonwolucją); kroków tych Stackistry nie wykonuje.
 
-By uruchomić program po pobraniu dystrybucji binarnej dla MS Windows, należy użyć skryptu ``stackistry.bat`` (można utworzyć do niego skrót). Uwaga: obecnie w niektórych wersjach systemu Windows (np. 8.1, ale już nie Vista czy Server 2012) przy uruchamianiu pojawia się komunikat błędu „Program Gio przestał działać” (lub podobny); nie wpływa to na dalszą pracę programu.
+By uruchomić program po pobraniu dystrybucji binarnej dla MS Windows, należy użyć skryptu ``stackistry.bat`` (można utworzyć do niego skrót).
 
 
 ----------------------------------------
@@ -193,13 +194,48 @@ będą widoczne z poziomu MSYS jako:
 /c/Users/NazwaUżytkownika/Documents/stackistry
 ```
 
-Po zbudowaniu, Stackistry można uruchomić z linii poleceń MSYS (``./bin/stackistry.exe``). By możliwe było uruchomienie programu bezpośrednio z Eksploratora Windows, niezbędne pliki DLL muszą być umieszczone w odpowiednich (względem ``stackistry.exe``) miejscach (zob. binarną dystrybucję Stackistry dla porównania).
+Po zbudowaniu, Stackistry można uruchomić z linii poleceń MSYS (``./bin/stackistry.exe``). By możliwe było uruchomienie programu bezpośrednio z Eksploratora Windows, niezbędne biblioteki DLL i inne pliki pomocnicze muszą być umieszczone w odpowiednich (względem ``stackistry.exe``) miejscach (zob. binarną dystrybucję Stackistry dla porównania).
+
+
+----------------------------------------
+## 5.3. Język UI
+
+Stackistry obsługuje wielojęzyczny interfejs użytkownika poprzez pakiet `GNU gettext`. Bieżący język można zmienić poleceniem `Edycja/Preferencje...`.
+
+Wszystkie wymagające tłumaczenia napisy w kodzie źródłowym otoczone są makrem `_()`. Dla dodania nowego tłumaczenia konieczne jest wykonanie następujących kroków:
+
+- ekstrakcja napisów do przetłumaczenia z kodu źródłowego do pliku PO poprzez wykonanie:
+```
+$ xgettext -k_ src/*.cpp src/*.h -o stackistry.po
+```
+
+- przetłumaczenie napisów UI, tj. edycja wpisów `msgstr` w `stackistry.po` (przetłumaczone napisy muszą być w UTF-8)
+
+- konwersja `stackistry.po` do postaci binarnej:
+```
+$ msgfmt stackistry.po -o stackistry.mo
+```
+
+- umieszczenie `stackistry.mo` w podkatalogu `lang/<lang_country>/LC_MESSAGES`, gdzie `lang` to kod języka (ISO 643), a `country` – kod kraju (ISO 3166), np. `de_DE`, `fr_CA`
+
+- dopisanie języka do tablicy `Utils::Const::languages` (`src/utils.h`)
+
+Dystrybucja binarna Stackistry potrzebuje jedynie plików MO (binarnych). Dystrybucja dla Windows wymaga dodatkowo umieszczenia plików językowych gtkmm w następujących lokacjach w katalogu Stackistry:
+```
+share/locale/<lang>/LC_MESSAGES/gtk30.mo
+share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
+```
 
 
 ----------------------------------------
 ## 6. Historia zmian
 
 ```
+0.1.0 (2016-06-06)
+  Nowe funkcje:
+    - Obsługa wielojęzycznego interfejsu użytkownika
+    - Polska wersja językowa
+
 0.0.3 (2016-05-22)
   Nowe funkcje:
     - Demozaikowanie materiału „raw color”

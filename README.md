@@ -4,7 +4,7 @@
 
 Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
 
-version 0.0.3 (2016-05-22)
+version 0.1.0 (2016-06-06)
 
 *This program comes with ABSOLUTELY NO WARRANTY. This is free software, licensed under GNU General Public License v3 or any later version and you are welcome to redistribute it under certain conditions. See the LICENSE file for details.*
 
@@ -21,6 +21,7 @@ version 0.0.3 (2016-05-22)
 - 5\. Building from source code
   - 5\.1\. Building under Linux (and similar platforms)
   - 5\.2\. Building under MS Windows
+  - 5\.3\. UI language
 - 6\. Change log
 
 
@@ -29,7 +30,7 @@ version 0.0.3 (2016-05-22)
 
 **Stackistry** implements the *lucky imaging* principle of astronomical imaging: creating a high-quality still image out of a series of many (possibly thousands) low quality ones (blurred, deformed, noisy). The resulting *image stack* typically requires post-processing, including sharpening (e.g. via deconvolution). Such post-processing is not performed by Stackistry.
 
-For Windows binary distributions, use ``stackistry.bat`` to start the program (you can also create a shortcut to it). Note that currently on some versions of Windows (e.g. 8.1, but not Vista or Server 2012) there is an error message (“Program Gio has stopped working” or similar) on starting; it does not affect Stackistry’s operation.
+For Windows binary distributions, use ``stackistry.bat`` to start the program (you can also create a shortcut to it).
 
 
 ----------------------------------------
@@ -192,12 +193,48 @@ they can be accessed from MSYS shell at:
 /c/Users/MyUsername/Documents/stackistry
 ```
 
-Once built, Stackistry can be launched from MSYS shell (``./bin/stackistry.exe``). In order to run it directly from Windows Explorer, the necessary runtime DLLs must be placed in specific relative locations (see a Stackistry binary Windows distribution for reference).
+Once built, Stackistry can be launched from MSYS shell (``./bin/stackistry.exe``). In order to run it directly from Windows Explorer, the necessary runtime DLLs and other supporting files must be placed in specific relative locations (see a Stackistry binary Windows distribution for reference).
+
+
+----------------------------------------
+### 5.3. UI Language
+
+Stackistry supports multi-language user interface via the `GNU gettext` package. The current language can be changed in `Edit/Preferences...`.
+
+All translatable strings in the source code are surrounded by the `_()` macro. Adding a new translation consists of the following steps:
+
+- extraction of translatable strings from sources into a PO file by running:
+```
+$ xgettext -k_ src/*.cpp src/*.h -o stackistry.po
+```
+
+- translation of UI strings by editing the `msgstr` entries in `stackistry.po` (translated strings must be in UTF-8)
+
+- converting `stackistry.po` to binary form by running:
+```
+$ msgfmt stackistry.po -o stackistry.mo
+```
+
+- placing `stackistry.mo` in the `lang/<lang_country>/LC_MESSAGES` folder, where `lang` is the ISO 643 language code, and `country` is the ISO 3166 country code (e.g. `de_DE`, `fr_CA`)
+
+- adding the language to the `Utils::Const::languages` array (`src/utils.h`)
+
+Binary distribution of Stackistry needs only the MO (binary) files. Additionally, a Windows distribution needs the following gtkmm language files (in these locations) in Stackistry folder:
+```
+share/locale/<lang>/LC_MESSAGES/gtk30.mo
+share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
+```
+
 
 ----------------------------------------
 ## 6. Change log
 
 ```
+0.1.0 (2016-06-06)
+  New features:
+    - Multilingual user interface support
+    - Polish language version
+
 0.0.3 (2016-05-22)
   New features:
     - Demosaicing of raw color images
