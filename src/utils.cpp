@@ -206,7 +206,7 @@ std::string GetErrorMsg(enum SKRY_result errorCode)
     case SKRY_UNSUPPORTED_PIXEL_FORMAT:         return _("Unsupported pixel format");
     case SKRY_TIFF_INCOMPLETE_PIXEL_DATA:       return _("Incomplete TIFF pixel data");
     case SKRY_AVI_MALFORMED_FILE:               return _("Malformed AVI file");
-    case SKRY_AVI_UNSUPPORTED_FORMAT:           return _("Unsupported AVI DIB format");
+    case SKRY_AVI_UNSUPPORTED_FORMAT:           return _("Unsupported AVI video format");
     case SKRY_INVALID_IMG_DIMENSIONS:           return _("Invalid image dimensions");
     case SKRY_SER_MALFORMED_FILE:               return _("Malformed SER file");
     case SKRY_SER_UNSUPPORTED_FORMAT:           return _("Unsupported SER format");

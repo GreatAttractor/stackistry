@@ -541,8 +541,8 @@ msgid "Malformed AVI file"
 msgstr "Nieprawidłowa struktura pliku AVI"
 
 #: src/utils.cpp:209
-msgid "Unsupported AVI DIB format"
-msgstr "Nieobsługiwany format DIB w pliku AVI"
+msgid "Unsupported AVI video format"
+msgstr "Nieobsługiwany format wideo"
 
 #: src/utils.cpp:210
 msgid "Invalid image dimensions"
