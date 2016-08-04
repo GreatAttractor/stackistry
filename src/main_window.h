@@ -71,7 +71,7 @@ private:
     struct Job_t
     {
         libskry::c_ImageSequence imgSeq; // has to be the first field
-        float refPtPlacementThreshold;
+        float refPtPlacementThreshold; ///< Relative brightness threshold for automatic placement
         libskry::c_Image stackedImg;
         Utils::Const::OutputSaveMode outputSaveMode;
         enum SKRY_quality_criterion qualityCriterion;

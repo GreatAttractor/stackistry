@@ -43,6 +43,7 @@ namespace Worker
                          /// Must not be empty
                          const std::vector<struct SKRY_point> &anchors,
                          unsigned refPtSpacing,
+                         double refPtPlacementThreshold,
                          bool automaticRefPtPlacement,
                          /// Used when 'automaticRefPointsPlacement' is false; may be empty
                          const std::vector<struct SKRY_point> &refPoints,

@@ -60,6 +60,7 @@ namespace Vars
     static bool automaticRefPtPlacement;
     static std::vector<struct SKRY_point> refPoints;
     static unsigned refPtSpacing;
+    static double refPtPlacementThreshold;
     static bool isWaitingForReferencePoints;
 
     static std::string flatField;
@@ -154,6 +155,7 @@ ProcPhase GetProcessingPhase()
 void StartProcessing(libskry::c_ImageSequence &imgSeq,
                      const std::vector<struct SKRY_point> &anchors,
                      unsigned refPtSpacing,
+                     double refPtPlacementThreshold,
                      bool automaticRefPtPlacement,
                      const std::vector<struct SKRY_point> &refPoints,
                      enum SKRY_quality_criterion qualCriterion,
@@ -168,6 +170,7 @@ void StartProcessing(libskry::c_ImageSequence &imgSeq,
     Vars::stackedImg = libskry::c_Image();
 
     Vars::refPtSpacing = refPtSpacing;
+    Vars::refPtPlacementThreshold = refPtPlacementThreshold;
     Vars::automaticRefPtPlacement = automaticRefPtPlacement;
     Vars::refPoints = refPoints;
     Vars::qualCriterion = qualCriterion;

@@ -52,6 +52,9 @@ public:
     unsigned GetRefPointSpacing() const;
     void SetRefPtSpacing(unsigned sp);
 
+    double GetRefPointBrightThresh() const;
+    void SetRefPtBrightThresh(double threshold);
+
     std::string GetFlatFieldFileName() const;
     /// Specify an empty string to disable flat-fielding
     void SetFlatFieldFileName(std::string flatField);
@@ -78,6 +81,8 @@ private:
     Gtk::ComboBoxText m_RefPtPlacementMode;
     Gtk::Label m_RefPtSpacingLabel;
     Gtk::SpinButton m_RefPtSpacing;
+    Gtk::Label m_RefPtBrightThreshLabel;
+    Gtk::SpinButton m_RefPtBrightThresh;
     Gtk::FileChooserButton m_DestFolderChooser;
     Gtk::ComboBoxText m_QualityCriterion;
     Gtk::SpinButton m_QualityThreshold;

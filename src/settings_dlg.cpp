@@ -121,11 +121,21 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_RefPtPlacementMode.set_active(0);
     m_RefPtPlacementMode.signal_changed().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnRefPtMode));
     m_RefPtPlacementMode.show();
+
     m_RefPtSpacingLabel.set_text(_(", spacing in pixels:"));
     m_RefPtSpacingLabel.show();
     m_RefPtSpacing.set_adjustment(Gtk::Adjustment::create(/*TODO: make the default a constant*/40, 20, 80, 5));
     m_RefPtSpacing.show();
-    get_content_area()->pack_start(*Utils::PackIntoHBox({ lRefPt, &m_RefPtPlacementMode, &m_RefPtSpacingLabel, &m_RefPtSpacing}),
+
+    m_RefPtBrightThreshLabel.set_text(_(", brightness threshold (%):"));
+    m_RefPtBrightThreshLabel.show();
+    m_RefPtBrightThresh.set_adjustment(Gtk::Adjustment::create(100 * Utils::Const::Defaults::placementBrightnessThreshold, 0, 100));
+    m_RefPtBrightThresh.show();
+
+    get_content_area()->pack_start(*Utils::PackIntoHBox(
+                                        { lRefPt, &m_RefPtPlacementMode,
+                                           &m_RefPtSpacingLabel, &m_RefPtSpacing,
+                                           &m_RefPtBrightThreshLabel, &m_RefPtBrightThresh }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     auto lStack = Gtk::manage(new Gtk::Label(_("Stacking criterion:")));
@@ -240,8 +250,12 @@ std::string c_SettingsDlg::GetDestinationDir() const
 void c_SettingsDlg::OnRefPtMode()
 {
     bool isAuto = (m_RefPtPlacementMode.get_active_row_number() == 0);
+
     m_RefPtSpacingLabel.set_sensitive(isAuto);
     m_RefPtSpacing.set_sensitive(isAuto);
+
+    m_RefPtBrightThreshLabel.set_sensitive(isAuto);
+    m_RefPtBrightThresh.set_sensitive(isAuto);
 }
 
 Glib::RefPtr<Gtk::Adjustment> c_SettingsDlg::CreatePercentageAdj()
@@ -280,6 +294,16 @@ unsigned c_SettingsDlg::GetRefPointSpacing() const
 void c_SettingsDlg::SetRefPtSpacing(unsigned sp)
 {
     m_RefPtSpacing.set_value(sp);
+}
+
+double c_SettingsDlg::GetRefPointBrightThresh() const
+{
+    return m_RefPtBrightThresh.get_value() / 100.0;
+}
+
+void c_SettingsDlg::SetRefPtBrightThresh(double threshold)
+{
+    m_RefPtBrightThresh.set_value(threshold * 100);
 }
 
 std::string c_SettingsDlg::GetFlatFieldFileName() const

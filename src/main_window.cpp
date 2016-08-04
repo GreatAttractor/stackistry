@@ -223,6 +223,7 @@ void c_MainWindow::OnStartProcessing()
     }
 
     Worker::StartProcessing(job.imgSeq, job.anchors, job.refPtSpacing,
+                            job.refPtPlacementThreshold,
                             job.automaticRefPointsPlacement,
                             job.refPoints,
                             job.qualityCriterion, job.qualityThreshold, job.flatFieldFileName);
@@ -483,6 +484,7 @@ void c_MainWindow::OnSettings()
     dlg.SetAutoSaveOutputFormat(job.outputFmt);
     dlg.SetDestinationDir(job.destDir);
     dlg.SetRefPtSpacing(job.refPtSpacing);
+    dlg.SetRefPtBrightThresh(job.refPtPlacementThreshold);
     dlg.SetRefPointsAutomatic(job.automaticRefPointsPlacement);
     dlg.SetFlatFieldFileName(job.flatFieldFileName);
     dlg.SetAnchorsAutomatic(!job.anchors.empty());
@@ -501,6 +503,7 @@ void c_MainWindow::OnSettings()
                 job.destDir = dlg.GetDestinationDir();
             }
             job.refPtSpacing = dlg.GetRefPointSpacing();
+            job.refPtPlacementThreshold = dlg.GetRefPointBrightThresh();
             job.automaticRefPointsPlacement = dlg.GetRefPointsAutomatic();
             if (job.automaticRefPointsPlacement)
             {
@@ -585,6 +588,7 @@ void c_MainWindow::SetDefaultSettings(c_MainWindow::Job_t &job)
     job.outputSaveMode = Utils::Const::Defaults::saveMode;
     job.outputFmt = Utils::Const::Defaults::outputFmt;
     job.refPtSpacing = Utils::Const::Defaults::referencePointSpacing;
+    job.refPtPlacementThreshold = Utils::Const::Defaults::placementBrightnessThreshold;
     job.qualityCriterion = Utils::Const::Defaults::qualityCriterion;
     job.qualityThreshold = Utils::Const::Defaults::qualityThreshold;
     job.automaticRefPointsPlacement = true;
@@ -1024,6 +1028,7 @@ void c_MainWindow::OnWorkerProgress()
 
             if (startNextJob)
                 Worker::StartProcessing(job.imgSeq, job.anchors, job.refPtSpacing,
+                                        job.refPtPlacementThreshold,
                                         job.automaticRefPointsPlacement,
                                         job.refPoints,
                                         job.qualityCriterion, job.qualityThreshold,
@@ -1145,7 +1150,9 @@ bool c_MainWindow::OnDelete(GdkEventAny *event)
     Configuration::MainWndMaximized = is_maximized();
     if (!is_maximized())
 #endif
+    {
         Configuration::MainWndPosSize = posSize;
+    }
 
     Utils::SavePosSize(*this, Configuration::MainWndPosSize);
 
