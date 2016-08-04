@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Stackistry 0.1\n"
 "Report-Msgid-Bugs-To: Filip Szczerek <ga.software@yahoo.com>\n"
-"POT-Creation-Date: 2016-06-05 00:30+0200\n"
-"PO-Revision-Date: 2016-06-05 00:30+0200\n"
+"POT-Creation-Date: 2016-08-04 21:00+0200\n"
+"PO-Revision-Date: 2016-08-04 21:00+0200\n"
 "Last-Translator: Filip Szczerek <ga.software@yahoo.com>\n"
 "Language-Team: \n"
 "Language: Polish\n"
@@ -415,6 +415,10 @@ msgstr ""
 #: src/settings_dlg.cpp:124
 msgid ", spacing in pixels:"
 msgstr ", odstęp w pikselach"
+
+#: src/settings_dlg.cpp
+msgid ", brightness threshold (%):"
+msgstr ", próg jasności (%):"
 
 #: src/settings_dlg.cpp:131
 msgid "Stacking criterion:"
