@@ -20,6 +20,7 @@ CC_DEP_OPT = -MM
 OBJ_DIR = ./obj
 BIN_DIR = ./bin
 SRC_DIR = ./src
+# Command to create directory without error if existing, make parent directories as needed
 MKDIR_P = mkdir -p
 REMOVE = rm
 OSTYPE = $(shell echo $$OSTYPE)
