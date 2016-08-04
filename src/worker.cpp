@@ -430,7 +430,7 @@ void WorkerThreadFunc()
 
     libskry::c_RefPointAlignment refPtAlignment(qualEstimation,
                                                 Vars::refPoints,
-                                                Utils::Const::Defaults::placementBrightnessThreshold,
+                                                Vars::refPtPlacementThreshold,
                                                 Vars::qualCriterion,
                                                 Vars::qualThreshold,
                                                 Vars::refPtSpacing);
