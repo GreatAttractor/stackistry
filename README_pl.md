@@ -2,7 +2,7 @@
 
 Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
 
-wersja 0.1.0 (2016-06-06)
+wersja 0.1.1 (2016-08-05)
 
 *Niniejszy program ABSOLUTNIE nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jest to wolne oprogramowanie na licencji GNU GPL w wersji 3 (lub dowolnej późniejszej) i można je swobodnie rozpowszechniać pod pewnymi warunkami: zob. pełny tekst licencji w pliku LICENSE.*
 
@@ -36,7 +36,7 @@ By uruchomić program po pobraniu dystrybucji binarnej dla MS Windows, należy u
 
 Formaty wejściowe:
 
-- AVI: nieskompresowany DIB (mono lub RGB)
+- AVI: nieskompresowany DIB (mono lub RGB), Y8/Y800
 - SER: mono, RGB, „raw color”
 - BMP: nieskompresowany 8-, 24- i 32-bitowy
 - TIFF: 8 i 16 bitów na kanał nieskompresowany mono lub RGB
@@ -231,6 +231,12 @@ share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
 ## 6. Historia zmian
 
 ```
+0.1.1 (2016-08-05)
+  Nowe funkcje:
+    - Obsługa plików AVI Y8/Y800
+  Ulepszenia:
+    - Możliwość wyboru progu jasności dla automatycznego rozmieszczania punktów odniesienia
+
 0.1.0 (2016-06-06)
   Nowe funkcje:
     - Obsługa wielojęzycznego interfejsu użytkownika

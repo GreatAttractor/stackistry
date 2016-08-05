@@ -4,7 +4,7 @@
 
 Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
 
-version 0.1.0 (2016-06-06)
+version 0.1.1 (2016-08-05)
 
 *This program comes with ABSOLUTELY NO WARRANTY. This is free software, licensed under GNU General Public License v3 or any later version and you are welcome to redistribute it under certain conditions. See the LICENSE file for details.*
 
@@ -38,7 +38,7 @@ For Windows binary distributions, use ``stackistry.bat`` to start the program (y
 
 Supported input formats:
 
-- AVI: uncompressed DIB (mono or RGB)
+- AVI: uncompressed DIB (mono or RGB), Y8/Y800
 - SER: mono, RGB, raw color
 - BMP: 8-, 24- and 32-bit uncompressed
 - TIFF: 8 and 16 bits per channel mono or RGB uncompressed
@@ -230,6 +230,12 @@ share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
 ## 6. Change log
 
 ```
+0.1.1 (2016-08-05)
+  New features:
+    - Support for Y8/Y800 AVI files
+  Enhancements:
+    - User-configurable brightness threshold for automatic placement of reference points
+
 0.1.0 (2016-06-06)
   New features:
     - Multilingual user interface support
