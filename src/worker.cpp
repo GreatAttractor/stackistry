@@ -189,11 +189,19 @@ static void CreateImgAlignmentVisualization(const libskry::c_ImageAlignment &img
     Vars::visualizationImg = Utils::ConvertImgToSurface(img);
     Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(Vars::visualizationImg);
 
-    auto anchors = imgAlignment.GetAnchors();
+    if (imgAlignment.GetAlignmentMethod() == SKRY_IMG_ALGN_ANCHORS)
+    {
+        auto anchors = imgAlignment.GetAnchors();
 
-    for (size_t i = 0; i < anchors.size(); i++)
-        if (imgAlignment.IsAnchorValid(i))
-            Utils::DrawAnchorPoint(cr, anchors[i].x, anchors[i].y);
+        for (size_t i = 0; i < anchors.size(); i++)
+            if (imgAlignment.IsAnchorValid(i))
+                Utils::DrawAnchorPoint(cr, anchors[i].x, anchors[i].y);
+    }
+    else if (imgAlignment.GetAlignmentMethod() == SKRY_IMG_ALGN_CENTROID)
+    {
+        auto centroid = imgAlignment.GetCentroid();
+        Utils::DrawAnchorPoint(cr, centroid.x, centroid.y);
+    }
 }
 
 static void CreateQualityEstimationVisualization(
@@ -342,7 +350,9 @@ void SetReferencePoints(const std::vector<struct SKRY_point> refPoints)
 void WorkerThreadFunc()
 {
     libskry::c_ImageAlignment imgAlignment(
-            *Vars::imgSeq, Vars::anchors,
+            *Vars::imgSeq,
+            SKRY_IMG_ALGN_ANCHORS,
+            Vars::anchors,
             Utils::Const::imgAlignmentRefBlockSize,
             Utils::Const::imgAlignmentRefBlockSize,
             Utils::Const::Defaults::placementBrightnessThreshold);
