@@ -29,9 +29,7 @@ File description:
 
 #include <glibmm/i18n.h>
 #include <gtkmm.h>
-extern "C" {
 #include <skry/skry.h>
-}
 
 #include "config.h"
 #include "main_window.h"
