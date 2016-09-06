@@ -82,8 +82,7 @@ void WorkerThreadFunc();
 
 static libskry::c_Image GetAlignedImage(
     const libskry::c_ImageSequence &imgSeq,
-    const libskry::c_ImageAlignment &imgAlignment,
-    enum SKRY_pixel_format asPixFmt = SKRY_PIX_BGRA8);
+    const libskry::c_ImageAlignment &imgAlignment);
 
 
 // Function definitions ----------------------------
@@ -221,8 +220,7 @@ static void CreateQualityEstimationVisualization(
 
 static libskry::c_Image GetAlignedImage(
     const libskry::c_ImageSequence &imgSeq,
-    const libskry::c_ImageAlignment &imgAlignment,
-    enum SKRY_pixel_format asPixFmt)
+    const libskry::c_ImageAlignment &imgAlignment)
 {
     libskry::c_Image currImg = imgSeq.GetCurrentImage();
 
