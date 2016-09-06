@@ -351,8 +351,8 @@ void WorkerThreadFunc()
             *Vars::imgSeq,
             SKRY_IMG_ALGN_ANCHORS,
             Vars::anchors,
-            Utils::Const::imgAlignmentRefBlockSize,
-            Utils::Const::imgAlignmentRefBlockSize,
+            Utils::Const::imgAlignmentRefBlockSize/2,
+            Utils::Const::imgAlignmentRefBlockSize/2,
             Utils::Const::Defaults::placementBrightnessThreshold);
 
     Vars::imgAlignment = &imgAlignment;
