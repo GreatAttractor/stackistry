@@ -226,4 +226,18 @@ Gtk::HBox *PackIntoHBox(std::vector<Gtk::Widget*> widgets, bool showAll)
     return box;
 }
 
+Cairo::Filter GetFilter(Const::InterpolationMethod interpolationMethod)
+{
+    /// Order of elements must reflect Utils::InterpolationMethod
+    static const Cairo::Filter cairoFilter[] =
+    {
+        Cairo::Filter::FILTER_FAST,
+        Cairo::Filter::FILTER_GOOD,
+        Cairo::Filter::FILTER_BEST
+    };
+
+    return cairoFilter[(int)interpolationMethod];
+}
+
+
 }

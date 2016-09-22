@@ -41,9 +41,6 @@ c_SelectPointsDlg::c_SelectPointsDlg(const libskry::c_Image &img,
     InitControls(!automaticPoints.empty());
 
     m_ImgView.SetImage(m_Img);
-    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(m_ImgView.GetImage());
-    for (const struct SKRY_point &point: points)
-        Utils::DrawAnchorPoint(cr, point.x, point.y);
 
     set_response_sensitive(Gtk::ResponseType::RESPONSE_OK, !m_Points.empty());
 }
@@ -61,16 +58,26 @@ void c_SelectPointsDlg::OnAutoClick()
     m_ImgView.SetImage(m_Img);
 
     for (auto &autoPt: m_AutomaticPoints)
-    {
         m_Points.push_back(autoPt);
-        DrawPointAndRefresh(autoPt.x, autoPt.y);
-    }
+
     set_response_sensitive(Gtk::ResponseType::RESPONSE_OK, true);
 }
 
 void c_SelectPointsDlg::InitControls(bool hasAutoBtn)
 {
-    m_ImgView.signal_button_press_event().connect(sigc::mem_fun(*this, &c_SelectPointsDlg::OnImageBtnPress));
+    m_ImgView.signal_ImageAreaBtnPress().connect(sigc::mem_fun(*this, &c_SelectPointsDlg::OnImageBtnPress));
+
+    m_ImgView.signal_DrawImageArea().connect(sigc::slot<bool, const Cairo::RefPtr<Cairo::Context>&>(
+        [this](const Cairo::RefPtr<Cairo::Context> &cr)
+        {
+            for (auto &pt: m_Points)
+                Utils::DrawAnchorPoint(cr,
+                                       m_ImgView.GetZoomPercentVal() * pt.x / 100,
+                                       m_ImgView.GetZoomPercentVal() * pt.y / 100);
+
+            return false;
+        }
+    ));
     m_ImgView.show();
 
     Gtk::Button *btnRemovePts = Gtk::manage(new Gtk::Button(_("Remove points")));
@@ -110,21 +117,23 @@ void c_SelectPointsDlg::InitControls(bool hasAutoBtn)
     add_button(_("Cancel"), Gtk::RESPONSE_CANCEL);
 }
 
-void c_SelectPointsDlg::DrawPointAndRefresh(int x, int y)
-{
-    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(m_ImgView.GetImage());
-
-    Cairo::Rectangle drawRect = Utils::DrawAnchorPoint(cr, x, y);
-    m_ImgView.Refresh(drawRect);
-}
-
 bool c_SelectPointsDlg::OnImageBtnPress(GdkEventButton *event)
 {
     if (event->type == GDK_BUTTON_PRESS && event->button == Utils::Const::MouseButtons::left)
     {
-        m_Points.push_back({ (int)event->x, (int)event->y });
-        DrawPointAndRefresh((int)event->x, (int)event->y);
-        set_response_sensitive(Gtk::ResponseType::RESPONSE_OK, true);
+        unsigned zoom = m_ImgView.GetZoomPercentVal();
+
+        int imgX = (int)(100 * event->x / zoom),
+            imgY = (int)(100 * event->y / zoom);
+
+        if (imgX >= 0 && imgX < m_ImgView.GetImage()->get_width() &&
+            imgY >= 0 && imgY < m_ImgView.GetImage()->get_height())
+        {
+            m_Points.push_back({ imgX, imgY });
+            m_ImgView.Refresh();
+
+            set_response_sensitive(Gtk::ResponseType::RESPONSE_OK, true);
+        }
     }
     return true;
 }

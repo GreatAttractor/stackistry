@@ -46,7 +46,6 @@ class c_SelectPointsDlg: public Gtk::Dialog
     //------------------------------
 
     void InitControls(bool hasAutoBtn);
-    void DrawPointAndRefresh(int x, int y);
 
 public:
     c_SelectPointsDlg(const libskry::c_Image &img,

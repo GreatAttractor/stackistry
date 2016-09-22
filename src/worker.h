@@ -32,6 +32,8 @@ File description:
 #include <glibmm/threads.h>
 #include <skry/skry_cpp.hpp>
 
+#include "utils.h"
+
 
 namespace Worker
 {
@@ -85,6 +87,9 @@ namespace Worker
     void SetReferencePoints(const std::vector<struct SKRY_point> refPoints);
 
     enum SKRY_result GetLastResult();
+
+    /// Used by the main thread to indicate the current visualization zoom factor
+    void SetZoomFactor(double zoom, Utils::Const::InterpolationMethod interpolationMethod);
 }
 
 #endif // STACKISTRY_WORKER_THREAD_HEADER

@@ -74,6 +74,9 @@ namespace Const
 
     enum OutputSaveMode { NONE, SOURCE_PATH, SPECIFIED_PATH };
 
+    /// Represents values of Cairo::Filter::FILTER_xx
+    enum InterpolationMethod { FAST = 0, GOOD, BEST };
+
     const char * const SYSTEM_DEFAULT_LANG = "";
 
     namespace Defaults
@@ -84,6 +87,7 @@ namespace Const
         const float placementBrightnessThreshold = 0.33f;
         const enum SKRY_quality_criterion qualityCriterion = SKRY_quality_criterion::SKRY_PERCENTAGE_BEST;
         const unsigned qualityThreshold = 30;
+        const InterpolationMethod interpolation = InterpolationMethod::GOOD;
     }
 
     typedef struct
@@ -141,6 +145,8 @@ void SetAppLaunchPath(const char *appLaunchPath);
 std::string GetErrorMsg(enum SKRY_result errorCode);
 
 Gtk::HBox *PackIntoHBox(std::vector<Gtk::Widget*> widgets, bool showAll = true);
+
+Cairo::Filter GetFilter(Const::InterpolationMethod interpolationMethod);
 
 }
 

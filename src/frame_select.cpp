@@ -81,6 +81,17 @@ Gtk::Box *c_FrameSelectDlg::CreateFrameListBox()
     m_FrameList.view.signal_cursor_changed().connect(sigc::mem_fun(*this, &c_FrameSelectDlg::OnFrameListCursorChanged));
     m_FrameList.view.signal_key_press_event().connect(sigc::mem_fun(*this, &c_FrameSelectDlg::OnListKeyPress), false);
 
+    m_FrameList.data->signal_row_changed().connect(sigc::slot<void, const Gtk::TreeModel::Path&, const Gtk::TreeModel::iterator&>(
+        [this](const Gtk::TreeModel::Path &path, const Gtk::TreeModel::iterator &iter)
+        {
+            // If "active" state of the currently displayed frame changed, refresh it
+            if ((*iter)[m_FrameList.columns.index] == (size_t)m_VideoPos.get_value())
+            {
+                m_ImgView.Refresh();;
+            }
+        }
+    ));
+
     auto listScrWin = Gtk::manage(new Gtk::ScrolledWindow());
     listScrWin->add(m_FrameList.view);
     listScrWin->show();
@@ -125,12 +136,11 @@ void c_FrameSelectDlg::InitControls()
     else
         m_ImgView.SetImage(firstImg);
 
-    m_ImgView.signal_draw().connect(sigc::mem_fun(*this, &c_FrameSelectDlg::OnDrawImage));
+    m_ImgView.signal_DrawImageArea().connect(sigc::mem_fun(*this, &c_FrameSelectDlg::OnDrawImage));
     m_ImgView.show();
 
     m_VideoPos.set_adjustment(Gtk::Adjustment::create(0, 0, m_ImgSeq.GetImageCount()-1));
     m_VideoPos.set_digits(0);
-    //m_VideoPos.set_draw_value(false);
     m_VideoPos.set_value_pos(Gtk::PositionType::POS_TOP);
     m_VideoPos.set_has_origin(false);
     m_VideoPos.signal_value_changed().connect(sigc::mem_fun(*this, &c_FrameSelectDlg::OnVideoPosScroll));
@@ -185,18 +195,17 @@ bool c_FrameSelectDlg::OnDrawImage(const Cairo::RefPtr<Cairo::Context>& cr)
         int w = m_ImgView.GetImage()->get_width(),
             h = m_ImgView.GetImage()->get_height();
 
-        double xofs, yofs;
-        m_ImgView.GetDisplayOffset(xofs, yofs);
+        double zoom = m_ImgView.GetZoomPercentVal() / 100.0;
 
-        cr->set_line_width(3);
+        cr->set_line_width(3); //TODO: make it relative to screen's DPI
         cr->set_source_rgb(1, 0, 0);
 
-        cr->move_to(0-xofs, 0-yofs);
-        cr->line_to(w-1-xofs, h-1-yofs);
+        cr->move_to(0, 0);
+        cr->line_to(zoom * (w-1), zoom * (h-1));
         cr->stroke();
 
-        cr->move_to(w-1-xofs, 0-yofs);
-        cr->line_to(0-xofs, h-1-yofs);
+        cr->move_to(zoom * (w-1), 0);
+        cr->line_to(0, zoom * (h-1));
         cr->stroke();
     }
     return true;
@@ -245,9 +254,6 @@ bool c_FrameSelectDlg::OnListKeyPress(GdkEventKey *event)
             else
                 (*iter)[m_FrameList.columns.active] = false;
         }
-
-        // Refresh, in case we just toggled the currenty displayed frame
-        m_ImgView.Refresh();
 
         return true; // prevent normal handling of GDK_KEY_space (after our toggle,
                      // it would re-enable the frame if focus was on the checkboxes column)

@@ -74,6 +74,11 @@ namespace Vars
     /// Used for notification by main thread that reference points have been provided
     static Glib::Threads::Mutex mtxRefPt;
     static Glib::Threads::Cond condRefPt;
+
+    /// Current zoom factor specified in the main window's visualization widget
+    static double zoomFactor = 1.0;
+    /// Current zoom interpolation method specified in the main window's visualization widget
+    static auto interpolationMethod = Utils::Const::Defaults::interpolation;
 }
 
 #define LOCK() Glib::Threads::Mutex::Lock lock(Vars::mtx)
@@ -84,8 +89,16 @@ static libskry::c_Image GetAlignedImage(
     const libskry::c_ImageSequence &imgSeq,
     const libskry::c_ImageAlignment &imgAlignment);
 
-
 // Function definitions ----------------------------
+
+/// Used by the main thread to indicate the current visualization zoom factor
+void SetZoomFactor(double zoom, Utils::Const::InterpolationMethod interpolationMethod)
+{
+    LOCK();
+    Vars::zoomFactor = zoom;
+    Vars::interpolationMethod = interpolationMethod;
+}
+
 
 Glib::Threads::Mutex &GetRefPtNotificationMtx()
 {
@@ -179,13 +192,29 @@ void StartProcessing(libskry::c_ImageSequence &imgSeq,
     Vars::workerThread = Glib::Threads::Thread::create(sigc::ptr_fun(&WorkerThreadFunc));
 }
 
+/// Returns a version of 'srcImg' scaled by Vars::zoomFactor
+Cairo::RefPtr<Cairo::ImageSurface> GetScaledImg(const libskry::c_Image &srcImg)
+{
+    auto src = Cairo::SurfacePattern::create(Utils::ConvertImgToSurface(srcImg));
+    src->set_matrix(Cairo::scaling_matrix(1 / Vars::zoomFactor, 1 / Vars::zoomFactor));
+    src->set_filter(Utils::GetFilter(Vars::interpolationMethod));
+
+    auto scaledImg = Cairo::ImageSurface::create(Cairo::Format::FORMAT_RGB24,
+                                                 Vars::zoomFactor * srcImg.GetWidth(),
+                                                 Vars::zoomFactor * srcImg.GetHeight());
+
+    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(scaledImg);
+    cr->set_source(src);
+    cr->rectangle(0, 0, Vars::zoomFactor * srcImg.GetWidth(),
+                        Vars::zoomFactor * srcImg.GetHeight());
+    cr->fill();
+
+    return scaledImg;
+}
+
 static void CreateImgAlignmentVisualization(const libskry::c_ImageAlignment &imgAlignment)
 {
-    libskry::c_Image img = Vars::imgSeq->GetCurrentImage();
-    if (!img)
-        ; //FIXME: react to this
-
-    Vars::visualizationImg = Utils::ConvertImgToSurface(img);
+    Vars::visualizationImg = GetScaledImg(Vars::imgSeq->GetCurrentImage());
     Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(Vars::visualizationImg);
 
     if (imgAlignment.GetAlignmentMethod() == SKRY_IMG_ALGN_ANCHORS)
@@ -194,12 +223,14 @@ static void CreateImgAlignmentVisualization(const libskry::c_ImageAlignment &img
 
         for (size_t i = 0; i < anchors.size(); i++)
             if (imgAlignment.IsAnchorValid(i))
-                Utils::DrawAnchorPoint(cr, anchors[i].x, anchors[i].y);
+                Utils::DrawAnchorPoint(cr, Vars::zoomFactor * anchors[i].x,
+                                           Vars::zoomFactor * anchors[i].y);
     }
     else if (imgAlignment.GetAlignmentMethod() == SKRY_IMG_ALGN_CENTROID)
     {
         auto centroid = imgAlignment.GetCentroid();
-        Utils::DrawAnchorPoint(cr, centroid.x, centroid.y);
+        Utils::DrawAnchorPoint(cr, Vars::zoomFactor * centroid.x,
+                                   Vars::zoomFactor * centroid.y);
     }
 }
 
@@ -208,12 +239,7 @@ static void CreateQualityEstimationVisualization(
     const libskry::c_ImageAlignment &imgAlignment,
     const libskry::c_QualityEstimation &qualEstimation)
 {
-    libskry::c_Image img = GetAlignedImage(imgSeq, imgAlignment);
-    if (!img)
-        ; //FIXME: react to this
-
-    Vars::visualizationImg = Utils::ConvertImgToSurface(img);
-    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(Vars::visualizationImg);
+    Vars::visualizationImg = GetScaledImg(GetAlignedImage(imgSeq, imgAlignment));
 
     //TODO: draw something?.. e.g. image in grayscale with quality color-mapped
 }
@@ -250,16 +276,13 @@ static void CreateRefPtAlignmentVisualization(
     const libskry::c_ImageAlignment &imgAlignment,
     const libskry::c_RefPointAlignment &refPtAlignment)
 {
+    Vars::visualizationImg = GetScaledImg(GetAlignedImage(imgSeq, imgAlignment));
+    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(Vars::visualizationImg);
+
     const double RADIUS_VALID_POS = 4.0;
     const double RADIUS_INVALID_POS = 2.0;
 
     int imgIdx = imgSeq.GetCurrentImgIdxWithinActiveSubset();
-    libskry::c_Image img = GetAlignedImage(imgSeq, imgAlignment);
-    if (!img)
-        ; //FIXME: react to this
-
-    Vars::visualizationImg = Utils::ConvertImgToSurface(img);
-    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(Vars::visualizationImg);
 
     cr->set_line_width(1);
 
@@ -273,7 +296,9 @@ static void CreateRefPtAlignmentVisualization(
         else
             cr->set_source_rgb(0.9, 0.3, 0.3);
 
-        cr->arc(pos.x, pos.y, isValid ? RADIUS_VALID_POS : RADIUS_INVALID_POS, 0, 2*M_PI);
+        cr->arc(Vars::zoomFactor * pos.x,
+                Vars::zoomFactor * pos.y,
+                isValid ? RADIUS_VALID_POS : RADIUS_INVALID_POS, 0, 2*M_PI);
         cr->stroke();
     }
 }
@@ -282,14 +307,15 @@ static void CreateStackingVisualization(
     const libskry::c_Stacking &stacking,
     const libskry::c_RefPointAlignment &refPtAlignment)
 {
-    Vars::visualizationImg = Utils::ConvertImgToSurface(stacking.GetPartialImageStack());
+    Vars::visualizationImg = GetScaledImg(stacking.GetPartialImageStack());
+    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(Vars::visualizationImg);
+
 
     const struct SKRY_triangle *triangles = SKRY_get_triangles(refPtAlignment.GetTriangulation());
     const struct SKRY_point_flt *verts = stacking.GetRefPtStackingPositions();
     size_t numStackedTris;
     const size_t *stackedTris = stacking.GetCurrentStepStackedTriangles(numStackedTris);
 
-    Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(Vars::visualizationImg);
     cr->set_line_cap(Cairo::LineCap::LINE_CAP_ROUND);
     cr->set_source_rgb(0.6, 0.2, 0.7);
     for (size_t i = 0; i < numStackedTris; i++)
@@ -298,10 +324,10 @@ static void CreateStackingVisualization(
                                     &v1 = verts[triangles[stackedTris[i]].v1],
                                     &v2 = verts[triangles[stackedTris[i]].v2];
 
-        cr->move_to(v0.x, v0.y);
-        cr->line_to(v1.x, v1.y);
-        cr->line_to(v2.x, v2.y);
-        cr->line_to(v0.x, v0.y);
+        cr->move_to(Vars::zoomFactor * v0.x, Vars::zoomFactor * v0.y);
+        cr->line_to(Vars::zoomFactor * v1.x, Vars::zoomFactor * v1.y);
+        cr->line_to(Vars::zoomFactor * v2.x, Vars::zoomFactor * v2.y);
+        cr->line_to(Vars::zoomFactor * v0.x, Vars::zoomFactor * v0.y);
         cr->stroke();
     }
 }

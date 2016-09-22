@@ -63,7 +63,6 @@ private:
     c_ImageViewer m_Visualization;
     Gtk::Paned m_MainPaned;
     Glib::RefPtr<Gtk::ActionGroup> m_ActionGroup;
-    Glib::RefPtr<Gdk::Pixbuf> m_VisualizationImg;
     Glib::RefPtr<Gtk::UIManager> m_UIManager;
     Gtk::Statusbar m_StatusBar;
     Glib::RefPtr<Gtk::ToggleAction> m_ActVisualization;
