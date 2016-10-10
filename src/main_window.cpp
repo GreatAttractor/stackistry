@@ -213,7 +213,7 @@ void c_MainWindow::OnStartProcessing()
     m_RunningJob = m_Jobs.data->get_iter(m_JobsToProcess.front());
     m_JobsToProcess.pop();
     Job_t &job = GetJobAt(m_RunningJob);
-    if (job.anchors.empty())
+    if (job.anchors.empty() && !job.automaticAnchorPlacement)
     {
         if (!SetAnchors(job))
         {
@@ -395,6 +395,7 @@ bool c_MainWindow::SetAnchors(Job_t &job)
     auto response = dlg.run();
     if (response == Gtk::ResponseType::RESPONSE_OK)
     {
+        job.automaticAnchorPlacement = false;
         dlg.GetPoints(job.anchors);
         // Modified anchors may modify video size and target framing
         // after image alignment, so old ref. points may be invalid
@@ -490,7 +491,7 @@ void c_MainWindow::OnSettings()
     dlg.SetRefPtBrightThresh(job.refPtPlacementThreshold);
     dlg.SetRefPointsAutomatic(job.automaticRefPointsPlacement);
     dlg.SetFlatFieldFileName(job.flatFieldFileName);
-    dlg.SetAnchorsAutomatic(!job.anchors.empty());
+    dlg.SetAnchorsAutomatic(job.automaticAnchorPlacement);
     dlg.SetQualityCriterion(job.qualityCriterion, job.qualityThreshold);
     dlg.SetCFAPattern(job.cfaPattern);
 
@@ -519,14 +520,14 @@ void c_MainWindow::OnSettings()
             job.cfaPattern = dlg.GetCFAPattern();
             job.imgSeq.ReinterpretAsCFA(job.cfaPattern);
 
-            job.anchors.clear();
+
             if (dlg.GetAnchorsAutomatic())
             {
-                job.imgSeq.SeekStart();
-                job.anchors.push_back(libskry::c_ImageAlignment::SuggestAnchorPos(job.imgSeq.GetCurrentImage(),
-                                                                                  Utils::Const::Defaults::placementBrightnessThreshold,
-                                                                                  Utils::Const::imgAlignmentRefBlockSize));
+                job.anchors.clear();
+                job.automaticAnchorPlacement = true;
             }
+            else
+                job.automaticAnchorPlacement = false;
         }
 }
 
@@ -595,22 +596,9 @@ void c_MainWindow::SetDefaultSettings(c_MainWindow::Job_t &job)
     job.qualityCriterion = Utils::Const::Defaults::qualityCriterion;
     job.qualityThreshold = Utils::Const::Defaults::qualityThreshold;
     job.automaticRefPointsPlacement = true;
+    job.automaticAnchorPlacement = true;
     job.cfaPattern = SKRY_CFA_NONE;
     enum SKRY_result result;
-    libskry::c_Image firstImg = GetFirstActiveImage(job.imgSeq, result);
-    if (!firstImg)
-    {
-        ShowMsg(*this, _("Error"),
-                Glib::ustring::compose("Error loading the first image of %1:\n%2",
-                                 job.sourcePath.c_str(),
-                                 Utils::GetErrorMsg(result)),
-                Gtk::MessageType::MESSAGE_ERROR);
-    }
-    else
-        job.anchors.push_back(libskry::c_ImageAlignment::SuggestAnchorPos(
-                                job.imgSeq.GetCurrentImage(),
-                                Utils::Const::Defaults::placementBrightnessThreshold,
-                                Utils::Const::imgAlignmentRefBlockSize));
 }
 
 void c_MainWindow::OnAddVideos()
@@ -1030,7 +1018,7 @@ void c_MainWindow::OnWorkerProgress()
             m_JobsToProcess.pop();
             Job_t &job = GetJobAt(m_RunningJob);
             bool startNextJob = true;
-            if (job.anchors.empty())
+            if (job.anchors.empty() && !job.automaticAnchorPlacement)
                 if (!SetAnchors(job))
                     startNextJob = false;
 

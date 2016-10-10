@@ -78,7 +78,8 @@ private:
         enum SKRY_output_format outputFmt;
         std::string sourcePath; ///< For image series: directory only; for videos: full path to the video file
         std::string destDir; // effective if outputSaveMode==OutputSaveMode::SPECIFIED_PATH
-        std::vector<struct SKRY_point> anchors; // if empty, video stabilization anchors will be set automatically
+        bool automaticAnchorPlacement;
+        std::vector<struct SKRY_point> anchors;
         bool automaticRefPointsPlacement;
         std::vector<struct SKRY_point> refPoints; // used when 'automaticRefPointsPlacement' is false
         std::string flatFieldFileName; // if empty, no flat-fielding will be performed

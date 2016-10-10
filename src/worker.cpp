@@ -174,7 +174,6 @@ void StartProcessing(libskry::c_ImageSequence &imgSeq,
                      unsigned qualThreshold,
                      std::string flatFieldFileName)
 {
-    assert(!anchors.empty());
     Vars::imgSeq = &imgSeq;
     Vars::anchors = anchors;
     Vars::isWorkerRunning = true;
