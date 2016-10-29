@@ -31,58 +31,24 @@ File description:
 #include <gtkmm/dialog.h>
 #include <gtkmm/comboboxtext.h>
 #include <gtkmm/filechooserbutton.h>
-#include <gtkmm/label.h>
 #include <gtkmm/spinbutton.h>
 
 #include "utils.h"
+#include "worker.h"
 
 
 class c_SettingsDlg: public Gtk::Dialog
 {
 public:
-    c_SettingsDlg(const std::vector<std::string> &jobNames);
+    c_SettingsDlg(const std::vector<std::string> &jobNames, const Job_t &firstJob);
     ~c_SettingsDlg();
 
-    Utils::Const::OutputSaveMode GetOutputSaveMode() const;
-    void SetOutputSaveMode(Utils::Const::OutputSaveMode mode);
-
-    void SetDestinationDir(std::string dir);
-    std::string GetDestinationDir() const;
-
-    unsigned GetRefPointSpacing() const;
-    void SetRefPtSpacing(unsigned sp);
-
-    double GetRefPointBrightThresh() const;
-    void SetRefPtBrightThresh(double threshold);
-
-    std::string GetFlatFieldFileName() const;
-    /// Specify an empty string to disable flat-fielding
-    void SetFlatFieldFileName(std::string flatField);
-
-    bool GetAnchorsAutomatic() const;
-    void SetAnchorsAutomatic(bool automatic);
-
-    bool GetRefPointsAutomatic() const;
-    void SetRefPointsAutomatic(bool automatic);
-
-    enum SKRY_quality_criterion GetQualityCriterion() const;
-    unsigned GetQualityThreshold() const;
-    void SetQualityCriterion(enum SKRY_quality_criterion qualCrit, unsigned threshold);
-
-    enum SKRY_output_format GetAutoSaveOutputFormat() const;
-    void SetAutoSaveOutputFormat(enum SKRY_output_format outpFmt);
-
-    enum SKRY_CFA_pattern GetCFAPattern() const;
-    void SetCFAPattern(enum SKRY_CFA_pattern pattern);
+    void ApplySettings(Job_t &job);
 
 private:
     Gtk::ComboBoxText m_OutputSaveMode;
+    Gtk::Label m_VideoStbAnchorsModeLabel;
     Gtk::ComboBoxText m_VideoStbAnchorsMode;
-    Gtk::ComboBoxText m_RefPtPlacementMode;
-    Gtk::Label m_RefPtSpacingLabel;
-    Gtk::SpinButton m_RefPtSpacing;
-    Gtk::Label m_RefPtBrightThreshLabel;
-    Gtk::SpinButton m_RefPtBrightThresh;
     Gtk::FileChooserButton m_DestFolderChooser;
     Gtk::ComboBoxText m_QualityCriterion;
     Gtk::SpinButton m_QualityThreshold;
@@ -90,13 +56,26 @@ private:
     Gtk::CheckButton m_FlatFieldCheckBtn;
     Gtk::ComboBoxText m_AutoSaveOutputFormat;
     Gtk::Label m_OutpFmtLabel;
-
     Gtk::CheckButton m_TreatMonoAsCFA;
     Gtk::ComboBoxText m_CFAPattern;
+    Gtk::ComboBoxText m_AlignmentMethod;
+
+    // Reference point placement parameters
+    Gtk::ComboBoxText m_RefPtPlacementMode;
+
+    Gtk::VBox *m_RefPtAutoControls;
+
+    Gtk::SpinButton m_RefPtSpacing;
+    Gtk::SpinButton m_RefPtBrightThresh;
+    Gtk::SpinButton m_RefPtSearchRadius;
+    Gtk::SpinButton m_RefPtRefBlockSize;
+    Gtk::SpinButton m_StructureThreshold;
+    Gtk::SpinButton m_StructureScale;
+
 
     void InitControls(const std::vector<std::string> &jobNames);
     Glib::RefPtr<Gtk::Adjustment> CreatePercentageAdj();
-
+    void InitRefPointControls();
 
     // Signal handlers --------------
     void OnRefPtMode();

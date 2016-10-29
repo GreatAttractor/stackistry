@@ -34,6 +34,55 @@ File description:
 
 #include "utils.h"
 
+struct Job_t
+{
+    libskry::c_ImageSequence imgSeq; // has to be the first field
+
+    enum SKRY_output_format outputFmt;
+    Utils::Const::OutputSaveMode outputSaveMode;
+    libskry::c_Image stackedImg;
+
+    enum SKRY_img_alignment_method alignmentMethod;
+
+    enum SKRY_quality_criterion qualityCriterion;
+    unsigned qualityThreshold; ///< Interpreted according to 'qualityCriterion'
+
+    std::string sourcePath; ///< For image series: directory only; for videos: full path to the video file
+    std::string destDir; ///< Effective if outputSaveMode==OutputSaveMode::SPECIFIED_PATH
+
+    bool automaticAnchorPlacement;
+    std::vector<struct SKRY_point> anchors; ///< Used when automaticAnchorPlacement==false
+
+    bool automaticRefPointsPlacement;
+    std::vector<struct SKRY_point> refPoints; ///< Used when automaticRefPointsPlacement==false
+
+    unsigned refPtBlockSize;
+    unsigned refPtSearchRadius;
+
+    struct
+    {
+        unsigned spacing;          ///< Spacing in pixels
+
+        /// Min. image brightness that a ref. point can be placed at (values: [0; 1])
+        /** Value is relative to the image's darkest (0.0) and brightest (1.0) pixels. */
+        float brightnessThreshold;
+
+        /// Structure detection threshold; value of 1.2 is recommended
+        /** The greater the value, the more local contrast is required to place
+            a ref. point. */
+        float structureThreshold;
+
+        /** Corresponds with pixel size of smallest structures. Should equal 1
+            for optimally-sampled or undersampled images. Use higher values
+            for oversampled (blurry) material. */
+        unsigned structureScale;
+    } refPtAutoPlacementParams;
+
+    std::string flatFieldFileName; /// If empty, no flat-fielding will be performed
+
+    /// If not SKRY_CFA_NONE, mono images will be treated as raw color with this filter pattern
+    enum SKRY_CFA_pattern cfaPattern;
+};
 
 namespace Worker
 {
@@ -41,18 +90,7 @@ namespace Worker
 
     std::string GetProcPhaseStr(ProcPhase phase);
 
-    void StartProcessing(libskry::c_ImageSequence &imgSeq,
-                         /// Must not be empty
-                         const std::vector<struct SKRY_point> &anchors,
-                         unsigned refPtSpacing,
-                         double refPtPlacementThreshold,
-                         bool automaticRefPtPlacement,
-                         /// Used when 'automaticRefPointsPlacement' is false; may be empty
-                         const std::vector<struct SKRY_point> &refPoints,
-                         enum SKRY_quality_criterion qualCriterion,
-                         unsigned qualThreshold, ///< Interpreted according to 'qualCriterion'
-                         std::string flatFieldFileName ///< If empty, flat-fielding is disabled
-                         );
+    void StartProcessing(Job_t *job);
 
     size_t GetStep();
 
@@ -72,19 +110,17 @@ namespace Worker
     /// Blocks until the worker thread finishes; calls WaitUntilFinished() internally
     void AbortProcessing();
 
-    /** Performs a move, so should be called only once after each processing run
-        (subsequent calls will return null, until next processing run finishes). */
-    libskry::c_Image GetStackedImage();
-
     void SetVisualizationEnabled(bool enabled);
     bool IsVisualizationEnabled();
 
     /// Returns true if the main thread needs to provide reference points
     bool IsWaitingForReferencePoints();
-    /// Returns the first active image after alignment
-    libskry::c_Image GetAlignedFirstImage();
-    /// Also notifies the worker thread that it may continue
-    void SetReferencePoints(const std::vector<struct SKRY_point> refPoints);
+
+    /// Notifies the worker thread that it may continue
+    void NotifyReferencePointsSet();
+
+    /// Can be called after quality estimation completes
+    libskry::c_Image GetBestQualityAlignedImage();
 
     enum SKRY_result GetLastResult();
 

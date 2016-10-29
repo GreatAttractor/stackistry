@@ -6,10 +6,10 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Stackistry 0.1\n"
+"Project-Id-Version: Stackistry 0.1.1\n"
 "Report-Msgid-Bugs-To: Filip Szczerek <ga.software@yahoo.com>\n"
-"POT-Creation-Date: 2016-08-04 21:00+0200\n"
-"PO-Revision-Date: 2016-08-04 21:00+0200\n"
+"POT-Creation-Date: 2016-10-29 13:56+0200\n"
+"PO-Revision-Date: 2016-10-29 13:56+0200\n"
 "Last-Translator: Filip Szczerek <ga.software@yahoo.com>\n"
 "Language-Team: \n"
 "Language: Polish\n"
@@ -25,55 +25,89 @@ msgstr "Aktywna"
 msgid "Index"
 msgstr "Indeks"
 
-#: src/frame_select.cpp:88
+#: src/frame_select.cpp:99
 msgid "Activate all"
 msgstr "Aktywuj wszystkie"
 
-#: src/frame_select.cpp:97
+#: src/frame_select.cpp:108
 msgid "Synchronize frame list with slider"
 msgstr "Synchronizuj listę klatek z suwakiem"
 
-#: src/frame_select.cpp:150 src/main_window.cpp:143 src/main_window.cpp:427
-#: src/main_window.cpp:612 src/main_window.cpp:1213 src/main_window.cpp:1251
-#: src/preferences.cpp:96 src/select_points.cpp:109 src/settings_dlg.cpp:211
+#: src/frame_select.cpp:160 src/main_window.cpp:138 src/main_window.cpp:334
+#: src/main_window.cpp:470 src/main_window.cpp:1038 src/main_window.cpp:1076
+#: src/preferences.cpp:96 src/select_points.cpp:116 src/settings_dlg.cpp:349
 msgid "OK"
 msgstr "OK"
 
-#: src/frame_select.cpp:151 src/main_window.cpp:144 src/main_window.cpp:428
-#: src/main_window.cpp:613 src/main_window.cpp:1214 src/main_window.cpp:1252
-#: src/preferences.cpp:97 src/select_points.cpp:110 src/settings_dlg.cpp:212
+#: src/frame_select.cpp:161 src/main_window.cpp:139 src/main_window.cpp:335
+#: src/main_window.cpp:471 src/main_window.cpp:1039 src/main_window.cpp:1077
+#: src/preferences.cpp:97 src/select_points.cpp:117 src/settings_dlg.cpp:350
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: src/frame_select.cpp:157
+#: src/frame_select.cpp:167
 msgid "Select frames for processing"
 msgstr "Wybór klatek do przetwarzania"
 
-#: src/main_window.cpp:142
+#: src/img_viewer.cpp:79
+msgid "fast"
+msgstr "szybka"
+
+#: src/img_viewer.cpp:80
+msgid "good"
+msgstr "dobra"
+
+#: src/img_viewer.cpp:81
+msgid "best"
+msgstr "najlepsza"
+
+#: src/img_viewer.cpp:85
+msgid ""
+"Image interpolation method used when zoom level is not 100%;\n"
+"“fast” has the lowest quality, “best” is the slowest"
+msgstr "Metoda interpolacji używana przy skali różnej od 100%;\n"
+"„szybka” ma najsłabszą jakość, „najlepsza” jest najwolniesza"
+
+#: src/img_viewer.cpp:92
+msgid "quality:"
+msgstr "jakość:"
+
+#: src/img_viewer.cpp:97
+msgid "Zoom:"
+msgstr "Powiększenie:"
+
+#: src/img_viewer.cpp:100
+msgid "Fit"
+msgstr "Rozc"
+
+#: src/img_viewer.cpp:101
+msgid "Fit in window"
+msgstr "Rozciągnij obraz do wielkości okna"
+
+#: src/main_window.cpp:137
 msgid "Add image series"
 msgstr "Dodaj serię obrazów"
 
-#: src/main_window.cpp:150 src/main_window.cpp:619 src/main_window.cpp:1218
-#: src/settings_dlg.cpp:71
+#: src/main_window.cpp:145 src/main_window.cpp:477 src/main_window.cpp:1043
+#: src/settings_dlg.cpp:118
 msgid "All files"
 msgstr "Wszystkie pliki"
 
-#: src/main_window.cpp:169 src/main_window.cpp:238 src/main_window.cpp:374
-#: src/main_window.cpp:462 src/main_window.cpp:596 src/main_window.cpp:641
-#: src/main_window.cpp:1165 src/main_window.cpp:1233 src/main_window.cpp:1243
-#: src/main_window.cpp:1274
+#: src/main_window.cpp:164 src/main_window.cpp:232 src/main_window.cpp:280
+#: src/main_window.cpp:369 src/main_window.cpp:499 src/main_window.cpp:990
+#: src/main_window.cpp:1058 src/main_window.cpp:1068 src/main_window.cpp:1099
 msgid "Error"
 msgstr "Błąd"
 
-#: src/main_window.cpp:169
+#: src/main_window.cpp:164
 msgid "At least two image files are required."
 msgstr "Wymagane są co najmniej dwa pliki"
 
-#: src/main_window.cpp:185 src/main_window.cpp:350 src/main_window.cpp:659
+#: src/main_window.cpp:180 src/main_window.cpp:255 src/main_window.cpp:517
 msgid "Waiting"
 msgstr "Oczekiwanie"
 
-#: src/main_window.cpp:239 src/main_window.cpp:375
+#: src/main_window.cpp:233 src/main_window.cpp:281
 msgid ""
 "Error loading the first image of %1:\n"
 "%2"
@@ -81,16 +115,16 @@ msgstr ""
 "Błąd podczas ładowania pierwszego obrazu %1:\n"
 "%2"
 
-#: src/main_window.cpp:354 src/main_window.cpp:984 src/main_window.cpp:1127
-#: src/worker.cpp:542
+#: src/main_window.cpp:259 src/main_window.cpp:801 src/main_window.cpp:950
+#: src/worker.cpp:570
 msgid "Idle"
 msgstr "Bezczynny"
 
-#: src/main_window.cpp:386
+#: src/main_window.cpp:292
 msgid "Set video stabilization anchors"
 msgstr "Wybierz punkty kotwiczące stabilizacji wideo"
 
-#: src/main_window.cpp:387
+#: src/main_window.cpp:293
 msgid ""
 "Automatic placement should work reliably in most cases. Otherwise, click the "
 "image to place anchors (one anchor is sufficient if there is not much image "
@@ -100,11 +134,11 @@ msgstr ""
 "Jeśli tak nie jest, dodaj punkty kotwiczące klikając na obraz (wystarczy jeden "
 "punkt, jeśli nie występuje nadmierny dryf)."
 
-#: src/main_window.cpp:426
+#: src/main_window.cpp:333
 msgid "Save stacked image"
 msgstr "Zapisz stack"
 
-#: src/main_window.cpp:463
+#: src/main_window.cpp:370
 msgid ""
 "Error saving output image %1:\n"
 "%2"
@@ -112,130 +146,118 @@ msgstr ""
 "Błąd podczas zapisu obrazu wynikowego %1:\n"
 "%2"
 
-#: src/main_window.cpp:611
+#: src/main_window.cpp:469
 msgid "Add video(s)"
 msgstr "Dodaj plik(i) wideo"
 
-#: src/main_window.cpp:642
+#: src/main_window.cpp:500
 msgid ""
 "Could not open video file %1:\n"
 "%2"
 msgstr "Nie można otworzyć pliku wideo %1:\n"
 "%2"
 
-#: src/main_window.cpp:706
+#: src/main_window.cpp:534
 msgid "_File"
 msgstr "_Plik"
 
-#: src/main_window.cpp:709
+#: src/main_window.cpp:537
 msgid "Add image series..."
 msgstr "Dodaj serię obrazów..."
 
-#: src/main_window.cpp:711
+#: src/main_window.cpp:539
 msgid "Add image series from folder(s)..."
 msgstr "Dodaj serię obrazów z folder(ów)..."
 
-#: src/main_window.cpp:713
+#: src/main_window.cpp:541
 msgid "Add video(s)..."
 msgstr "Dodaj plik(i) wideo..."
 
-#: src/main_window.cpp:715
+#: src/main_window.cpp:543
 msgid "Save stacked image..."
 msgstr "Zapisz stack..."
 
-#: src/main_window.cpp:717 src/main_window.cpp:718
+#: src/main_window.cpp:545 src/main_window.cpp:546
 msgid "Create flat-field from video..."
 msgstr "Wygeneruj flat z wideo..."
 
-#: src/main_window.cpp:721
+#: src/main_window.cpp:549
 msgid "_Edit"
 msgstr "_Edycja"
 
-#: src/main_window.cpp:722
+#: src/main_window.cpp:550
 msgid "Set video stabilization anchors..."
 msgstr "Ustaw punkty kotwiczące stabilizacji wideo..."
 
-#: src/main_window.cpp:724
+#: src/main_window.cpp:552
 msgid "Select frames..."
 msgstr "Wybierz klatki..."
 
-#: src/main_window.cpp:726 src/main_window.cpp:727
+#: src/main_window.cpp:554 src/main_window.cpp:555
 msgid "Processing settings..."
 msgstr "Ustawienia przetwarzania..."
 
-#: src/main_window.cpp:729
+#: src/main_window.cpp:557
 msgid "Remove from list"
 msgstr "Usuń z listy"
 
-#: src/main_window.cpp:731
+#: src/main_window.cpp:559
 msgid "Preferences..."
 msgstr "Preferencje..."
 
-#: src/main_window.cpp:734
+#: src/main_window.cpp:562
 msgid "_Processing"
 msgstr "P_rzetwarzanie"
 
-#: src/main_window.cpp:735
+#: src/main_window.cpp:563
 msgid "Start processing"
 msgstr "Rozpocznij przetwarzanie"
 
-#: src/main_window.cpp:736
+#: src/main_window.cpp:564
 msgid "Start processing selected job(s)"
 msgstr "Rozpocznij przetwarzanie wybranych zadań"
 
-#: src/main_window.cpp:738
+#: src/main_window.cpp:566
 msgid "Pause processing"
 msgstr "Wstrzymaj przetwarzanie"
 
-#: src/main_window.cpp:740
+#: src/main_window.cpp:568
 msgid "Stop processing"
 msgstr "Przerwij przetwarzanie"
 
-#: src/main_window.cpp:742
+#: src/main_window.cpp:570
 msgid "Show visualization"
 msgstr "Pokaż wizualizację"
 
-#: src/main_window.cpp:742
+#: src/main_window.cpp:570
 msgid "Show visualization (slows down processing)"
 msgstr "Pokaż wizualizację (spowalnia przetwarzanie)"
 
-#: src/main_window.cpp:745
-msgid "_Test"
-msgstr ""
-
-#: src/main_window.cpp:746
-msgid "Quality..."
-msgstr ""
-
-#: src/main_window.cpp:748
-msgid "Background..."
-msgstr ""
-
-#: src/main_window.cpp:751
+#: src/main_window.cpp:573
 msgid "_About"
 msgstr "_O programie"
 
-#: src/main_window.cpp:752
+#: src/main_window.cpp:574
 msgid "About Stackistry..."
 msgstr "O Stackistry..."
 
-#: src/main_window.cpp:839
+#: src/main_window.cpp:655
 msgid "Job"
 msgstr "Zadanie"
 
-#: src/main_window.cpp:844
+#: src/main_window.cpp:660
 msgid "State"
 msgstr "Stan"
 
-#: src/main_window.cpp:848
+#: src/main_window.cpp:664
 msgid "Progress"
 msgstr "Postęp"
 
-#: src/main_window.cpp:944
+#: src/main_window.cpp:765
 msgid "Set reference points"
 msgstr "Ustaw punkty odniesienia"
 
-#: src/main_window.cpp:945
+#: src/main_window.cpp:766
 msgid ""
 "Place reference points by left-clicking on the image. Avoid blank areas with "
 "little or no detail. Click Cancel to set points automatically."
@@ -244,35 +266,35 @@ msgstr ""
 "Unikaj obszarów pozbawionych wyraźnych szczegółów. Wybierz Anuluj, by rozmieścić "
 "punkty automatycznie."
 
-#: src/main_window.cpp:977
+#: src/main_window.cpp:794
 msgid "step"
 msgstr "krok"
 
-#: src/main_window.cpp:992
+#: src/main_window.cpp:809
 msgid "Processed"
 msgstr "Ukończone"
 
-#: src/main_window.cpp:995
+#: src/main_window.cpp:812
 msgid "Error: %1"
 msgstr "Błąd: %1"
 
-#: src/main_window.cpp:1164
+#: src/main_window.cpp:989
 msgid "Invalid value."
 msgstr "Nieprawidłowa wartość."
 
-#: src/main_window.cpp:1178
+#: src/main_window.cpp:1003
 msgid "Information"
 msgstr "Informacja"
 
-#: src/main_window.cpp:1178
+#: src/main_window.cpp:1003
 msgid "You have to restart Stackistry for the changes to take effect."
 msgstr "By zmiany odniosły skutek, należy uruchomić Stackistry ponownie."
 
-#: src/main_window.cpp:1212
+#: src/main_window.cpp:1037
 msgid "Choose video file"
 msgstr "Wybierz plik wideo"
 
-#: src/main_window.cpp:1234
+#: src/main_window.cpp:1059
 msgid ""
 "Error opening %1:\n"
 "%2"
@@ -280,7 +302,7 @@ msgstr ""
 "Błąd podczas otwierania %1:\n"
 "%2"
 
-#: src/main_window.cpp:1244
+#: src/main_window.cpp:1069
 msgid ""
 "Failed to create flat-field:\n"
 "%1"
@@ -288,11 +310,11 @@ msgstr ""
 "Błąd podczas tworzenia flatu:\n"
 "%1"
 
-#: src/main_window.cpp:1250
+#: src/main_window.cpp:1075
 msgid "Save flat-field"
 msgstr "Zapisz flat"
 
-#: src/main_window.cpp:1275
+#: src/main_window.cpp:1100
 msgid ""
 "Error saving %1:\n"
 "%2"
@@ -300,7 +322,7 @@ msgstr ""
 "Błąd podczas zapisu %1:\n"
 "%2"
 
-#: src/main_window.cpp:1297
+#: src/main_window.cpp:1122
 msgid ""
 "version %1.%2.%3 (%4)\n"
 "\n"
@@ -308,7 +330,7 @@ msgstr ""
 "wersja %1.%2.%3 (%4)\n"
 "\n"
 
-#: src/main_window.cpp:1299
+#: src/main_window.cpp:1124
 msgid ""
 "This program comes with ABSOLUTELY NO WARRANTY. This is free software, "
 "licensed under GNU General Public License v3 or any later version. See the "
@@ -318,7 +340,7 @@ msgstr ""
 "Jest to wolne oprogramowanie na licencji GNU GPL w wersji 3\n"
 "lub dowolnej późniejszej. Szczegóły w pliku LICENSE."
 
-#: src/main_window.cpp:1303
+#: src/main_window.cpp:1128
 msgid ""
 "Built with <a href='https://github.com/GreatAttractor/libskry'>libskry</a> "
 "version %1.%2.%3 (%4).\n"
@@ -326,11 +348,11 @@ msgstr ""
 "Zbudowano z <a href='https://github.com/GreatAttractor/libskry'>libskry</a> "
 "w wersji %1.%2.%3 (%4).\n"
 
-#: src/main_window.cpp:1307
+#: src/main_window.cpp:1132
 msgid "Using %1 logical CPU(s).\n"
 msgstr "Liczba używanych procesorów logicznych: %1.\n"
 
-#: src/main_window.cpp:1311
+#: src/main_window.cpp:1136
 msgid "About Stackistry"
 msgstr "O Stackistry"
 
@@ -350,101 +372,148 @@ msgstr "Język interfejsu użytkownika:"
 msgid "Tool icon size:"
 msgstr "Wielkość ikon narzędziowych:"
 
-#: src/select_points.cpp:76
+#: src/select_points.cpp:83
 msgid "Remove points"
 msgstr "Usuń punkty"
 
-#: src/select_points.cpp:83
+#: src/select_points.cpp:90
 msgid "Automatic"
 msgstr "Automatycznie"
 
-#: src/settings_dlg.cpp:41
+#: src/settings_dlg.cpp:43
 msgid "percent of the best fragments"
 msgstr "procent najlepszych fragmentów"
 
-#: src/settings_dlg.cpp:42
+#: src/settings_dlg.cpp:44
 msgid "percent or better relative quality"
 msgstr "procent jakości względnej lub wyżej"
 
-#: src/settings_dlg.cpp:43
+#: src/settings_dlg.cpp:45
 msgid "best fragments"
 msgstr "(liczba najlepszych fragmentów)"
 
-#: src/settings_dlg.cpp:52
+#: src/settings_dlg.cpp:54
 msgid "disabled"
 msgstr "wyłączony"
 
-#: src/settings_dlg.cpp:53
+#: src/settings_dlg.cpp:55
 msgid "in source video's folder"
 msgstr "w folderze źródłowego wideo"
 
-#: src/settings_dlg.cpp:54
+#: src/settings_dlg.cpp:56
 msgid "specify folder"
 msgstr "wybierz folder"
 
-#: src/settings_dlg.cpp:60
+#: src/settings_dlg.cpp:65
+msgid "anchors"
+msgstr "punkty kotwiczące"
+
+#: src/settings_dlg.cpp:66
+msgid "image intensity centroid"
+msgstr "centroid jasności"
+
+#: src/settings_dlg.cpp:72
 msgid "Processing settings"
 msgstr "Ustawienia przetwarzania"
 
-#: src/settings_dlg.cpp:85
-msgid "Settings for job(s):"
-msgstr "Ustawienia dla zadań:"
+#: src/settings_dlg.cpp:164
+msgid "Reference points"
+msgstr "Punkty odniesienia"
 
-#: src/settings_dlg.cpp:107
-msgid "Video stabilization anchors placement:"
-msgstr "Rozmieszczenie punktów kotwiczących stabilizacji wideo:"
+#: src/settings_dlg.cpp:171
+msgid "Placement:"
+msgstr "Rozmieszczenie:"
 
-#: src/settings_dlg.cpp:109 src/settings_dlg.cpp:118
+#: src/settings_dlg.cpp:173 src/settings_dlg.cpp:258
 msgid "automatic"
 msgstr "automatyczne"
 
-#: src/settings_dlg.cpp:110 src/settings_dlg.cpp:119
+#: src/settings_dlg.cpp:174 src/settings_dlg.cpp:259
 msgid "manual"
 msgstr "ręczne"
 
-#: src/settings_dlg.cpp:116
-msgid "Reference points placement:"
-msgstr "Rozmieszczenie punktów odniesienia"
-
-#: src/settings_dlg.cpp:120
+#: src/settings_dlg.cpp:175
 msgid ""
 "If set to manual, a selection dialog will be shown later during processing"
 msgstr ""
 "Jeśli wybrano ręczne, w trakcie przetwarzania wyświetlone zostanie okno dialogowe wyboru punktów"
 
-#: src/settings_dlg.cpp:124
-msgid ", spacing in pixels:"
-msgstr ", odstęp w pikselach"
+#: src/settings_dlg.cpp:187
+msgid ""
+"Relative local contrast level required to place a reference point; value of "
+"1.2 usually works well"
+msgstr "Względny poziom lokalnego kontrastu wymagany dla umieszczenia punktu odniesienia;"
+" wartość 1,2 jest zazwyczaj odpowiednia"
 
-#: src/settings_dlg.cpp
-msgid ", brightness threshold (%):"
-msgstr ", próg jasności (%):"
+#: src/settings_dlg.cpp:191
+msgid ""
+"Pixel size of smallest structures. Should equal 1 for optimally-sampled or "
+"undersampled images. Use higher values for oversampled (blurry) material."
+msgstr "Wielkość (w pikselach) najmniejszych szczegółów. Należy wybrać 1 "
+"dla obrazów z optymalnym próbkowaniem, a dla nadpróbkowanych (rozmytych) "
+"– wartość odpowiednio wyższą."
 
-#: src/settings_dlg.cpp:131
+#: src/settings_dlg.cpp:195
+msgid "spacing in pixels:"
+msgstr "odstęp w pikselach:"
+
+#: src/settings_dlg.cpp:196
+msgid "brightness threshold (%):"
+msgstr "próg jasności (%):"
+
+#: src/settings_dlg.cpp:197
+msgid "structure threshold:"
+msgstr "próg wykrywania szczegółów:"
+
+#: src/settings_dlg.cpp:198
+msgid "structure scale:"
+msgstr "skala szczegółów:"
+
+#: src/settings_dlg.cpp:210
+msgid "Reference block size:"
+msgstr "Wielkość bloku odniesienia:"
+
+#: src/settings_dlg.cpp:212
+msgid "Search radius:"
+msgstr "Promień szukania:"
+
+#: src/settings_dlg.cpp:220
+msgid "Settings for job(s):"
+msgstr "Ustawienia dla zadań:"
+
+#: src/settings_dlg.cpp:241
+msgid "Video stabilization method:"
+msgstr "Metoda stabilizacji wideo:"
+
+#: src/settings_dlg.cpp:256
+msgid "anchor placement:"
+msgstr "rozmieszczenie:"
+
+#: src/settings_dlg.cpp:269
 msgid "Stacking criterion:"
 msgstr "Kryterium stackowania:"
 
-#: src/settings_dlg.cpp:149
+#: src/settings_dlg.cpp:287
 msgid "Save stacked image automatically:"
 msgstr "Automatyczny zapis stacku:"
 
-#: src/settings_dlg.cpp:166
+#: src/settings_dlg.cpp:304
 msgid "Output format:"
 msgstr "Format wyjściowy:"
 
-#: src/settings_dlg.cpp:176
+#: src/settings_dlg.cpp:314
 msgid "Use flat-field for stacking:"
 msgstr "Użyj flatu:"
 
-#: src/settings_dlg.cpp:184
+#: src/settings_dlg.cpp:322
 msgid "Select flat-field image"
 msgstr "Wybierz flat"
 
-#: src/settings_dlg.cpp:190
+#: src/settings_dlg.cpp:328
 msgid "Treat mono input as raw color:"
 msgstr "Traktuj materiał mono jako „raw color”:"
 
-#: src/settings_dlg.cpp:202
+#: src/settings_dlg.cpp:340
 msgid "(also overrides raw color format in SER videos)"
 msgstr "(wymusza również format „raw color” dla plików SER)"
 
@@ -564,18 +633,18 @@ msgstr "Nieobsługiwany format SER"
 msgid "Unknown error"
 msgstr "Nieznany błąd"
 
-#: src/worker.cpp:543
+#: src/worker.cpp:571
 msgid "Image alignment"
 msgstr "Stabilizacja obrazu"
 
-#: src/worker.cpp:544
+#: src/worker.cpp:572
 msgid "Quality estimation"
 msgstr "Szacowanie jakości"
 
-#: src/worker.cpp:545
+#: src/worker.cpp:573
 msgid "Reference point alignment"
 msgstr "Śledzenie punktów odniesienia"
 
-#: src/worker.cpp:546
+#: src/worker.cpp:574
 msgid "Image stacking"
 msgstr "Stacking"

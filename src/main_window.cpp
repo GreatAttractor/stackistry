@@ -80,11 +80,6 @@ namespace ActionName
     const char *removeJobs = "remove_jobs";
     const char *createFlatField = "create_flat-field";
     const char *about = "about";
-
-    //TESTING ###############
-    const char *QUALITY_TEST = "quality_test";
-    const char *backgroundTest = "background_test";
-    //END TESTING ###############
 }
 
 namespace WidgetName
@@ -122,12 +117,12 @@ Gtk::TreeModel::Path c_MainWindow::GetJobsListFocusedRow()
     return path;
 }
 
-c_MainWindow::Job_t &c_MainWindow::GetJobAt(const Gtk::TreeModel::Path &path)
+Job_t &c_MainWindow::GetJobAt(const Gtk::TreeModel::Path &path)
 {
     return GetJobAt(m_Jobs.data->get_iter(path));
 }
 
-c_MainWindow::Job_t &c_MainWindow::GetJobAt(const Gtk::ListStore::iterator &iter)
+Job_t &c_MainWindow::GetJobAt(const Gtk::ListStore::iterator &iter)
 {
     return *((decltype(m_Jobs.columns.job)::ElementType)((*iter)[m_Jobs.columns.job]));
 }
@@ -222,11 +217,7 @@ void c_MainWindow::OnStartProcessing()
         }
     }
 
-    Worker::StartProcessing(job.imgSeq, job.anchors, job.refPtSpacing,
-                            job.refPtPlacementThreshold,
-                            job.automaticRefPointsPlacement,
-                            job.refPoints,
-                            job.qualityCriterion, job.qualityThreshold, job.flatFieldFileName);
+    Worker::StartProcessing(&job);
     UpdateActionsState();
     if (m_ActVisualization->get_active())
         m_Visualization .SetZoomControlsEnabled(true);
@@ -253,95 +244,6 @@ void c_MainWindow::OnPauseResumeProcessing()
 {
 }
 
-void c_MainWindow::OnQualityTest()
-{
-//    Gtk::FileChooserDialog dlg(*this, "Select image", Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
-//    dlg.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
-//    dlg.add_button("OK", Gtk::ResponseType::RESPONSE_OK);
-//    dlg.set_modal();
-//    if (Gtk::ResponseType::RESPONSE_OK == dlg.run())
-//    {
-//        libskry::c_Image img = libskry::c_Image::Load(dlg.get_filename().c_str(), 0);
-//        if (!img)
-//            std::cout << "Couldn't load " << dlg.get_filename() << std::endl;
-//        else
-//        {
-//            libskry::c_Image img8 = libskry::c_Image::ConvertPixelFormat(img, SKRY_PIX_MONO8);
-//
-//
-//#define DO_LOOP 1
-//
-//#if DO_LOOP
-//            for (unsigned blur_radius = 1; blur_radius < 30; blur_radius++)
-//#endif
-//            {
-//
-//                libskry::c_Image blurred = img8.BoxBlur(
-//                                                       #if DO_LOOP
-//                                                       blur_radius,
-//                                                       #else
-//                                                       4,
-//                                                       #endif
-//                                                       3);
-//
-//                libskry::c_Image qimg(img8.GetWidth(), img8.GetHeight(), SKRY_PIX_MONO8, nullptr, false);
-//
-//                ptrdiff_t imgStrd = img8.GetLineStrideInBytes(),
-//                          blurredStrd = blurred.GetLineStrideInBytes(),
-//                          qimgStrd = qimg.GetLineStrideInBytes();
-//
-//                uint8_t *imgLn = (uint8_t *)img8.GetLine(0);
-//                uint8_t *blurredLn = (uint8_t *)blurred.GetLine(0);
-//                uint8_t *qimgLn = (uint8_t *)qimg.GetLine(0);
-//
-//                uint64_t maxDiff = 0;
-//                uint64_t sumDiffs = 0;
-//                for (unsigned y = 0; y < img8.GetHeight(); y++)
-//                {
-//                    for (unsigned x = 0; x < img8.GetWidth(); x++)
-//                    {
-//                        uint64_t diff = std::abs(imgLn[x] - blurredLn[x]);
-//                        qimgLn[x] = diff;
-//
-//                        sumDiffs += diff;
-//                        if (diff > maxDiff)
-//                            maxDiff = diff;
-//                    }
-//
-//                    imgLn += imgStrd;
-//                    blurredLn += blurredStrd;
-//                    qimgLn += qimgStrd;
-//                }
-//
-//
-//                std::cout <<
-//            #if DO_LOOP
-//                "Radius: " << blur_radius <<
-//            #endif
-//                "; max diff = " << maxDiff << ", sum = " << sumDiffs << std::endl;
-//
-//                qimgLn = (uint8_t *)qimg.GetLine(0);
-//                for (unsigned y = 0; y < img8.GetHeight(); y++)
-//                {
-//                    for (unsigned x = 0; x < img8.GetWidth(); x++)
-//                    {
-//
-//                        qimgLn[x] = (qimgLn[x] * 0xFF / maxDiff);
-//                    }
-//                    qimgLn += qimgStrd;
-//                }
-//
-//            #if DO_LOOP
-//                auto surface = Utils::ConvertImgToSurface(qimg);
-//                auto pixbuf = Gdk::Pixbuf::create(surface,  0, 0, qimg.GetWidth(), qimg.GetHeight());
-//                pixbuf->save(Glib::ustring("img_diff") + Glib::ustring::format(std::setfill(L'0'), std::setw(2), blur_radius), "bmp");
-//            #endif
-//                m_Visualization.SetImage(qimg);
-//            }
-//        }
-//    }
-}
-
 void c_MainWindow::OnStopProcessing()
 {
     Worker::AbortProcessing();
@@ -363,7 +265,7 @@ void c_MainWindow::OnStopProcessing()
     m_Visualization.SetZoomControlsEnabled(false);
 }
 
-c_MainWindow::Job_t &c_MainWindow::GetCurrentJob()
+Job_t &c_MainWindow::GetCurrentJob()
 {
     Gtk::ListStore::iterator itJob = m_Jobs.data->get_iter(GetJobsListFocusedRow());
     return GetJobAt(itJob);
@@ -475,60 +377,17 @@ void c_MainWindow::OnSaveStackedImage()
 
 void c_MainWindow::OnSettings()
 {
-    Job_t &job = GetJobAt(m_Jobs.view.get_selection()->get_selected_rows()[0]);
-
     std::vector<std::string> selJobNames;
     for (auto &selJob: m_Jobs.view.get_selection()->get_selected_rows())
         selJobNames.push_back(GetJobAt(selJob).sourcePath);
 
-    c_SettingsDlg dlg(selJobNames);
-
     // Fill the dialog using settings of the first selected job
-    dlg.SetOutputSaveMode(job.outputSaveMode);
-    dlg.SetAutoSaveOutputFormat(job.outputFmt);
-    dlg.SetDestinationDir(job.destDir);
-    dlg.SetRefPtSpacing(job.refPtSpacing);
-    dlg.SetRefPtBrightThresh(job.refPtPlacementThreshold);
-    dlg.SetRefPointsAutomatic(job.automaticRefPointsPlacement);
-    dlg.SetFlatFieldFileName(job.flatFieldFileName);
-    dlg.SetAnchorsAutomatic(job.automaticAnchorPlacement);
-    dlg.SetQualityCriterion(job.qualityCriterion, job.qualityThreshold);
-    dlg.SetCFAPattern(job.cfaPattern);
+    c_SettingsDlg dlg(selJobNames, GetJobAt(m_Jobs.view.get_selection()->get_selected_rows()[0]));
 
     PrepareDialog(dlg);
     if (Gtk::ResponseType::RESPONSE_OK == dlg.run())
         for (auto &selJob: m_Jobs.view.get_selection()->get_selected_rows())
-        {
-            Job_t &job = GetJobAt(selJob);
-            auto smode = dlg.GetOutputSaveMode();
-            job.outputSaveMode = smode;
-            if (smode == Utils::Const::OutputSaveMode::SPECIFIED_PATH)
-            {
-                job.destDir = dlg.GetDestinationDir();
-            }
-            job.refPtSpacing = dlg.GetRefPointSpacing();
-            job.refPtPlacementThreshold = dlg.GetRefPointBrightThresh();
-            job.automaticRefPointsPlacement = dlg.GetRefPointsAutomatic();
-            if (job.automaticRefPointsPlacement)
-            {
-                job.refPoints.clear();
-            }
-            job.flatFieldFileName = dlg.GetFlatFieldFileName();
-            job.qualityCriterion = dlg.GetQualityCriterion();
-            job.qualityThreshold = dlg.GetQualityThreshold();
-            job.outputFmt = dlg.GetAutoSaveOutputFormat();
-            job.cfaPattern = dlg.GetCFAPattern();
-            job.imgSeq.ReinterpretAsCFA(job.cfaPattern);
-
-
-            if (dlg.GetAnchorsAutomatic())
-            {
-                job.anchors.clear();
-                job.automaticAnchorPlacement = true;
-            }
-            else
-                job.automaticAnchorPlacement = false;
-        }
+            dlg.ApplySettings(GetJobAt(selJob));
 }
 
 /// The location to enforce all action-sensitivity conditions
@@ -585,20 +444,24 @@ void c_MainWindow::OnSelectFrames()
     GetCurrentJob().imgSeq.Deactivate();
 }
 
-void c_MainWindow::SetDefaultSettings(c_MainWindow::Job_t &job)
+void c_MainWindow::SetDefaultSettings(Job_t &job)
 {
     assert(job.imgSeq);
 
     job.outputSaveMode = Utils::Const::Defaults::saveMode;
     job.outputFmt = Utils::Const::Defaults::outputFmt;
-    job.refPtSpacing = Utils::Const::Defaults::referencePointSpacing;
-    job.refPtPlacementThreshold = Utils::Const::Defaults::placementBrightnessThreshold;
+    job.alignmentMethod = Utils::Const::Defaults::alignmentMethod;
+    job.refPtAutoPlacementParams.spacing = Utils::Const::Defaults::referencePointSpacing;
+    job.refPtAutoPlacementParams.brightnessThreshold = Utils::Const::Defaults::placementBrightnessThreshold;
+    job.refPtAutoPlacementParams.structureScale = Utils::Const::Defaults::refPtStructureScale;
+    job.refPtAutoPlacementParams.structureThreshold = Utils::Const::Defaults::refPtStructureThreshold;
     job.qualityCriterion = Utils::Const::Defaults::qualityCriterion;
     job.qualityThreshold = Utils::Const::Defaults::qualityThreshold;
     job.automaticRefPointsPlacement = true;
     job.automaticAnchorPlacement = true;
     job.cfaPattern = SKRY_CFA_NONE;
-    enum SKRY_result result;
+    job.refPtBlockSize = Utils::Const::Defaults::refPtRefBlockSize;
+    job.refPtSearchRadius = Utils::Const::Defaults::refPtSearchRadius;
 }
 
 void c_MainWindow::OnAddVideos()
@@ -660,36 +523,6 @@ void c_MainWindow::OnAddVideos()
     Configuration::LastOpenDir = dlg.get_current_folder();
 }
 
-void c_MainWindow::OnBackgroundTest()
-{
-//    Gtk::FileChooserDialog dlg(*this, "Select image", Gtk::FileChooserAction::FILE_CHOOSER_ACTION_OPEN);
-//    dlg.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
-//    dlg.add_button("OK", Gtk::ResponseType::RESPONSE_OK);
-//    dlg.set_modal();
-//    if (Gtk::ResponseType::RESPONSE_OK == dlg.run())
-//    {
-//        libskry::c_Image img = libskry::c_Image::Load(dlg.get_filename().c_str(), 0);
-//        if (!img)
-//            std::cout << "Couldn't load " << dlg.get_filename() << std::endl;
-//        else
-//        {
-//            libskry::c_Image img8 = libskry::c_Image::ConvertPixelFormat(img, SKRY_PIX_MONO8);
-//            uint8_t bthreshold = img8.GetBackgroundThreshold();
-//            std::cout << "Background threshold is " << (unsigned)bthreshold << std::endl;
-//
-//            for (unsigned y = 0; y < img8.GetHeight(); y++)
-//            {
-//                uint8_t *line = (uint8_t *)img8.GetLine(y);
-//                for (unsigned x = 0; x < img8.GetWidth(); x++)
-//                    if (line[x] <= bthreshold)
-//                        line[x] = 0xBB;
-//            }
-//
-//            m_Visualization.SetImage(img8, true);
-//        }
-//    }
-}
-
 void c_MainWindow::OnQuit()
 {
     close();
@@ -737,12 +570,6 @@ void c_MainWindow::InitActions()
     m_ActVisualization = Gtk::ToggleAction::create(ActionName::toggleVisualization, _("Show visualization"), _("Show visualization (slows down processing)"));
     m_ActionGroup->add(m_ActVisualization, sigc::mem_fun(*this, &c_MainWindow::OnToggleVisualization));
 
-    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuTest, _("_Test")));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::QUALITY_TEST, _("Quality...")),
-                  sigc::mem_fun(*this, &c_MainWindow::OnQualityTest));
-    m_ActionGroup->add(Gtk::Action::create(ActionName::backgroundTest, _("Background...")),
-                  sigc::mem_fun(*this, &c_MainWindow::OnBackgroundTest));
-
     m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuAbout, _("_About")));
     m_ActionGroup->add(Gtk::Action::create(ActionName::about, _("About Stackistry...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnAbout));
@@ -776,7 +603,6 @@ void c_MainWindow::InitActions()
 
     "        <menu action='" + WidgetName::MenuProcessing + "'>"
     "            <menuitem action='" + ActionName::startProcessing + "' />"
-    //"            <menuitem action='" + ActionName::pauseResumeProcessing + "' />"
     "            <menuitem action='" + ActionName::stopProcessing + "' />"
     "            <separator />"
     "            <menuitem action='" + ActionName::toggleVisualization + "' />"
@@ -785,11 +611,6 @@ void c_MainWindow::InitActions()
     "        <menu action='" + WidgetName::MenuAbout + "'>"
     "            <menuitem action='" + ActionName::about + "' />"
     "        </menu>"
-
-//    "        <menu action='" + WidgetName::MenuTest + "'>"
-//    "            <menuitem action='" + ActionName::QUALITY_TEST + "' />"
-//    "            <menuitem action='" + ActionName::backgroundTest + "' />"
-//    "        </menu>"
 
     "    </menubar>"
 
@@ -940,7 +761,7 @@ void c_MainWindow::OnWorkerProgress()
     if (Worker::IsWaitingForReferencePoints())
     {
         struct Job_t &job = GetJobAt(*m_RunningJob);
-        c_SelectPointsDlg dlg(Worker::GetAlignedFirstImage(), job.refPoints, { });
+        c_SelectPointsDlg dlg(Worker::GetBestQualityAlignedImage(), job.refPoints, { });
         dlg.set_title(_("Set reference points"));
         dlg.SetInfoText(_("Place reference points by left-clicking on the image. Avoid blank areas "
                         "with little or no detail. Click Cancel to set points automatically."));
@@ -948,15 +769,11 @@ void c_MainWindow::OnWorkerProgress()
         Utils::RestorePosSize(Configuration::SelectRefPointsDlgPosSize, dlg);
         auto response = dlg.run();
         if (response == Gtk::ResponseType::RESPONSE_OK)
-        {
             dlg.GetPoints(job.refPoints);
-            Worker::SetReferencePoints(job.refPoints);
-        }
         else
-        {
             job.automaticRefPointsPlacement = true;
-            Worker::SetReferencePoints({ });
-        }
+
+        Worker::NotifyReferencePointsSet();
         Utils::SavePosSize(dlg, Configuration::SelectRefPointsDlgPosSize);
     }
 
@@ -998,9 +815,9 @@ void c_MainWindow::OnWorkerProgress()
 
         Job_t &job = GetJobAt(m_RunningJob);
         job.imgSeq.Deactivate();
-        if ((job.stackedImg = Worker::GetStackedImage())
-            && m_RunningJob == m_Jobs.data->get_iter(GetJobsListFocusedRow()))
+        if (job.stackedImg && m_RunningJob == m_Jobs.data->get_iter(GetJobsListFocusedRow()))
         {
+            // Enables the "Save stacked image" action
             UpdateActionsState();
         }
         if (job.outputSaveMode != Utils::Const::OutputSaveMode::NONE && job.stackedImg)
@@ -1023,12 +840,7 @@ void c_MainWindow::OnWorkerProgress()
                     startNextJob = false;
 
             if (startNextJob)
-                Worker::StartProcessing(job.imgSeq, job.anchors, job.refPtSpacing,
-                                        job.refPtPlacementThreshold,
-                                        job.automaticRefPointsPlacement,
-                                        job.refPoints,
-                                        job.qualityCriterion, job.qualityThreshold,
-                                        job.flatFieldFileName);
+                Worker::StartProcessing(&job);
         }
 
         UpdateActionsState();

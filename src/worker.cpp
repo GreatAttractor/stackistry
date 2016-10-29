@@ -43,38 +43,27 @@ namespace Worker
 
 namespace Vars
 {
+    /// Currently processed job
+    static Job_t *job;
     static bool abortRequested = false;
     static size_t step;
-    static libskry::c_ImageSequence *imgSeq = 0;
-    /// A pointer used only when returning an aligned first image to the main thread
-    static libskry::c_ImageAlignment *imgAlignment = 0;
-    static std::vector<struct SKRY_point> anchors;
+
+    /// Used only when returning the best-quality image to the main thread
+    static libskry::c_ImageAlignment *imgAlign = nullptr;
+    static libskry::c_QualityEstimation *qualEst = nullptr;
+
     static bool isWorkerRunning = false;
     static ProcPhase procPhase = ProcPhase::IDLE;
     static Glib::Threads::Thread *workerThread;
     static Glib::Dispatcher dispatcher;
     static Cairo::RefPtr<Cairo::ImageSurface> visualizationImg;
-    static libskry::c_Image stackedImg;
     static bool enableVisualization = false;
-
-    static bool automaticRefPtPlacement;
-    static std::vector<struct SKRY_point> refPoints;
-    static unsigned refPtSpacing;
-    static double refPtPlacementThreshold;
     static bool isWaitingForReferencePoints;
-
-    static std::string flatField;
-    static enum SKRY_quality_criterion qualCriterion;
-    static unsigned qualThreshold;
     static enum SKRY_result lastResult;
-
-
     static Glib::Threads::Mutex mtx; ///< Access guard for shared variables
-
     /// Used for notification by main thread that reference points have been provided
     static Glib::Threads::Mutex mtxRefPt;
     static Glib::Threads::Cond condRefPt;
-
     /// Current zoom factor specified in the main window's visualization widget
     static double zoomFactor = 1.0;
     /// Current zoom interpolation method specified in the main window's visualization widget
@@ -85,7 +74,7 @@ namespace Vars
 
 void WorkerThreadFunc();
 
-static libskry::c_Image GetAlignedImage(
+static libskry::c_Image GetAlignedCurrentImage(
     const libskry::c_ImageSequence &imgSeq,
     const libskry::c_ImageAlignment &imgAlignment);
 
@@ -164,30 +153,12 @@ ProcPhase GetProcessingPhase()
     return Vars::procPhase;
 }
 
-void StartProcessing(libskry::c_ImageSequence &imgSeq,
-                     const std::vector<struct SKRY_point> &anchors,
-                     unsigned refPtSpacing,
-                     double refPtPlacementThreshold,
-                     bool automaticRefPtPlacement,
-                     const std::vector<struct SKRY_point> &refPoints,
-                     enum SKRY_quality_criterion qualCriterion,
-                     unsigned qualThreshold,
-                     std::string flatFieldFileName)
+void StartProcessing(Job_t *job)
 {
-    Vars::imgSeq = &imgSeq;
-    Vars::anchors = anchors;
+    Vars::job = job;
+
     Vars::isWorkerRunning = true;
     Vars::abortRequested = false;
-    Vars::stackedImg = libskry::c_Image();
-
-    Vars::refPtSpacing = refPtSpacing;
-    Vars::refPtPlacementThreshold = refPtPlacementThreshold;
-    Vars::automaticRefPtPlacement = automaticRefPtPlacement;
-    Vars::refPoints = refPoints;
-    Vars::qualCriterion = qualCriterion;
-    Vars::qualThreshold = qualThreshold;
-    Vars::flatField = flatFieldFileName;
-
     Vars::workerThread = Glib::Threads::Thread::create(sigc::ptr_fun(&WorkerThreadFunc));
 }
 
@@ -213,7 +184,7 @@ Cairo::RefPtr<Cairo::ImageSurface> GetScaledImg(const libskry::c_Image &srcImg)
 
 static void CreateImgAlignmentVisualization(const libskry::c_ImageAlignment &imgAlignment)
 {
-    Vars::visualizationImg = GetScaledImg(Vars::imgSeq->GetCurrentImage());
+    Vars::visualizationImg = GetScaledImg(Vars::job->imgSeq.GetCurrentImage());
     Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(Vars::visualizationImg);
 
     if (imgAlignment.GetAlignmentMethod() == SKRY_IMG_ALGN_ANCHORS)
@@ -238,36 +209,42 @@ static void CreateQualityEstimationVisualization(
     const libskry::c_ImageAlignment &imgAlignment,
     const libskry::c_QualityEstimation &qualEstimation)
 {
-    Vars::visualizationImg = GetScaledImg(GetAlignedImage(imgSeq, imgAlignment));
+    Vars::visualizationImg = GetScaledImg(GetAlignedCurrentImage(imgSeq, imgAlignment));
 
     //TODO: draw something?.. e.g. image in grayscale with quality color-mapped
 }
 
-static libskry::c_Image GetAlignedImage(
+static
+libskry::c_Image GetAlignedImage(
+    size_t imgIdx, ///< Image index within the active images' subset
     const libskry::c_ImageSequence &imgSeq,
     const libskry::c_ImageAlignment &imgAlignment)
 {
-    libskry::c_Image currImg = imgSeq.GetCurrentImage();
-
-    if (currImg)
-    {
-        currImg = libskry::c_Image::ConvertPixelFormat(currImg, SKRY_PIX_BGRA8, SKRY_DEMOSAIC_HQLINEAR);
-
-        struct SKRY_rect intersection = imgAlignment.GetIntersection();
-
-        struct SKRY_point currOffset = imgAlignment.GetImageOffset(imgSeq.GetCurrentImgIdxWithinActiveSubset());
-        int xmin = intersection.x + currOffset.x;
-        int ymin = intersection.y + currOffset.y;
-
-        struct SKRY_palette srcPal;
-        currImg.GetPalette(srcPal);
-        libskry::c_Image alignedImg(intersection.width, intersection.height, currImg.GetPixelFormat(), &srcPal, false);
-        libskry::c_Image::ResizeAndTranslate(currImg, alignedImg, xmin, ymin,
-                                             intersection.width, intersection.height, 0, 0, false);
-        return alignedImg;
-    }
-    else
+    libskry::c_Image img = imgSeq.GetImageByIdx(imgSeq.GetAbsoluteImgIdx(imgIdx));
+    if (!img)
         return libskry::c_Image();
+
+    img = libskry::c_Image::ConvertPixelFormat(img, SKRY_PIX_BGRA8, SKRY_DEMOSAIC_HQLINEAR);
+
+    struct SKRY_rect intersection = imgAlignment.GetIntersection();
+
+    struct SKRY_point offset = imgAlignment.GetImageOffset(imgIdx);
+    int xmin = intersection.x + offset.x;
+    int ymin = intersection.y + offset.y;
+
+    struct SKRY_palette srcPal;
+    img.GetPalette(srcPal);
+    libskry::c_Image alignedImg(intersection.width, intersection.height, img.GetPixelFormat(), &srcPal, false);
+    libskry::c_Image::ResizeAndTranslate(img, alignedImg, xmin, ymin,
+                                         intersection.width, intersection.height, 0, 0, false);
+    return alignedImg;
+}
+
+static libskry::c_Image GetAlignedCurrentImage(
+    const libskry::c_ImageSequence &imgSeq,
+    const libskry::c_ImageAlignment &imgAlignment)
+{
+    return GetAlignedImage(imgSeq.GetCurrentImgIdxWithinActiveSubset(), imgSeq, imgAlignment);
 }
 
 static void CreateRefPtAlignmentVisualization(
@@ -275,7 +252,7 @@ static void CreateRefPtAlignmentVisualization(
     const libskry::c_ImageAlignment &imgAlignment,
     const libskry::c_RefPointAlignment &refPtAlignment)
 {
-    Vars::visualizationImg = GetScaledImg(GetAlignedImage(imgSeq, imgAlignment));
+    Vars::visualizationImg = GetScaledImg(GetAlignedCurrentImage(imgSeq, imgAlignment));
     Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(Vars::visualizationImg);
 
     const double RADIUS_VALID_POS = 4.0;
@@ -336,28 +313,38 @@ bool IsVisualizationEnabled()
     return Vars::enableVisualization;
 }
 
-libskry::c_Image GetAlignedFirstImage()
-{
-    // We can rewind the image sequence now, as the worker is between phases
-    // (after quality estimation, before ref. point alignment)
-    Vars::imgSeq->SeekStart();
-    return GetAlignedImage(*Vars::imgSeq, *Vars::imgAlignment);
-}
-
 /// Returns true if the main thread needs to provide reference points
 bool IsWaitingForReferencePoints()
 {
     return Vars::isWaitingForReferencePoints;
 }
 
-void SetReferencePoints(const std::vector<struct SKRY_point> refPoints)
+/// Notifies the worker thread that it may continue
+void NotifyReferencePointsSet()
 {
-    Vars::refPoints = refPoints;
     Vars::isWaitingForReferencePoints = false;
-
     Glib::Threads::Mutex::Lock lock(Vars::mtxRefPt);
     Vars::condRefPt.signal();
 }
+
+/// Can be called after quality estimation completes
+libskry::c_Image GetBestQualityAlignedImage()
+{
+    return GetAlignedImage(Vars::qualEst->GetBestImageIdx(),
+                           Vars::job->imgSeq,
+                           *Vars::imgAlign);
+
+}
+
+class c_PtrReset
+{
+public:
+    ~c_PtrReset()
+    {
+        Vars::imgAlign = nullptr;
+        Vars::qualEst = nullptr;
+    }
+};
 
 #define CHECK_ABORT()                                  \
     do {                                               \
@@ -372,15 +359,15 @@ void SetReferencePoints(const std::vector<struct SKRY_point> refPoints)
 
 void WorkerThreadFunc()
 {
+    c_PtrReset ptrReset;
+
     libskry::c_ImageAlignment imgAlignment(
-            *Vars::imgSeq,
-            SKRY_IMG_ALGN_ANCHORS,
-            Vars::anchors,
+            Vars::job->imgSeq,
+            Vars::job->alignmentMethod,
+            Vars::job->anchors,
             Utils::Const::imgAlignmentRefBlockSize/2,
             Utils::Const::imgAlignmentRefBlockSize/2,
             Utils::Const::Defaults::placementBrightnessThreshold);
-
-    Vars::imgAlignment = &imgAlignment;
 
     if (!imgAlignment)
     {
@@ -391,6 +378,8 @@ void WorkerThreadFunc()
             return;
         }
     }
+
+    Vars::imgAlign = &imgAlignment;
 
     { LOCK();
         StartProcessingPhase(ProcPhase::IMAGE_ALIGNMENT);
@@ -423,6 +412,8 @@ void WorkerThreadFunc()
             return;
         }
     }
+    Vars::qualEst = &qualEstimation;
+
 
     { LOCK();
         StartProcessingPhase(ProcPhase::QUALITY_ESTIMATION);
@@ -433,7 +424,7 @@ void WorkerThreadFunc()
             CHECK_ABORT();
             Vars::step++;
             if (Vars::enableVisualization)
-                CreateQualityEstimationVisualization(*Vars::imgSeq, imgAlignment, qualEstimation);
+                CreateQualityEstimationVisualization(Vars::job->imgSeq, imgAlignment, qualEstimation);
         }
         NotifyMainThread();
     }
@@ -444,7 +435,7 @@ void WorkerThreadFunc()
         return;
     }
 
-    if (!Vars::automaticRefPtPlacement && Vars::refPoints.empty())
+    if (!Vars::job->automaticRefPointsPlacement && Vars::job->refPoints.empty())
     {
         { LOCK();
             Vars::isWaitingForReferencePoints = true;
@@ -454,19 +445,26 @@ void WorkerThreadFunc()
         { Glib::Threads::Mutex::Lock lock(Vars::mtxRefPt);
 
             Vars::condRefPt.wait(Vars::mtxRefPt);
-            if (Vars::refPoints.empty()) // the user canceled the "Select ref. points" dialog
+            if (Vars::job->refPoints.empty()) // the user canceled the "Select ref. points" dialog
             {
-                Vars::automaticRefPtPlacement = true;
+                Vars::job->automaticRefPointsPlacement = true;
             }
         }
     }
 
     libskry::c_RefPointAlignment refPtAlignment(qualEstimation,
-                                                Vars::refPoints,
-                                                Vars::refPtPlacementThreshold,
-                                                Vars::qualCriterion,
-                                                Vars::qualThreshold,
-                                                Vars::refPtSpacing);
+                                                Vars::job->refPoints,
+
+                                                Vars::job->qualityCriterion,
+                                                Vars::job->qualityThreshold,
+
+                                                Vars::job->refPtBlockSize,
+                                                Vars::job->refPtSearchRadius,
+                                                &Vars::lastResult,
+                                                Vars::job->refPtAutoPlacementParams.brightnessThreshold,
+                                                Vars::job->refPtAutoPlacementParams.structureThreshold,
+                                                Vars::job->refPtAutoPlacementParams.structureScale,
+                                                Vars::job->refPtAutoPlacementParams.spacing);
     if (!refPtAlignment)
     {
         std::cerr << "Could not initialize reference point alignment." << std::endl;
@@ -486,7 +484,7 @@ void WorkerThreadFunc()
             CHECK_ABORT();
             Vars::step++;
             if (Vars::enableVisualization)
-                CreateRefPtAlignmentVisualization(*Vars::imgSeq, imgAlignment, refPtAlignment);
+                CreateRefPtAlignmentVisualization(Vars::job->imgSeq, imgAlignment, refPtAlignment);
         }
         NotifyMainThread();
     }
@@ -498,19 +496,19 @@ void WorkerThreadFunc()
     }
 
     libskry::c_Image flatField;
-    if (!Vars::flatField.empty())
+    if (!Vars::job->flatFieldFileName.empty())
     {
-        flatField = libskry::c_Image::Load(Vars::flatField.c_str(), &Vars::lastResult);
+        flatField = libskry::c_Image::Load(Vars::job->flatFieldFileName.c_str(), &Vars::lastResult);
         if (!flatField)
         {
-            std::cerr << "Could not load flat-field from " << Vars::flatField << std::endl;
+            std::cerr << "Could not load flat-field from " << Vars::job->flatFieldFileName << std::endl;
             NotifyMainThread();
             return;
         }
     }
 
     libskry::c_Stacking stacking(refPtAlignment,
-                                 Vars::flatField.empty() ? nullptr : &flatField,
+                                 Vars::job->flatFieldFileName.empty() ? nullptr : &flatField,
                                  &Vars::lastResult);
     if (!stacking)
     {
@@ -535,8 +533,8 @@ void WorkerThreadFunc()
         NotifyMainThread();
     }
 
-    Vars::stackedImg = stacking.GetFinalImageStack();
-    if (!Vars::stackedImg)
+    Vars::job->stackedImg = stacking.GetFinalImageStack();
+    if (!Vars::job->stackedImg)
     {
         std::cerr << "Failed to obtain the final image stack." << std::endl;
     }
@@ -560,11 +558,6 @@ const Cairo::RefPtr<Cairo::ImageSurface> &GetVisualizationImage()
 }
 
 std::unique_ptr<int> sth;
-
-libskry::c_Image GetStackedImage()
-{
-        return std::move(Vars::stackedImg);
-}
 
 enum SKRY_result GetLastResult()
 {

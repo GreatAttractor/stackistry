@@ -47,6 +47,7 @@ File description:
 #include <skry/skry_cpp.hpp>
 
 #include "img_viewer.h"
+#include "worker.h"
 
 
 const size_t NONE = SIZE_MAX;
@@ -66,27 +67,6 @@ private:
     Glib::RefPtr<Gtk::UIManager> m_UIManager;
     Gtk::Statusbar m_StatusBar;
     Glib::RefPtr<Gtk::ToggleAction> m_ActVisualization;
-
-    struct Job_t
-    {
-        libskry::c_ImageSequence imgSeq; // has to be the first field
-        float refPtPlacementThreshold; ///< Relative brightness threshold for automatic placement
-        libskry::c_Image stackedImg;
-        Utils::Const::OutputSaveMode outputSaveMode;
-        enum SKRY_quality_criterion qualityCriterion;
-        unsigned qualityThreshold; ///< Interpreted according to 'qualityCriterion'
-        enum SKRY_output_format outputFmt;
-        std::string sourcePath; ///< For image series: directory only; for videos: full path to the video file
-        std::string destDir; // effective if outputSaveMode==OutputSaveMode::SPECIFIED_PATH
-        bool automaticAnchorPlacement;
-        std::vector<struct SKRY_point> anchors;
-        bool automaticRefPointsPlacement;
-        std::vector<struct SKRY_point> refPoints; // used when 'automaticRefPointsPlacement' is false
-        std::string flatFieldFileName; // if empty, no flat-fielding will be performed
-        unsigned refPtSpacing;
-        /// If not SKRY_CFA_NONE, mono images will be treated as raw color with this filter pattern
-        enum SKRY_CFA_pattern cfaPattern;
-    };
 
     class c_JobsListModelColumns: public Gtk::TreeModelColumnRecord
     {
@@ -137,7 +117,6 @@ private:
     void OnStartProcessing();
     void OnStopProcessing();
     void OnPauseResumeProcessing();
-    void OnQualityTest();
     void OnSetAnchors();
     void OnSaveStackedImage();
     void OnSelectFrames();
@@ -146,7 +125,6 @@ private:
     void OnAddVideos();
     void OnSettings();
     void OnToggleVisualization();
-    void OnBackgroundTest();
     void OnSelectionChanged();
     void OnRemoveJobs();
     void OnCreateFlatField();
@@ -166,7 +144,7 @@ private:
     Job_t &GetCurrentJob();
     void SetToolbarIcons();
     Gtk::ToolButton *GetToolButton(const char *actionName);
-    void SetDefaultSettings(c_MainWindow::Job_t &job);
+    void SetDefaultSettings(Job_t &job);
     void AutoSaveStack(const Job_t &job);
     bool SetAnchorsAutomatically(Job_t &job); ///< Returns false on failure
     /** Sets the enabled state of certain actions depending

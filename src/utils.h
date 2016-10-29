@@ -83,11 +83,16 @@ namespace Const
     {
         const OutputSaveMode saveMode = SOURCE_PATH;
         const enum SKRY_output_format outputFmt = SKRY_TIFF_16;
+        const enum SKRY_img_alignment_method alignmentMethod = SKRY_IMG_ALGN_ANCHORS;
         const int referencePointSpacing = 40; ///< Value in pixels
         const float placementBrightnessThreshold = 0.33f;
         const enum SKRY_quality_criterion qualityCriterion = SKRY_quality_criterion::SKRY_PERCENTAGE_BEST;
         const unsigned qualityThreshold = 30;
         const InterpolationMethod interpolation = InterpolationMethod::GOOD;
+        const unsigned refPtRefBlockSize = 32;
+        const unsigned refPtSearchRadius = 20;
+        const unsigned refPtStructureScale = 1;
+        const float refPtStructureThreshold = 1.2;
     }
 
     typedef struct
@@ -144,7 +149,20 @@ void SetAppLaunchPath(const char *appLaunchPath);
 /// Returns a localized error message
 std::string GetErrorMsg(enum SKRY_result errorCode);
 
-Gtk::HBox *PackIntoHBox(std::vector<Gtk::Widget*> widgets, bool showAll = true);
+template <class GtkBoxClass>
+GtkBoxClass *PackIntoBox(std::vector<Gtk::Widget*> widgets, bool showAll = true)
+{
+    auto box = Gtk::manage(new GtkBoxClass());
+    for (auto &w: widgets)
+    {
+        if (showAll)
+            w->show();
+        box->pack_start(*w, Gtk::PackOptions::PACK_SHRINK, Const::widgetPaddingInPixels);
+    }
+    box->show();
+    return box;
+}
+
 
 Cairo::Filter GetFilter(Const::InterpolationMethod interpolationMethod);
 

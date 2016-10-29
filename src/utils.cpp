@@ -214,18 +214,6 @@ std::string GetErrorMsg(enum SKRY_result errorCode)
     }
 }
 
-Gtk::HBox *PackIntoHBox(std::vector<Gtk::Widget*> widgets, bool showAll)
-{
-    auto box = Gtk::manage(new Gtk::HBox());
-    for (auto &w: widgets)
-    {
-        w->show();
-        box->pack_start(*w, Gtk::PackOptions::PACK_SHRINK, Const::widgetPaddingInPixels);
-    }
-    box->show();
-    return box;
-}
-
 Cairo::Filter GetFilter(Const::InterpolationMethod interpolationMethod)
 {
     /// Order of elements must reflect Utils::InterpolationMethod

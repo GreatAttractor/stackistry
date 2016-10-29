@@ -67,7 +67,7 @@ void c_PreferencesDlg::InitControls()
             m_UILanguage.set_active(m_UILanguage.get_model()->children().size()-1);
     }
 
-    get_content_area()->pack_start(*Utils::PackIntoHBox( {
+    get_content_area()->pack_start(*Utils::PackIntoBox<Gtk::HBox>( {
                                         Gtk::manage(new Gtk::Label(_("User interface language:"))),
                                         &m_UILanguage } ),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);

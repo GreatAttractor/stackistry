@@ -25,6 +25,8 @@ File description:
 #include <string>
 
 #include <glibmm/i18n.h>
+#include <gtkmm/frame.h>
+#include <gtkmm/label.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/separator.h>
 #include <gtkmm/textview.h>
@@ -55,11 +57,56 @@ std::vector<std::string> GetOutputSaveModeStrings()
     };
 }
 
-c_SettingsDlg::c_SettingsDlg(const std::vector<std::string> &jobNames)
+static
+std::vector<std::string> GetAlignmentMethodStrings()
+{
+    return
+    {
+        _("anchors"),                  // SKRY_IMG_ALGN_ANCHORS
+        _("image intensity centroid"), // SKRY_IMG_ALGN_CENTROID
+    };
+}
+
+c_SettingsDlg::c_SettingsDlg(const std::vector<std::string> &jobNames, const Job_t &firstJob)
 {
     set_title(_("Processing settings"));
     InitControls(jobNames);
     Utils::RestorePosSize(Configuration::SettingsDlgPosSize,  *this);
+
+    // Set controls' values according to 'firstJob'
+
+    m_DestFolderChooser.set_filename(firstJob.destDir);
+    m_OutputSaveMode.set_active(firstJob.outputSaveMode);
+    m_RefPtSpacing.set_value(firstJob.refPtAutoPlacementParams.spacing);
+    m_RefPtBrightThresh.set_value(firstJob.refPtAutoPlacementParams.brightnessThreshold * 100);
+    m_FlatFieldCheckBtn.set_active(!firstJob.flatFieldFileName.empty());
+    if (!firstJob.flatFieldFileName.empty())
+        m_FlatFieldChooser.set_filename(firstJob.flatFieldFileName);
+
+    m_AlignmentMethod.set_active((int)firstJob.alignmentMethod);
+    m_VideoStbAnchorsMode.set_active(firstJob.automaticAnchorPlacement ? 0 : 1);
+    m_QualityCriterion.set_active((int)firstJob.qualityCriterion);
+    m_QualityThreshold.set_value(firstJob.qualityThreshold);
+
+    size_t index = 0;
+    for (auto &descr: Utils::Vars::outputFormatDescription)
+    {
+        if (descr.skryOutpFmt == firstJob.outputFmt)
+            m_AutoSaveOutputFormat.set_active(index);
+        else
+            index++;
+    }
+
+    m_RefPtPlacementMode.set_active(firstJob.automaticRefPointsPlacement ? 0 : 1);
+
+    m_TreatMonoAsCFA.set_active(firstJob.cfaPattern != SKRY_CFA_NONE);
+    if (firstJob.cfaPattern != SKRY_CFA_NONE)
+        m_CFAPattern.set_active((unsigned)firstJob.cfaPattern);
+
+    m_RefPtRefBlockSize.set_value(firstJob.refPtBlockSize);
+    m_RefPtSearchRadius.set_value(firstJob.refPtSearchRadius);
+    m_StructureScale.set_value(firstJob.refPtAutoPlacementParams.structureScale);
+    m_StructureThreshold.set_value(firstJob.refPtAutoPlacementParams.structureThreshold);
 }
 
 std::vector<Glib::RefPtr<Gtk::FileFilter>> GetInputImageFilters()
@@ -78,6 +125,94 @@ std::vector<Glib::RefPtr<Gtk::FileFilter>> GetInputImageFilters()
     result.push_back(fltBmp);
 
     return result;
+}
+
+void c_SettingsDlg::ApplySettings(Job_t &job)
+{
+    job.outputSaveMode = (Utils::Const::OutputSaveMode)m_OutputSaveMode.get_active_row_number();
+    job.destDir = m_DestFolderChooser.get_filename();
+
+    job.alignmentMethod = (enum SKRY_img_alignment_method)m_AlignmentMethod.get_active_row_number();
+
+    job.refPtAutoPlacementParams.spacing = (unsigned)m_RefPtSpacing.get_value_as_int();
+    job.refPtAutoPlacementParams.brightnessThreshold = m_RefPtBrightThresh.get_value() / 100.0;
+    job.automaticRefPointsPlacement = (m_RefPtPlacementMode.get_active_row_number() == 0);
+    if (job.automaticRefPointsPlacement)
+        job.refPoints.clear();
+
+    job.flatFieldFileName = m_FlatFieldChooser.get_filename();
+    job.qualityCriterion = (enum SKRY_quality_criterion)m_QualityCriterion.get_active_row_number();
+    job.qualityThreshold = m_QualityThreshold.get_value_as_int();
+    job.outputFmt = Utils::Vars::outputFormatDescription[m_AutoSaveOutputFormat.get_active_row_number()].skryOutpFmt;
+    job.cfaPattern = m_TreatMonoAsCFA.get_active()
+                     ? (enum SKRY_CFA_pattern)m_CFAPattern.get_active_row_number()
+                     : SKRY_CFA_NONE;
+    job.imgSeq.ReinterpretAsCFA(job.cfaPattern);
+
+    job.automaticAnchorPlacement = (m_VideoStbAnchorsMode.get_active_row_number() == 0);
+    if (job.automaticAnchorPlacement)
+        job.anchors.clear();
+
+    job.refPtBlockSize = (unsigned)m_RefPtRefBlockSize.get_value();
+    job.refPtSearchRadius = (unsigned)m_RefPtSearchRadius.get_value();
+    job.refPtAutoPlacementParams.structureThreshold = (float)m_StructureThreshold.get_value();
+    job.refPtAutoPlacementParams.structureScale = (unsigned)m_StructureScale.get_value();
+}
+
+void c_SettingsDlg::InitRefPointControls()
+{
+    auto frRefPt = Gtk::manage(new Gtk::Frame(_("Reference points")));
+    auto refPtControls = Gtk::manage(new Gtk::VBox());
+    refPtControls->show();
+    frRefPt->add(*refPtControls);
+    frRefPt->show();
+
+    auto lRefPtMode = Gtk::manage(new Gtk::Label());
+    lRefPtMode->set_text(_("Placement:"));
+
+    m_RefPtPlacementMode.append(_("automatic"));
+    m_RefPtPlacementMode.append(_("manual"));
+    m_RefPtPlacementMode.set_tooltip_text(_("If set to manual, a selection dialog will be shown later during processing"));
+    m_RefPtPlacementMode.set_active(0);
+    m_RefPtPlacementMode.signal_changed().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnRefPtMode));
+
+    auto placementModeBox = Utils::PackIntoBox<Gtk::HBox>({ lRefPtMode, &m_RefPtPlacementMode });
+    placementModeBox->set_valign(Gtk::Align::ALIGN_START);
+
+    m_RefPtSpacing.set_adjustment(Gtk::Adjustment::create(/*TODO: make the default a constant*/40, 20, 80, 5));
+    m_RefPtBrightThresh.set_adjustment(Gtk::Adjustment::create(100 * Utils::Const::Defaults::placementBrightnessThreshold, 0, 100));
+
+    m_StructureThreshold.set_adjustment(Gtk::Adjustment::create(1.2, 1.0, 5.0, 0.01, 0.1));
+    m_StructureThreshold.set_digits(2);
+    m_StructureThreshold.set_tooltip_text(_("Relative local contrast level required to place a reference point; value of 1.2 usually works well"));
+
+    m_StructureScale.set_adjustment(Gtk::Adjustment::create(1, 1, 5));
+    m_StructureScale.set_digits(0);
+    m_StructureScale.set_tooltip_text(_("Pixel size of smallest structures. Should equal 1 for optimally-sampled "
+                                        "or undersampled images. Use higher values for oversampled (blurry) material."));
+
+    m_RefPtAutoControls = Utils::PackIntoBox<Gtk::VBox>( {
+                            Utils::PackIntoBox<Gtk::HBox>({ Gtk::manage(new Gtk::Label(_("spacing in pixels:"))),        &m_RefPtSpacing }),
+                            Utils::PackIntoBox<Gtk::HBox>({ Gtk::manage(new Gtk::Label(_("brightness threshold (%):"))), &m_RefPtBrightThresh }),
+                            Utils::PackIntoBox<Gtk::HBox>({ Gtk::manage(new Gtk::Label(_("structure threshold:"))),      &m_StructureThreshold }),
+                            Utils::PackIntoBox<Gtk::HBox>({ Gtk::manage(new Gtk::Label(_("structure scale:"))),          &m_StructureScale })
+                          });
+
+    refPtControls->pack_start(*Utils::PackIntoBox<Gtk::HBox>({ placementModeBox, m_RefPtAutoControls }),
+                              Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+
+    m_RefPtRefBlockSize.set_adjustment(Gtk::Adjustment::create(32, 8, 256));
+    m_RefPtRefBlockSize.set_digits(0);
+
+    m_RefPtSearchRadius.set_adjustment(Gtk::Adjustment::create(16, 1, 256, 1));
+    m_RefPtSearchRadius.set_digits(0);
+
+    refPtControls->pack_start(*Utils::PackIntoBox<Gtk::HBox>({ Gtk::manage(new Gtk::Label(_("Reference block size:"))), &m_RefPtRefBlockSize }),
+                              Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+    refPtControls->pack_start(*Utils::PackIntoBox<Gtk::HBox>({ Gtk::manage(new Gtk::Label(_("Search radius:"))), &m_RefPtSearchRadius }),
+                              Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+
+    get_content_area()->pack_start(*frRefPt, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 }
 
 void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
@@ -103,40 +238,33 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     jobsSeparator->show();
     get_content_area()->pack_start(*jobsSeparator, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
-    auto lStab = Gtk::manage(new Gtk::Label());
-    lStab->set_text(_("Video stabilization anchors placement:"));
-    lStab->show();
+    auto lAlignment = Gtk::manage(new Gtk::Label(_("Video stabilization method:")));
+    lAlignment->show();
+    for (auto s: GetAlignmentMethodStrings())
+    {
+        m_AlignmentMethod.append(s);
+    }
+    m_AlignmentMethod.set_active(0);
+    m_AlignmentMethod.show();
+    m_AlignmentMethod.signal_changed().connect([this]()
+                                               {
+                                                   bool anchorMode = (m_AlignmentMethod.get_active_row_number() == 0);
+                                                   m_VideoStbAnchorsModeLabel.set_sensitive(anchorMode);
+                                                   m_VideoStbAnchorsMode.set_sensitive(anchorMode);
+                                               });
+
+    m_VideoStbAnchorsModeLabel.set_text(_("anchor placement:"));
+    m_VideoStbAnchorsModeLabel.show();
     m_VideoStbAnchorsMode.append(_("automatic"));
     m_VideoStbAnchorsMode.append(_("manual"));
     m_VideoStbAnchorsMode.set_active(0);
     m_VideoStbAnchorsMode.show();
-    get_content_area()->pack_start(*Utils::PackIntoHBox({ lStab, &m_VideoStbAnchorsMode }), Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
-    auto lRefPt = Gtk::manage(new Gtk::Label());
-    lRefPt->set_text(_("Reference points placement:"));
-    lRefPt->show();
-    m_RefPtPlacementMode.append(_("automatic"));
-    m_RefPtPlacementMode.append(_("manual"));
-    m_RefPtPlacementMode.set_tooltip_text(_("If set to manual, a selection dialog will be shown later during processing"));
-    m_RefPtPlacementMode.set_active(0);
-    m_RefPtPlacementMode.signal_changed().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnRefPtMode));
-    m_RefPtPlacementMode.show();
-
-    m_RefPtSpacingLabel.set_text(_(", spacing in pixels:"));
-    m_RefPtSpacingLabel.show();
-    m_RefPtSpacing.set_adjustment(Gtk::Adjustment::create(/*TODO: make the default a constant*/40, 20, 80, 5));
-    m_RefPtSpacing.show();
-
-    m_RefPtBrightThreshLabel.set_text(_(", brightness threshold (%):"));
-    m_RefPtBrightThreshLabel.show();
-    m_RefPtBrightThresh.set_adjustment(Gtk::Adjustment::create(100 * Utils::Const::Defaults::placementBrightnessThreshold, 0, 100));
-    m_RefPtBrightThresh.show();
-
-    get_content_area()->pack_start(*Utils::PackIntoHBox(
-                                        { lRefPt, &m_RefPtPlacementMode,
-                                           &m_RefPtSpacingLabel, &m_RefPtSpacing,
-                                           &m_RefPtBrightThreshLabel, &m_RefPtBrightThresh }),
+    get_content_area()->pack_start(*Utils::PackIntoBox<Gtk::HBox>({ lAlignment, &m_AlignmentMethod,
+                                                                    &m_VideoStbAnchorsModeLabel, &m_VideoStbAnchorsMode }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+
+    InitRefPointControls();
 
     auto lStack = Gtk::manage(new Gtk::Label(_("Stacking criterion:")));
     lStack->show();
@@ -151,7 +279,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_QualityCriterion.signal_changed().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnStackingThresholdType));
     m_QualityCriterion.show();
 
-    get_content_area()->pack_start(*Utils::PackIntoHBox({ lStack, &m_QualityThreshold, &m_QualityCriterion }),
+    get_content_area()->pack_start(*Utils::PackIntoBox<Gtk::HBox>({ lStack, &m_QualityThreshold, &m_QualityCriterion }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
 
@@ -170,7 +298,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_DestFolderChooser.signal_file_set().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnDestPathSet));
     m_DestFolderChooser.set_sensitive(false);
     m_DestFolderChooser.show();
-    get_content_area()->pack_start(*Utils::PackIntoHBox({ lOutp, &m_OutputSaveMode, &m_DestFolderChooser }),
+    get_content_area()->pack_start(*Utils::PackIntoBox<Gtk::HBox>({ lOutp, &m_OutputSaveMode, &m_DestFolderChooser }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     m_OutpFmtLabel.set_text(_("Output format:"));
@@ -180,7 +308,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
         m_AutoSaveOutputFormat.append(outFmt.name);
     }
     m_AutoSaveOutputFormat.show();
-    get_content_area()->pack_start(*Utils::PackIntoHBox({&m_OutpFmtLabel, &m_AutoSaveOutputFormat }),
+    get_content_area()->pack_start(*Utils::PackIntoBox<Gtk::HBox>({&m_OutpFmtLabel, &m_AutoSaveOutputFormat }),
         Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     m_FlatFieldCheckBtn.set_label(_("Use flat-field for stacking:"));
@@ -194,7 +322,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_FlatFieldChooser.set_title(_("Select flat-field image"));
     m_FlatFieldChooser.set_sensitive(false);
     m_FlatFieldChooser.show();
-    get_content_area()->pack_start(*Utils::PackIntoHBox({ &m_FlatFieldCheckBtn, &m_FlatFieldChooser }),
+    get_content_area()->pack_start(*Utils::PackIntoBox<Gtk::HBox>({ &m_FlatFieldCheckBtn, &m_FlatFieldChooser }),
                                    Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     m_TreatMonoAsCFA.set_label(_("Treat mono input as raw color:"));
@@ -211,7 +339,7 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     m_CFAPattern.show();
     auto *lDemosaicComment = Gtk::manage(new Gtk::Label(_("(also overrides raw color format in SER videos)")));
     lDemosaicComment->show();
-    get_content_area()->pack_start(*Utils::PackIntoHBox({ &m_TreatMonoAsCFA, &m_CFAPattern, lDemosaicComment }),
+    get_content_area()->pack_start(*Utils::PackIntoBox<Gtk::HBox>({ &m_TreatMonoAsCFA, &m_CFAPattern, lDemosaicComment }),
                                     Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     auto separator = Gtk::manage(new Gtk::Separator());
@@ -237,25 +365,10 @@ void c_SettingsDlg::OnOutputSaveMode()
     m_AutoSaveOutputFormat.set_sensitive(!autoSaveDisabled);
 }
 
-void c_SettingsDlg::SetDestinationDir(std::string dir)
-{
-    m_DestFolderChooser.set_filename(dir);
-}
-
-std::string c_SettingsDlg::GetDestinationDir() const
-{
-    return m_DestFolderChooser.get_filename();
-}
-
 void c_SettingsDlg::OnRefPtMode()
 {
     bool isAuto = (m_RefPtPlacementMode.get_active_row_number() == 0);
-
-    m_RefPtSpacingLabel.set_sensitive(isAuto);
-    m_RefPtSpacing.set_sensitive(isAuto);
-
-    m_RefPtBrightThreshLabel.set_sensitive(isAuto);
-    m_RefPtBrightThresh.set_sensitive(isAuto);
+    m_RefPtAutoControls->set_sensitive(isAuto);
 }
 
 Glib::RefPtr<Gtk::Adjustment> c_SettingsDlg::CreatePercentageAdj()
@@ -271,126 +384,15 @@ void c_SettingsDlg::OnStackingThresholdType()
         m_QualityThreshold.set_adjustment(CreatePercentageAdj());
 }
 
-Utils::Const::OutputSaveMode c_SettingsDlg::GetOutputSaveMode() const
-{
-    return (Utils::Const::OutputSaveMode)m_OutputSaveMode.get_active_row_number();
-}
-
-void c_SettingsDlg::SetOutputSaveMode(Utils::Const::OutputSaveMode mode)
-{
-    m_OutputSaveMode.set_active(mode);
-}
-
 c_SettingsDlg::~c_SettingsDlg()
 {
     Utils::SavePosSize(*this, Configuration::SettingsDlgPosSize);
 }
 
-unsigned c_SettingsDlg::GetRefPointSpacing() const
-{
-    return (unsigned)m_RefPtSpacing.get_value_as_int();
-}
-
-void c_SettingsDlg::SetRefPtSpacing(unsigned sp)
-{
-    m_RefPtSpacing.set_value(sp);
-}
-
-double c_SettingsDlg::GetRefPointBrightThresh() const
-{
-    return m_RefPtBrightThresh.get_value() / 100.0;
-}
-
-void c_SettingsDlg::SetRefPtBrightThresh(double threshold)
-{
-    m_RefPtBrightThresh.set_value(threshold * 100);
-}
-
-std::string c_SettingsDlg::GetFlatFieldFileName() const
-{
-    return m_FlatFieldChooser.get_filename();
-}
-
-void c_SettingsDlg::SetFlatFieldFileName(std::string flatField)
-{
-    m_FlatFieldCheckBtn.set_active(!flatField.empty());
-    if (!flatField.empty())
-        m_FlatFieldChooser.set_filename(flatField);
-}
 
 void c_SettingsDlg::OnFlatFieldToggle()
 {
     m_FlatFieldChooser.set_sensitive(m_FlatFieldCheckBtn.get_active());
-}
-
-bool c_SettingsDlg::GetAnchorsAutomatic() const
-{
-    return m_VideoStbAnchorsMode.get_active_row_number() == 0;
-}
-
-void c_SettingsDlg::SetAnchorsAutomatic(bool automatic)
-{
-    m_VideoStbAnchorsMode.set_active(automatic ? 0 : 1);
-}
-
-enum SKRY_quality_criterion c_SettingsDlg::GetQualityCriterion() const
-{
-    return (enum SKRY_quality_criterion)m_QualityCriterion.get_active_row_number();
-}
-
-void c_SettingsDlg::SetQualityCriterion(enum SKRY_quality_criterion qualCrit, unsigned threshold)
-{
-    m_QualityCriterion.set_active((int)qualCrit);
-    m_QualityThreshold.set_value(threshold);
-}
-
-unsigned c_SettingsDlg::GetQualityThreshold() const
-{
-    return m_QualityThreshold.get_value_as_int();
-}
-
-enum SKRY_output_format c_SettingsDlg::GetAutoSaveOutputFormat() const
-{
-    return Utils::Vars::outputFormatDescription[m_AutoSaveOutputFormat.get_active_row_number()].skryOutpFmt;
-}
-
-void c_SettingsDlg::SetAutoSaveOutputFormat(enum SKRY_output_format outpFmt)
-{
-    size_t index = 0;
-    for (auto &descr: Utils::Vars::outputFormatDescription)
-    {
-        if (descr.skryOutpFmt == outpFmt)
-            m_AutoSaveOutputFormat.set_active(index);
-        else
-            index++;
-    }
-}
-
-bool c_SettingsDlg::GetRefPointsAutomatic() const
-{
-    return m_RefPtPlacementMode.get_active_row_number() == 0;
-}
-
-void c_SettingsDlg::SetRefPointsAutomatic(bool automatic)
-{
-    m_RefPtPlacementMode.set_active(automatic ? 0 : 1);
-}
-
-enum SKRY_CFA_pattern c_SettingsDlg::GetCFAPattern() const
-{
-    if (m_TreatMonoAsCFA.get_active())
-        return (enum SKRY_CFA_pattern)m_CFAPattern.get_active_row_number();
-    else
-        return SKRY_CFA_NONE;
-}
-
-void c_SettingsDlg::SetCFAPattern(enum SKRY_CFA_pattern pattern)
-{
-    m_TreatMonoAsCFA.set_active(pattern != SKRY_CFA_NONE);
-    if (pattern != SKRY_CFA_NONE)
-    {
-        m_CFAPattern.set_active((unsigned)pattern);
-    }
 }
 
 void c_SettingsDlg::OnTreatAsCFAToggle()
