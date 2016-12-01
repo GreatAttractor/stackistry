@@ -33,7 +33,13 @@ struct Job_t
 
     enum SKRY_output_format outputFmt;
     Utils::Const::OutputSaveMode outputSaveMode;
+
+    /// If worker is running, access must be synchronized using Worker::GetAccessGuard()
     libskry::c_Image stackedImg;
+
+    /** Composite of best fragments of all images in 'imgSeq'.
+        If worker is running, access must be synchronized using Worker::GetAccessGuard(). */
+    libskry::c_Image bestFragmentsImg;
 
     enum SKRY_img_alignment_method alignmentMethod;
 

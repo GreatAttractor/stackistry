@@ -63,10 +63,15 @@ public:
     typedef sigc::signal<void, int> ZoomChangedSignal_t;
 
 
+protected:
+
+    Gtk::HBox m_ZoomBox;
+    Gtk::DrawingArea m_DrawArea;
+    Cairo::RefPtr<Cairo::ImageSurface> m_Img;
+
 private:
 
-    Cairo::RefPtr<Cairo::ImageSurface> m_Img;
-    Gtk::DrawingArea m_DrawArea;
+
     Gtk::ScrolledWindow m_ScrWin;
     Gtk::Scale m_Zoom;
     Gtk::ComboBoxText m_ZoomRange;
@@ -78,10 +83,13 @@ private:
     /// If false, zoom controls do not change image scale
     bool m_ApplyZoom;
 
+    bool m_FreezeZoomNotifications;
+
     // Emitted signals ----------------------
     DrawImageAreaSignal_t     m_DrawImageAreaSignal;
     ImageAreaBtnPressSignal_t m_ImageAreaBtnPressSignal;
     ZoomChangedSignal_t       m_ZoomChangedSignal;
+    sigc::signal<void>        m_ImageSetSignal;
     //------------------------------
 
     int GetZoomPercentValIfEnabled() const;
@@ -124,7 +132,9 @@ public:
     void SetApplyZoom(bool applyZoom)
     {
         m_ApplyZoom = applyZoom;
-        m_FitInWindow.set_active(applyZoom);
+        if (!applyZoom)
+            m_FitInWindow.set_active(false);
+
         m_FitInWindow.set_visible(applyZoom);
         Refresh();
     }
@@ -150,6 +160,11 @@ public:
         return m_ZoomChangedSignal;
     }
 
+    sigc::signal<void> signal_ImageSet()
+    {
+        return m_ImageSetSignal;
+    }
+
     Utils::Const::InterpolationMethod GetInterpolationMethod() const
     {
         return (Utils::Const::InterpolationMethod)m_InterpolationMethod.get_active_row_number();
@@ -158,7 +173,6 @@ public:
     void SetInterpolationMethod(Utils::Const::InterpolationMethod method)
     {
         m_InterpolationMethod.set_active((int)method);
-        OnChangeZoom();
     }
 
     void SetZoomControlsEnabled(bool enabled)
@@ -173,6 +187,8 @@ public:
         if (!enabled)
             m_FitInWindow.set_active(false);
     }
+
+    void SetZoom(double zoom, Utils::Const::InterpolationMethod interpMethod);
 };
 
 #endif // STACKISTRY_IMAGE_VIEWER_WIDGET_HEADER

@@ -59,7 +59,6 @@ double ClockSec()
 
 int main(int argc, char *argv[])
 {
-    std::cout << "argv[0] is " << argv[0] << std::endl;
     Utils::SetAppLaunchPath(argv[0]);
     Configuration::Initialize();
 
@@ -78,11 +77,11 @@ int main(int argc, char *argv[])
         LCID loc = GetSystemDefaultLangID();
 
         int numChars = GetLocaleInfo(loc, LOCALE_SISO639LANGNAME, NULL, 0);
-        std::unique_ptr<TCHAR> langCode(new TCHAR[numChars]);
+        std::unique_ptr<TCHAR[]> langCode(new TCHAR[numChars]);
         GetLocaleInfo(loc, LOCALE_SISO639LANGNAME, langCode.get(), numChars);
 
         numChars = GetLocaleInfo(loc, LOCALE_SISO3166CTRYNAME, NULL, 0);
-        std::unique_ptr<TCHAR> langCountry(new TCHAR[numChars]);
+        std::unique_ptr<TCHAR[]> langCountry(new TCHAR[numChars]);
         GetLocaleInfo(loc, LOCALE_SISO3166CTRYNAME, langCountry.get(), numChars);
 
         Glib::setenv("LANGUAGE", (std::string(langCode.get()) + "_" + langCountry.get() + ".UTF-8").c_str(), 1);

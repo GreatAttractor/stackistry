@@ -26,6 +26,7 @@ File description:
 #define STACKISTRY_WORKER_THREAD_HEADER
 
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include <cairomm/surface.h>
@@ -52,7 +53,7 @@ namespace Worker
 
     void ConnectProgressSignal(const sigc::slot<void>& slot);
 
-    Glib::Threads::Mutex &GetAccessGuard();
+    Glib::Threads::RecMutex &GetAccessGuard();
 
     ProcPhase GetPhase();
 
@@ -77,6 +78,9 @@ namespace Worker
 
     /// Used by the main thread to indicate the current visualization zoom factor
     void SetZoomFactor(double zoom, Utils::Const::InterpolationMethod interpolationMethod);
+
+    /// Returns the last values set with SetZoomFactor()
+    std::tuple<double, Utils::Const::InterpolationMethod> GetZoomFactor();
 }
 
 #endif // STACKISTRY_WORKER_THREAD_HEADER

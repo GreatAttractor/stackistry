@@ -41,6 +41,7 @@ SRC_FILES = config.cpp        \
             img_viewer.cpp    \
             main_window.cpp   \
             main.cpp          \
+            output_view.cpp   \
             preferences.cpp   \
             quality_wnd.cpp   \
             select_points.cpp \

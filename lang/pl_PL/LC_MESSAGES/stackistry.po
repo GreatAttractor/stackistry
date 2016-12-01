@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Stackistry 0.1.1\n"
 "Report-Msgid-Bugs-To: Filip Szczerek <ga.software@yahoo.com>\n"
-"POT-Creation-Date: 2016-12-09\n"
-"PO-Revision-Date: 2016-12-09\n"
+"POT-Creation-Date: 2016-12-14\n"
+"PO-Revision-Date: 2016-12-14\n"
 "Last-Translator: Filip Szczerek <ga.software@yahoo.com>\n"
 "Language-Team: \n"
 "Language: Polish\n"
@@ -702,3 +702,27 @@ msgstr "hist"
 
 msgid "Show histogram"
 msgstr "Pokaż histogram"
+
+msgid "Stack not available; select a job which has finished processing"
+msgstr "Stack nie jest dostępny; wybierz zadanie, którego przetwarzanie zostało zakończone"
+
+msgid "Best fragments composite image not available; select a job which has finished quality estimation"
+msgstr "Zestawienie najlepszych fragmentów nie jest dostępne; wybierz zadanie, dla którego ukończono szacowanie jakości"
+
+msgid "Visualization not available"
+msgstr "Wizualizacja niedostępna"
+
+msgid "Visualization"
+msgstr "Wizualizacja"
+
+msgid "Stack"
+msgstr "Stack"
+
+msgid "Best fragments"
+msgstr "Najlepsze fragmenty"
+
+msgid "Save best fragments composite"
+msgstr "Zapisz zestawienie najlepszych fragmentów"
+
+msgid "Save best fragments composite..."
+msgstr "Zapisz zestawienie najlepszych fragmentów..."

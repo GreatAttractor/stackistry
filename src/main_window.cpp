@@ -57,7 +57,7 @@ File description:
 #include "worker.h"
 
 
-#define LOCK() Glib::Threads::Mutex::Lock lock(Worker::GetAccessGuard())
+#define LOCK() Glib::Threads::RecMutex::Lock lock(Worker::GetAccessGuard())
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1
@@ -75,6 +75,7 @@ namespace ActionName
     const char *stopProcessing = "stop_processing";
     const char *setAnchors = "set_anchors";
     const char *saveStackedImage = "save_stacked_image";
+    const char *saveBestFragmentsImage = "save_best_fragments_image";
     const char *selectFrames = "select_frames";
     const char *preferences = "preferences";
     const char *settings = "settings";
@@ -228,8 +229,7 @@ void c_MainWindow::OnStartProcessing()
 
     Worker::StartProcessing(&job);
     UpdateActionsState();
-    if (m_ActVisualization->get_active())
-        m_Visualization .SetZoomControlsEnabled(true);
+    UpdateOutputViewZoomControlsState();
 }
 
 bool c_MainWindow::SetAnchorsAutomatically(Job_t &job)
@@ -271,7 +271,7 @@ void c_MainWindow::OnStopProcessing()
         m_JobsToProcess.pop();
 
     UpdateActionsState();
-    m_Visualization.SetZoomControlsEnabled(false);
+    UpdateOutputViewZoomControlsState();
 }
 
 Job_t &c_MainWindow::GetCurrentJob()
@@ -345,7 +345,17 @@ void GetOutputFormatFromFilter(Glib::ustring filterName,
 
 void c_MainWindow::OnSaveStackedImage()
 {
-    Gtk::FileChooserDialog dlg(_("Save stacked image"), Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE);
+    SaveImage(GetCurrentJob().stackedImg, _("Save stacked image"), true);
+}
+
+void c_MainWindow::OnSaveBestFragmentsImage()
+{
+    SaveImage(GetCurrentJob().bestFragmentsImg, _("Save best fragments composite"), false);
+}
+
+void c_MainWindow::SaveImage(const libskry::c_Image &img, const Glib::ustring &dlgTitle, bool preselectHiBitDephtFilter)
+{
+    Gtk::FileChooserDialog dlg(dlgTitle, Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE);
     dlg.add_button(_("OK"), Gtk::ResponseType::RESPONSE_OK);
     dlg.add_button(_("Cancel"), Gtk::ResponseType::RESPONSE_CANCEL);
     bool hiBitDepthFilterSelected = false;
@@ -360,7 +370,7 @@ void c_MainWindow::OnSaveStackedImage()
         filter->set_name(filterName);
         dlg.add_filter(filter);
 
-        if (!hiBitDepthFilterSelected && OUTPUT_FMT_BITS_PER_CHANNEL[outFmt.skryOutpFmt] >= 16)
+        if (preselectHiBitDephtFilter && !hiBitDepthFilterSelected && OUTPUT_FMT_BITS_PER_CHANNEL[outFmt.skryOutpFmt] >= 16)
         {
             dlg.set_filter(filter);
             hiBitDepthFilterSelected = true;
@@ -373,9 +383,8 @@ void c_MainWindow::OnSaveStackedImage()
         enum SKRY_output_format outpFmt;
 
         GetOutputFormatFromFilter(dlg.get_filter()->get_name(), outpFmt);
-        const libskry::c_Image &stackedImg = GetJobAt(GetJobsListFocusedRow()).stackedImg;
-        enum SKRY_pixel_format pixFmt = Utils::FindMatchingFormat(outpFmt, NUM_CHANNELS[stackedImg.GetPixelFormat()]);
-        libskry::c_Image finalImg = libskry::c_Image::ConvertPixelFormat(stackedImg, pixFmt);
+        enum SKRY_pixel_format pixFmt = Utils::FindMatchingFormat(outpFmt, NUM_CHANNELS[img.GetPixelFormat()]);
+        libskry::c_Image finalImg = libskry::c_Image::ConvertPixelFormat(img, pixFmt);
         enum SKRY_result result;
         if (SKRY_SUCCESS != (result = finalImg.Save(dlg.get_filename().c_str(), outpFmt)))
         {
@@ -438,16 +447,19 @@ void c_MainWindow::UpdateActionsState()
     m_ActionGroup->get_action(ActionName::settings)->set_sensitive(numSelJobs > 0);
     m_ActionGroup->get_action(ActionName::removeJobs)->set_sensitive(numSelJobs > 0 && !Worker::IsRunning());
 
-    m_ActionGroup->get_action(ActionName::saveStackedImage)->set_sensitive(
-        numSelJobs == 1
-        && GetJobsListFocusedRow()
-        && GetCurrentJob().stackedImg
-    );
+    bool oneJobSelected = (numSelJobs == 1 && GetJobsListFocusedRow());
 
-    m_ActionGroup->get_action(ActionName::exportQualityData)->set_sensitive(
-        numSelJobs == 1
-        && GetJobsListFocusedRow() && !GetCurrentJob().quality.framesChrono.empty()
-    );
+    { LOCK();
+        m_ActionGroup->get_action(ActionName::saveStackedImage)->set_sensitive(
+            oneJobSelected && GetCurrentJob().stackedImg);
+
+        m_ActionGroup->get_action(ActionName::saveBestFragmentsImage)->set_sensitive(
+            oneJobSelected && GetCurrentJob().bestFragmentsImg);
+
+        m_ActionGroup->get_action(ActionName::exportQualityData)->set_sensitive(
+            oneJobSelected && !GetCurrentJob().quality.framesChrono.empty()
+        );
+    }
 }
 
 void c_MainWindow::OnSelectFrames()
@@ -530,6 +542,8 @@ void c_MainWindow::OnAddVideos()
     fltSer->set_name("SER (*.ser)");
     dlg.add_filter(fltSer);
 
+    dlg.set_filter(fltAvi);
+
     PrepareDialog(dlg);
     if (Gtk::ResponseType::RESPONSE_OK == dlg.run())
     {
@@ -585,6 +599,8 @@ void c_MainWindow::InitActions()
                   sigc::mem_fun(*this, &c_MainWindow::OnAddVideos));
     m_ActionGroup->add(Gtk::Action::create(ActionName::saveStackedImage, _("Save stacked image...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnSaveStackedImage));
+    m_ActionGroup->add(Gtk::Action::create(ActionName::saveBestFragmentsImage, _("Save best fragments composite...")),
+                  sigc::mem_fun(*this, &c_MainWindow::OnSaveBestFragmentsImage));
     m_ActionGroup->add(Gtk::Action::create(ActionName::createFlatField, _("Create flat-field from video..."),
                                            _("Create flat-field from video...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnCreateFlatField));
@@ -634,6 +650,7 @@ void c_MainWindow::InitActions()
     "            <menuitem action='" + ActionName::addImages + "' />"
     //"            <menuitem action='" + ActionName::addFolders + "' />"  TODO: implement this
     "            <menuitem action='" + ActionName::saveStackedImage + "' />"
+    "            <menuitem action='" + ActionName::saveBestFragmentsImage + "' />"
     "            <menuitem action='" + ActionName::exportQualityData + "' />"
     "            <menuitem action='" + ActionName::createFlatField + "' />"
     "            <separator />"
@@ -683,6 +700,7 @@ void c_MainWindow::InitActions()
     "        <menuitem action='" + ActionName::settings + "' />"
     "        <menuitem action='" + ActionName::setAnchors + "' />"
     "        <menuitem action='" + ActionName::saveStackedImage + "' />"
+    "        <menuitem action='" + ActionName::saveBestFragmentsImage + "' />"
     "        <menuitem action='" + ActionName::exportQualityData + "' />"
     "        <separator/>"
     "        <menuitem action='" + ActionName::removeJobs + "'/>"
@@ -702,8 +720,26 @@ void c_MainWindow::OnJobCursorChanged()
 {
     UpdateActionsState();
 
+
     if (GetJobsListFocusedRow())
+    {
         m_QualityWnd.SetJob(GetCurrentJobPtr());
+
+        { LOCK();
+
+            const Job_t &job = GetCurrentJob();
+            switch(m_OutputView.GetOutputImgType())
+            {
+            case OutputImgType::Stack:
+                m_OutputView.SetImage(job.stackedImg);
+                break;
+
+            case OutputImgType::BestFragments:
+                m_OutputView.SetImage(job.bestFragmentsImg);
+                break;
+            }
+        }
+    }
     else
         m_QualityWnd.SetJob(nullptr);
 }
@@ -761,11 +797,21 @@ bool c_MainWindow::OnJobBtnPressed(GdkEventButton *event)
 void c_MainWindow::OnToggleVisualization()
 {
     Worker::SetVisualizationEnabled(m_ActVisualization->get_active());
+    UpdateOutputViewZoomControlsState();
 
+    if (m_ActVisualization->get_active())
+        m_OutputView.SetOutputImgType(OutputImgType::Visualization);
+}
+
+void c_MainWindow::UpdateOutputViewZoomControlsState()
+{
     // The user cannot change the zoom factor if visualization is disabled,
     // because the scaled image is provided (on every processing step) by the
     // worker thread, not generated by the 'm_Visualization' widget.
-    m_Visualization.SetZoomControlsEnabled(Worker::IsRunning() && m_ActVisualization->get_active());
+    m_OutputView.SetZoomControlsEnabled(
+            m_OutputView.GetOutputImgType() != OutputImgType::Visualization
+            ||
+            Worker::IsRunning() && m_ActVisualization->get_active());
 }
 
 void c_MainWindow::SetStatusBarText(const Glib::ustring &text)
@@ -823,6 +869,10 @@ void c_MainWindow::OnWorkerProgress()
     if (!m_RunningJob)
         return; // an outdated notification, ignore
 
+    // Update "Save stacked image", "Save best fragments composite image", "Export quality data"
+    // actions' state
+    UpdateActionsState();
+
     if (m_RunningJob)
     {
         Job_t &job = GetJobAt(m_RunningJob);
@@ -849,6 +899,23 @@ void c_MainWindow::OnWorkerProgress()
         }
     }
 
+
+    if (GetJobsListFocusedRow())
+    {
+        const Job_t &job = GetCurrentJob();
+
+        switch (m_OutputView.GetOutputImgType())
+        {
+        case OutputImgType::Stack:
+            m_OutputView.SetImage(job.stackedImg);
+            break;
+
+        case OutputImgType::BestFragments:
+            m_OutputView.SetImage(job.bestFragmentsImg);
+            break;
+        }
+    }
+
     if (Worker::IsWaitingForReferencePoints())
     {
         struct Job_t &job = GetJobAt(*m_RunningJob);
@@ -870,9 +937,9 @@ void c_MainWindow::OnWorkerProgress()
 
     if (Worker::GetStep() != m_LastStepNotify)
     {
-        if (Worker::IsVisualizationEnabled())
+        if (Worker::IsVisualizationEnabled() && m_OutputView.GetOutputImgType() == OutputImgType::Visualization)
             if (Worker::GetVisualizationImage())
-                m_Visualization.SetImage(Worker::GetVisualizationImage());
+                m_OutputView.SetImage(Worker::GetVisualizationImage());
 
         (*m_RunningJob)[m_Jobs.columns.state] = Worker::GetProcPhaseStr(Worker::GetPhase());
         (*m_RunningJob)[m_Jobs.columns.progress] = Worker::GetStep();
@@ -906,11 +973,7 @@ void c_MainWindow::OnWorkerProgress()
 
         Job_t &job = GetJobAt(m_RunningJob);
         job.imgSeq.Deactivate();
-        if (job.stackedImg && m_RunningJob == m_Jobs.data->get_iter(GetJobsListFocusedRow()))
-        {
-            // Enables the "Save stacked image" action
-            UpdateActionsState();
-        }
+
         if (job.outputSaveMode != Utils::Const::OutputSaveMode::NONE && job.stackedImg)
             AutoSaveStack(job);
 
@@ -935,7 +998,7 @@ void c_MainWindow::OnWorkerProgress()
         }
 
         UpdateActionsState();
-        m_Visualization.SetZoomControlsEnabled(m_ActVisualization->get_active() && Worker::IsRunning());
+        UpdateOutputViewZoomControlsState();
     }
 }
 
@@ -1022,16 +1085,19 @@ void c_MainWindow::InitControls()
     listScrWin->show();
     m_MainPaned.add1(*listScrWin);
 
-    m_Visualization.SetApplyZoom(false);
-    m_Visualization.signal_ZoomChanged().connect(sigc::slot<void, int>(
+    m_OutputView.SetApplyZoom(false);
+    m_OutputView.signal_ZoomChanged().connect(sigc::slot<void, int>(
         [this](int zoomPercentVal)
             {
-                Worker::SetZoomFactor(zoomPercentVal / 100.0, m_Visualization.GetInterpolationMethod());
+                if (Worker::IsRunning() && m_OutputView.GetOutputImgType() == OutputImgType::Visualization)
+                    Worker::SetZoomFactor(zoomPercentVal / 100.0, m_OutputView.GetInterpolationMethod());
             }
     ));
-    m_Visualization.SetZoomControlsEnabled(false);
-    m_Visualization.show();
-    m_MainPaned.add2(m_Visualization);
+    m_OutputView.signal_OutputImgTypeChanged().connect(sigc::mem_fun(*this, &c_MainWindow::OnOutputImgTypeChanged));
+
+    UpdateOutputViewZoomControlsState();
+    m_OutputView.show();
+    m_MainPaned.add2(m_OutputView);
 
 #if (GTKMM_MAJOR_VERSION > 3 || (GTKMM_MAJOR_VERSION == 3 && GTKMM_MINOR_VERSION >= 16))
     m_MainPaned.set_wide_handle();
@@ -1317,5 +1383,35 @@ void c_MainWindow::OnExportQualityData()
                     Glib::ustring::compose(errorMsg, dlg.get_filename()),
                     Gtk::MessageType::MESSAGE_ERROR);
         }
+    }
+}
+
+void c_MainWindow::OnOutputImgTypeChanged()
+{
+    UpdateOutputViewZoomControlsState();
+
+    switch (m_OutputView.GetOutputImgType())
+    {
+    case OutputImgType::Visualization:
+        {
+            m_OutputView.SetImage(Worker::GetVisualizationImage(), false);
+            auto prevZoom = Worker::GetZoomFactor();
+            m_OutputView.SetZoom(std::get<0>(prevZoom), std::get<1>(prevZoom));
+        }
+        break;
+
+    case OutputImgType::Stack:
+        if (GetJobsListFocusedRow())
+            m_OutputView.SetImage(GetCurrentJob().stackedImg);
+        else
+            m_OutputView.SetImage(libskry::c_Image());
+        break;
+
+    case OutputImgType::BestFragments:
+        if (GetJobsListFocusedRow())
+            m_OutputView.SetImage(GetCurrentJob().bestFragmentsImg);
+        else
+            m_OutputView.SetImage(libskry::c_Image());
+        break;
     }
 }

@@ -61,7 +61,7 @@ namespace Vars
     static bool enableVisualization = false;
     static bool isWaitingForReferencePoints;
     static enum SKRY_result lastResult;
-    static Glib::Threads::Mutex mtx; ///< Access guard for shared variables
+    static Glib::Threads::RecMutex mtx; ///< Access guard for shared variables
     /// Used for notification by main thread that reference points have been provided
     static Glib::Threads::Mutex mtxRefPt;
     static Glib::Threads::Cond condRefPt;
@@ -71,7 +71,7 @@ namespace Vars
     static auto interpolationMethod = Utils::Const::Defaults::interpolation;
 }
 
-#define LOCK() Glib::Threads::Mutex::Lock lock(Vars::mtx)
+#define LOCK() Glib::Threads::RecMutex::Lock lock(Vars::mtx)
 
 void WorkerThreadFunc();
 
@@ -87,6 +87,14 @@ void SetZoomFactor(double zoom, Utils::Const::InterpolationMethod interpolationM
     LOCK();
     Vars::zoomFactor = zoom;
     Vars::interpolationMethod = interpolationMethod;
+}
+
+/// Returns the last values set with SetZoomFactor()
+std::tuple<double, Utils::Const::InterpolationMethod> GetZoomFactor()
+{
+    LOCK();
+
+    return std::make_tuple(Vars::zoomFactor, Vars::interpolationMethod);
 }
 
 
@@ -159,6 +167,11 @@ void StartProcessing(Job_t *job)
     job->quality.framesChrono.clear();
     job->quality.framesSorted.clear();
     job->qualityDataReadyNotification = false;
+
+    Vars::visualizationImg = Cairo::RefPtr<Cairo::ImageSurface>(nullptr);
+
+    job->stackedImg = libskry::c_Image();
+    job->bestFragmentsImg = libskry::c_Image();
 
     Vars::job = job;
 
@@ -433,25 +446,29 @@ void WorkerThreadFunc()
         }
         NotifyMainThread();
     }
-    if (Vars::lastResult != SKRY_LAST_STEP)
     { LOCK();
-        Vars::isWorkerRunning = false;
-        NotifyMainThread();
-        return;
-    }
-    else
-    {
-        LOCK();
-        Vars::job->quality.framesChrono = qualEstimation.GetImagesQuality();
-        Vars::job->quality.framesSorted = Vars::job->quality.framesChrono;
 
-        // Sort descending
-        std::sort(Vars::job->quality.framesSorted.begin(),
-                  Vars::job->quality.framesSorted.end(),
-                  [](const SKRY_quality_t &a, const SKRY_quality_t &b) { return a > b; });
+        if (Vars::lastResult != SKRY_LAST_STEP)
+        {
+            Vars::isWorkerRunning = false;
+            NotifyMainThread();
+            return;
+        }
+        else
+        {
+            Vars::job->bestFragmentsImg = qualEstimation.GetBestFragmentsImage();
 
-        Vars::job->qualityDataReadyNotification = true;
-        NotifyMainThread(); // in order to refresh the quality graph window
+            Vars::job->quality.framesChrono = qualEstimation.GetImagesQuality();
+            Vars::job->quality.framesSorted = Vars::job->quality.framesChrono;
+
+            // Sort descending
+            std::sort(Vars::job->quality.framesSorted.begin(),
+                      Vars::job->quality.framesSorted.end(),
+                      [](const SKRY_quality_t &a, const SKRY_quality_t &b) { return a > b; });
+
+            Vars::job->qualityDataReadyNotification = true;
+            NotifyMainThread(); // in order to refresh the quality graph window
+        }
     }
 
     if (!Vars::job->automaticRefPointsPlacement && Vars::job->refPoints.empty())
@@ -552,7 +569,9 @@ void WorkerThreadFunc()
         NotifyMainThread();
     }
 
-    Vars::job->stackedImg = stacking.GetFinalImageStack();
+    { LOCK();
+        Vars::job->stackedImg = stacking.GetFinalImageStack();
+    }
     if (!Vars::job->stackedImg)
     {
         std::cerr << "Failed to obtain the final image stack." << std::endl;
@@ -566,7 +585,7 @@ void WorkerThreadFunc()
     NotifyMainThread();
 }
 
-Glib::Threads::Mutex &GetAccessGuard()
+Glib::Threads::RecMutex &GetAccessGuard()
 {
     return Vars::mtx;
 }

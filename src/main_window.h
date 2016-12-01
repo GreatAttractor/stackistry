@@ -46,8 +46,8 @@ File description:
 #include <gtkmm/statusbar.h>
 #include <skry/skry_cpp.hpp>
 
-#include "img_viewer.h"
 #include "job.h"
+#include "output_view.h"
 #include "quality_wnd.h"
 
 
@@ -62,7 +62,7 @@ public:
     void Finalize();
 
 private:
-    c_ImageViewer m_Visualization;
+    c_OutputViewer m_OutputView;
     Gtk::Paned m_MainPaned;
     Glib::RefPtr<Gtk::ActionGroup> m_ActionGroup;
     Glib::RefPtr<Gtk::UIManager> m_UIManager;
@@ -121,6 +121,8 @@ private:
     void OnPauseResumeProcessing();
     void OnSetAnchors();
     void OnSaveStackedImage();
+    void OnSaveBestFragmentsImage();
+    void SaveImage(const libskry::c_Image &img, const Glib::ustring &dlgTitle, bool preselectHiBitDephtFilter);
     void OnSelectFrames();
     bool OnDelete(GdkEventAny *event);
     void OnPreferences();
@@ -134,6 +136,7 @@ private:
     void OnQuit();
     void OnAbout();
     void OnExportQualityData();
+    void OnOutputImgTypeChanged();
     //------------------------------
 
     Job_t &GetJobAt(const Gtk::TreeModel::Path &path);
@@ -161,6 +164,7 @@ private:
     std::string GetDestDir(const Job_t &job) const;
     /// Returns 'false' on failure
     bool ExportQualityData(const std::string &fileName, const Job_t &job) const;
+    void UpdateOutputViewZoomControlsState();
 };
 
 #endif // STACKISTRY_MAIN_WINDOW_HEADER

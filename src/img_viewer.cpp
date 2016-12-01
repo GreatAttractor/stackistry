@@ -37,6 +37,8 @@ c_ImageViewer::c_ImageViewer()
 {
     m_ApplyZoom = true;
 
+    m_FreezeZoomNotifications = false;
+
     m_DrawArea.signal_draw().connect(sigc::mem_fun(*this, &c_ImageViewer::OnDraw), false);
     m_DrawArea.show();
 
@@ -93,7 +95,6 @@ c_ImageViewer::c_ImageViewer()
     interpolationLabel->set_tooltip_text(interpolationTooltip);
     interpolationLabel->show();
 
-    auto zoombox = Gtk::manage(new Gtk::HBox());
     auto zoomLabel = Gtk::manage(new Gtk::Label(_("Zoom:")));
     zoomLabel->show();
 
@@ -102,18 +103,18 @@ c_ImageViewer::c_ImageViewer()
     m_FitInWindow.signal_toggled().connect(sigc::mem_fun(*this, &c_ImageViewer::OnChangeZoom));
     m_FitInWindow.show();
 
-    zoombox->pack_start(*zoomLabel,    Gtk::PackOptions::PACK_SHRINK,         Utils::Const::widgetPaddingInPixels);
-    zoombox->pack_start(m_Zoom,        Gtk::PackOptions::PACK_EXPAND_WIDGET,  Utils::Const::widgetPaddingInPixels);
+    m_ZoomBox.pack_start(*zoomLabel,    Gtk::PackOptions::PACK_SHRINK,         Utils::Const::widgetPaddingInPixels);
+    m_ZoomBox.pack_start(m_Zoom,        Gtk::PackOptions::PACK_EXPAND_WIDGET,  Utils::Const::widgetPaddingInPixels);
     Gtk::Widget *widgets[] = { &m_ZoomRange,
                                interpolationLabel,
                                &m_InterpolationMethod,
                                &m_FitInWindow };
     for (auto *w: widgets)
     {
-        zoombox->pack_start(*w, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+        m_ZoomBox.pack_start(*w, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
     }
-    zoombox->show();
-    contents->pack_start(*zoombox, Gtk::PackOptions::PACK_SHRINK);
+    m_ZoomBox.show();
+    contents->pack_start(m_ZoomBox, Gtk::PackOptions::PACK_SHRINK);
 
     Gtk::EventBox *evtBox = Gtk::manage(new Gtk::EventBox());
     evtBox->add(m_DrawArea);
@@ -157,14 +158,17 @@ c_ImageViewer::c_ImageViewer()
 
 void c_ImageViewer::OnChangeZoom()
 {
-    if (m_Img)
+    if (!m_FreezeZoomNotifications)
     {
-        m_DrawArea.set_size_request(GetZoomPercentValIfEnabled() * m_Img->get_width() / 100,
-                                    GetZoomPercentValIfEnabled() * m_Img->get_height() / 100);
-        m_DrawArea.queue_draw();
-    }
+        if (m_Img)
+        {
+            m_DrawArea.set_size_request(GetZoomPercentValIfEnabled() * m_Img->get_width() / 100,
+                                        GetZoomPercentValIfEnabled() * m_Img->get_height() / 100);
+            m_DrawArea.queue_draw();
+        }
 
-    m_ZoomChangedSignal.emit(GetZoomPercentVal());
+        m_ZoomChangedSignal.emit(GetZoomPercentVal());
+    }
 }
 
 int c_ImageViewer::GetZoomPercentValIfEnabled() const
@@ -206,12 +210,15 @@ unsigned c_ImageViewer::GetZoomPercentVal() const
     later accessed (and modified) via GetImage(). */
 void c_ImageViewer::SetImage(const libskry::c_Image &img, bool refresh)
 {
-    m_Img = Utils::ConvertImgToSurface(img);
-    m_DrawArea.set_size_request(GetZoomPercentValIfEnabled() * m_Img->get_width() / 100,
-                                GetZoomPercentValIfEnabled() * m_Img->get_height() / 100);
+    bool imgWasNull = !m_Img;
 
-    if (refresh)
-        m_DrawArea.queue_draw();
+    if (img)
+        m_Img = Utils::ConvertImgToSurface(img);
+    else
+        m_Img = Cairo::RefPtr<Cairo::ImageSurface>(nullptr);
+
+    SetImage(m_Img, refresh ||
+            !img && !imgWasNull);
 }
 
 /** Creates and uses a copy of 'img' for display; it can be
@@ -219,11 +226,21 @@ void c_ImageViewer::SetImage(const libskry::c_Image &img, bool refresh)
 void c_ImageViewer::SetImage(const Cairo::RefPtr<Cairo::ImageSurface> &img, bool refresh)
 {
     m_Img = img;
-    m_DrawArea.set_size_request(GetZoomPercentValIfEnabled() * m_Img->get_width() / 100,
-                                GetZoomPercentValIfEnabled() * m_Img->get_height() / 100);
+    if (m_Img)
+    {
+        m_DrawArea.set_size_request(GetZoomPercentValIfEnabled() * m_Img->get_width() / 100,
+                                    GetZoomPercentValIfEnabled() * m_Img->get_height() / 100);
+    }
+    else if (refresh)
+    {
+        m_DrawArea.set_size_request(this->get_width(), this->get_height());
+    }
+
 
     if (refresh)
         m_DrawArea.queue_draw();
+
+    m_ImageSetSignal.emit();
 }
 
 /// Changes to the returned surface will be visible
@@ -291,4 +308,23 @@ void c_ImageViewer::GetDisplayOffset(double &xofs, double &yofs)
 {
     xofs = m_ScrWin.get_hadjustment()->get_value();
     yofs = m_ScrWin.get_vadjustment()->get_value();
+}
+
+void c_ImageViewer::SetZoom(double zoom, Utils::Const::InterpolationMethod interpMethod)
+{
+    if (zoom < 0.01) zoom = 0.01;
+    if (zoom > 10) zoom = 10;
+
+    m_FreezeZoomNotifications = true;
+
+    int scale = (int)zoom;
+    if (scale == zoom)
+        scale -= 1;
+
+    m_ZoomRange.set_active(scale);
+    m_Zoom.set_value((zoom - scale) * 100);
+    m_InterpolationMethod.set_active(interpMethod);
+
+    m_FreezeZoomNotifications = false;
+    OnChangeZoom();
 }
