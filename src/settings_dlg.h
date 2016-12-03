@@ -59,6 +59,7 @@ private:
     Gtk::CheckButton m_TreatMonoAsCFA;
     Gtk::ComboBoxText m_CFAPattern;
     Gtk::ComboBoxText m_AlignmentMethod;
+    Gtk::CheckButton m_ExportQualityData;
 
     // Reference point placement parameters
     Gtk::ComboBoxText m_RefPtPlacementMode;

@@ -21,7 +21,9 @@ File description:
     Main window implementation.
 */
 
+#include <algorithm>
 #include <cassert>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -80,6 +82,8 @@ namespace ActionName
     const char *removeJobs = "remove_jobs";
     const char *createFlatField = "create_flat-field";
     const char *about = "about";
+    const char *toggleQualityWnd = "toggle_quality_wnd";
+    const char *exportQualityData = "export_quality_data";
 }
 
 namespace WidgetName
@@ -124,7 +128,12 @@ Job_t &c_MainWindow::GetJobAt(const Gtk::TreeModel::Path &path)
 
 Job_t &c_MainWindow::GetJobAt(const Gtk::ListStore::iterator &iter)
 {
-    return *((decltype(m_Jobs.columns.job)::ElementType)((*iter)[m_Jobs.columns.job]));
+    return *GetJobPtrAt(iter);
+}
+
+std::shared_ptr<Job_t> c_MainWindow::GetJobPtrAt(const Gtk::ListStore::iterator &iter)
+{
+    return (decltype(m_Jobs.columns.job)::ElementType)((*iter)[m_Jobs.columns.job]);
 }
 
 void c_MainWindow::OnAddFolders()
@@ -269,6 +278,12 @@ Job_t &c_MainWindow::GetCurrentJob()
 {
     Gtk::ListStore::iterator itJob = m_Jobs.data->get_iter(GetJobsListFocusedRow());
     return GetJobAt(itJob);
+}
+
+std::shared_ptr<Job_t> c_MainWindow::GetCurrentJobPtr()
+{
+    Gtk::ListStore::iterator itJob = m_Jobs.data->get_iter(GetJobsListFocusedRow());
+    return GetJobPtrAt(itJob);
 }
 
 bool c_MainWindow::SetAnchors(Job_t &job)
@@ -426,7 +441,12 @@ void c_MainWindow::UpdateActionsState()
     m_ActionGroup->get_action(ActionName::saveStackedImage)->set_sensitive(
         numSelJobs == 1
         && GetJobsListFocusedRow()
-        && GetJobAt(GetJobsListFocusedRow()).stackedImg.IsValid()
+        && GetCurrentJob().stackedImg
+    );
+
+    m_ActionGroup->get_action(ActionName::exportQualityData)->set_sensitive(
+        numSelJobs == 1
+        && GetJobsListFocusedRow() && !GetCurrentJob().quality.framesChrono.empty()
     );
 }
 
@@ -445,10 +465,16 @@ void c_MainWindow::OnSelectFrames()
             }
             else
             {
-                GetCurrentJob().imgSeq.SetActiveImages(activeFlags.data());
+                Job_t &job = GetCurrentJob();
+                job.imgSeq.SetActiveImages(activeFlags.data());
                 // Modified frame selection may modify video size and target framing
                 // after image alignment, so old ref. points may be invalid
-                GetCurrentJob().refPoints.clear();
+                job.refPoints.clear();
+
+                job.quality.framesChrono.clear();
+                job.quality.framesSorted.clear();
+                m_QualityWnd.Update();
+
                 break;
             }
         }
@@ -456,7 +482,6 @@ void c_MainWindow::OnSelectFrames()
             break;
 
     } while (true);
-
     GetCurrentJob().imgSeq.Deactivate();
 }
 
@@ -471,13 +496,15 @@ void c_MainWindow::SetDefaultSettings(Job_t &job)
     job.refPtAutoPlacementParams.brightnessThreshold = Utils::Const::Defaults::placementBrightnessThreshold;
     job.refPtAutoPlacementParams.structureScale = Utils::Const::Defaults::refPtStructureScale;
     job.refPtAutoPlacementParams.structureThreshold = Utils::Const::Defaults::refPtStructureThreshold;
-    job.qualityCriterion = Utils::Const::Defaults::qualityCriterion;
-    job.qualityThreshold = Utils::Const::Defaults::qualityThreshold;
+    job.quality.criterion = Utils::Const::Defaults::qualityCriterion;
+    job.quality.threshold = Utils::Const::Defaults::qualityThreshold;
     job.automaticRefPointsPlacement = true;
     job.automaticAnchorPlacement = true;
     job.cfaPattern = SKRY_CFA_NONE;
     job.refPtBlockSize = Utils::Const::Defaults::refPtRefBlockSize;
     job.refPtSearchRadius = Utils::Const::Defaults::refPtSearchRadius;
+    job.exportQualityData = false;
+    job.qualityDataReadyNotification = false;
 }
 
 void c_MainWindow::OnAddVideos()
@@ -574,6 +601,8 @@ void c_MainWindow::InitActions()
                   sigc::mem_fun(*this, &c_MainWindow::OnRemoveJobs));
     m_ActionGroup->add(Gtk::Action::create(ActionName::preferences, _("Preferences...")),
                   sigc::mem_fun(*this, &c_MainWindow::OnPreferences));
+    m_ActionGroup->add(Gtk::Action::create(ActionName::exportQualityData, _("Export frame quality data...")),
+                  sigc::mem_fun(*this, &c_MainWindow::OnExportQualityData));
 
     m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuProcessing, _("_Processing")));
     m_ActionGroup->add(Gtk::Action::create(ActionName::startProcessing, _("Start processing"),
@@ -585,6 +614,9 @@ void c_MainWindow::InitActions()
                   sigc::mem_fun(*this, &c_MainWindow::OnStopProcessing));
     m_ActVisualization = Gtk::ToggleAction::create(ActionName::toggleVisualization, _("Show visualization"), _("Show visualization (slows down processing)"));
     m_ActionGroup->add(m_ActVisualization, sigc::mem_fun(*this, &c_MainWindow::OnToggleVisualization));
+
+    m_ActQualityWnd = Gtk::ToggleAction::create(ActionName::toggleQualityWnd, _("Show frame quality graph"), _("Show frame quality graph"));
+    m_ActionGroup->add(m_ActQualityWnd, sigc::mem_fun(*this, &c_MainWindow::OnToggleQualityWnd));
 
     m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuAbout, _("_About")));
     m_ActionGroup->add(Gtk::Action::create(ActionName::about, _("About Stackistry...")),
@@ -602,6 +634,7 @@ void c_MainWindow::InitActions()
     "            <menuitem action='" + ActionName::addImages + "' />"
     //"            <menuitem action='" + ActionName::addFolders + "' />"  TODO: implement this
     "            <menuitem action='" + ActionName::saveStackedImage + "' />"
+    "            <menuitem action='" + ActionName::exportQualityData + "' />"
     "            <menuitem action='" + ActionName::createFlatField + "' />"
     "            <separator />"
     "            <menuitem action='" + ActionName::quit + "' />"
@@ -642,6 +675,7 @@ void c_MainWindow::InitActions()
     "       <toolitem name='" + ActionName::stopProcessing + "' action='" + ActionName::stopProcessing + "'/>"
     "       <separator/>"
     "       <toolitem action='" + ActionName::toggleVisualization + "'/>"
+    "       <toolitem action='" + ActionName::toggleQualityWnd + "'/>"
     "    </toolbar>"
 
     "    <popup name='" + WidgetName::JobsCtxMenu + "'>"
@@ -649,6 +683,7 @@ void c_MainWindow::InitActions()
     "        <menuitem action='" + ActionName::settings + "' />"
     "        <menuitem action='" + ActionName::setAnchors + "' />"
     "        <menuitem action='" + ActionName::saveStackedImage + "' />"
+    "        <menuitem action='" + ActionName::exportQualityData + "' />"
     "        <separator/>"
     "        <menuitem action='" + ActionName::removeJobs + "'/>"
     "    </popup>"
@@ -658,9 +693,19 @@ void c_MainWindow::InitActions()
     UpdateActionsState();
 }
 
+void c_MainWindow::OnToggleQualityWnd()
+{
+    m_QualityWnd.set_visible(m_ActQualityWnd->get_active());
+}
+
 void c_MainWindow::OnJobCursorChanged()
 {
     UpdateActionsState();
+
+    if (GetJobsListFocusedRow())
+        m_QualityWnd.SetJob(GetCurrentJobPtr());
+    else
+        m_QualityWnd.SetJob(nullptr);
 }
 
 void c_MainWindow::CreateJobsListView()
@@ -736,15 +781,7 @@ void c_MainWindow::AutoSaveStack(const Job_t &job)
     enum SKRY_pixel_format pixFmt = Utils::FindMatchingFormat(job.outputFmt, NUM_CHANNELS[job.stackedImg.GetPixelFormat()]);
     libskry::c_Image convImg = libskry::c_Image::ConvertPixelFormat(job.stackedImg, pixFmt);
 
-    std::string destDir;
-    if (job.outputSaveMode == Utils::Const::OutputSaveMode::SOURCE_PATH)
-    {
-        destDir = (job.imgSeq.GetType() == SKRY_IMG_SEQ_IMAGE_FILES
-                   ? job.sourcePath
-                   : Glib::path_get_dirname(job.sourcePath));
-    }
-    else
-        destDir = job.destDir;
+    std::string destDir = GetDestDir(job);
 
     std::string destFName = (job.imgSeq.GetType() == SKRY_IMG_SEQ_IMAGE_FILES
                                 ? "stack"
@@ -767,12 +804,50 @@ void c_MainWindow::AutoSaveStack(const Job_t &job)
     }
 }
 
+std::string c_MainWindow::GetDestDir(const Job_t &job) const
+{
+    if (job.outputSaveMode == Utils::Const::OutputSaveMode::SOURCE_PATH)
+    {
+        return (job.imgSeq.GetType() == SKRY_IMG_SEQ_IMAGE_FILES
+                ? job.sourcePath
+                : Glib::path_get_dirname(job.sourcePath));
+    }
+    else
+        return job.destDir;
+}
+
 void c_MainWindow::OnWorkerProgress()
 {
     LOCK();
 
     if (!m_RunningJob)
         return; // an outdated notification, ignore
+
+    if (m_RunningJob)
+    {
+        Job_t &job = GetJobAt(m_RunningJob);
+        if (job.qualityDataReadyNotification)
+        {
+            job.qualityDataReadyNotification = false;
+
+            m_QualityWnd.Update();
+            UpdateActionsState();
+
+            if (job.exportQualityData)
+            {
+                std::string destDir = GetDestDir(job);
+                std::string destFName = "frame_quality";
+
+                // For video files, prepend with the source file name
+                if (job.imgSeq.GetType() != SKRY_IMG_SEQ_IMAGE_FILES)
+                    destFName = Glib::path_get_basename(job.sourcePath) + "_" + destFName;
+
+                std::string destPath = Glib::build_filename(destDir, destFName + ".txt");
+
+                ExportQualityData(destPath, job);
+            }
+        }
+    }
 
     if (Worker::IsWaitingForReferencePoints())
     {
@@ -806,7 +881,7 @@ void c_MainWindow::OnWorkerProgress()
         (*m_RunningJob)[m_Jobs.columns.progressText] =
             Glib::ustring::format(Worker::GetStep(), "/", GetJobAt(m_RunningJob).imgSeq.GetActiveImageCount());
 
-        SetStatusBarText((*m_RunningJob)[m_Jobs.columns.jobSource] + ": " +
+        SetStatusBarText((*m_RunningJob)[m_Jobs.columns.jobSource] + " \u2013 " +        // /u2013 = N-dash
                         Worker::GetProcPhaseStr(Worker::GetPhase()) + ", " + _("step") +
                          " " + (*m_RunningJob)[m_Jobs.columns.progressText]);
 
@@ -917,6 +992,10 @@ void c_MainWindow::SetToolbarIcons()
     iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("start.svg", iconSizeInPx, iconSizeInPx)));
     iconImg->show();
     GetToolButton(ActionName::startProcessing)->set_icon_widget(*iconImg);
+
+    iconImg = Gtk::manage(new Gtk::Image(Utils::LoadIconFromFile("qual_graph.svg", iconSizeInPx, iconSizeInPx)));
+    iconImg->show();
+    GetToolButton(ActionName::toggleQualityWnd)->set_icon_widget(*iconImg);
 }
 
 Gtk::ToolButton *c_MainWindow::GetToolButton(const char *actionName)
@@ -968,6 +1047,10 @@ void c_MainWindow::InitControls()
     box->pack_start(m_MainPaned);
     box->pack_end(m_StatusBar, Gtk::PackOptions::PACK_SHRINK);
     box->show();
+
+    m_QualityWnd.signal_hide().connect([this]() { m_ActQualityWnd->set_active(false); });
+    m_QualityWnd.signal_Export().connect(sigc::mem_fun(*this, &c_MainWindow::OnExportQualityData));
+    m_QualityWnd.set_transient_for(*this);
 }
 
 c_MainWindow::~c_MainWindow()
@@ -1020,6 +1103,9 @@ void c_MainWindow::OnPreferences()
                     Gtk::MessageType::MESSAGE_INFO);
             Configuration::UILanguage = dlg.GetUILanguage();
         }
+
+        // The number of histogram bins might have changed
+        m_QualityWnd.Update();
     }
 }
 
@@ -1030,6 +1116,7 @@ void c_MainWindow::Finalize()
     Configuration::ProgressColWidth = m_Jobs.view.get_column(2)->get_width();
 
     Configuration::MainWndPanedPos = m_MainPaned.get_position();
+    Utils::SavePosSize(m_QualityWnd, Configuration::QualityWndPosSize);
 
     Worker::AbortProcessing(); //TODO: show message? status bar text? while waiting
 }
@@ -1154,4 +1241,81 @@ void c_MainWindow::OnAbout()
     img->show();
     msg.set_image(*img);
     msg.run();
+}
+
+/// Returns 'false' on failure
+bool c_MainWindow::ExportQualityData(const std::string &fileName, const Job_t &job) const
+{
+    bool success = false;
+
+    std::ofstream file(fileName.c_str());
+    if (!file.fail())
+    {
+        assert(!job.quality.framesChrono.empty());
+
+        file << "Stackistry " << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_SUBMINOR << "\n"
+             << "Normalized frame quality of \"" << job.sourcePath << "\"\n\n"
+             << "Frame;Active frame;Quality\n";
+
+        auto minmaxQuality = std::minmax_element(job.quality.framesChrono.begin(),
+                                                 job.quality.framesChrono.end());
+
+        double range = *minmaxQuality.second - *minmaxQuality.first;
+
+        const uint8_t *imgIsActive = job.imgSeq.GetImgActiveFlags();
+        bool exportInactive = Configuration::ExportInactiveFramesQuality;
+
+        size_t activeImgIdx = 0;
+        for (size_t i = 0; i < job.imgSeq.GetImageCount(); i++)
+        {
+            if (imgIsActive[i] || exportInactive)
+            {
+                file << i << ";";
+
+                if (imgIsActive[i])
+                {
+                    file << activeImgIdx << ";" << (job.quality.framesChrono[activeImgIdx] - *minmaxQuality.first) / range << "\n";
+                    activeImgIdx++;
+                }
+                else if (exportInactive)
+                    file << "-1;0\n";
+            }
+        }
+
+        success = !file.fail();
+    }
+
+    return success;
+}
+
+void c_MainWindow::OnExportQualityData()
+{
+    Gtk::FileChooserDialog dlg(_("Export frame quality data"), Gtk::FileChooserAction::FILE_CHOOSER_ACTION_SAVE);
+    dlg.add_button(_("OK"), Gtk::ResponseType::RESPONSE_OK);
+    dlg.add_button(_("Cancel"), Gtk::ResponseType::RESPONSE_CANCEL);
+
+    auto fltAll = Gtk::FileFilter::create();
+    fltAll->add_pattern("*");
+    fltAll->set_name(_("All files"));
+    dlg.add_filter(fltAll);
+
+    auto fltTxt = Gtk::FileFilter::create();
+    fltTxt->add_pattern("*.txt");
+    fltTxt->set_name(_("Text (*.txt)"));
+    dlg.add_filter(fltTxt);
+    dlg.set_filter(fltTxt);
+
+    PrepareDialog(dlg);
+    if (dlg.run() == Gtk::ResponseType::RESPONSE_OK)
+    {
+        Glib::ustring errorMsg = Glib::ustring::compose(_("Failed to export the quality data as %1."),
+                                                        dlg.get_filename().c_str());
+
+        if (!ExportQualityData(dlg.get_filename(), GetCurrentJob()))
+        {
+            ShowMsg(*this, _("Error"),
+                    Glib::ustring::compose(errorMsg, dlg.get_filename()),
+                    Gtk::MessageType::MESSAGE_ERROR);
+        }
+    }
 }

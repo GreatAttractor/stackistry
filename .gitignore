@@ -1,3 +1,4 @@
 *.bmp
 *.tif
 /Release/
+/Debug/

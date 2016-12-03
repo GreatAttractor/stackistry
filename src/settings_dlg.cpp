@@ -83,10 +83,12 @@ c_SettingsDlg::c_SettingsDlg(const std::vector<std::string> &jobNames, const Job
     if (!firstJob.flatFieldFileName.empty())
         m_FlatFieldChooser.set_filename(firstJob.flatFieldFileName);
 
+    m_ExportQualityData.set_active(firstJob.exportQualityData);
+
     m_AlignmentMethod.set_active((int)firstJob.alignmentMethod);
     m_VideoStbAnchorsMode.set_active(firstJob.automaticAnchorPlacement ? 0 : 1);
-    m_QualityCriterion.set_active((int)firstJob.qualityCriterion);
-    m_QualityThreshold.set_value(firstJob.qualityThreshold);
+    m_QualityCriterion.set_active((int)firstJob.quality.criterion);
+    m_QualityThreshold.set_value(firstJob.quality.threshold);
 
     size_t index = 0;
     for (auto &descr: Utils::Vars::outputFormatDescription)
@@ -141,8 +143,8 @@ void c_SettingsDlg::ApplySettings(Job_t &job)
         job.refPoints.clear();
 
     job.flatFieldFileName = m_FlatFieldChooser.get_filename();
-    job.qualityCriterion = (enum SKRY_quality_criterion)m_QualityCriterion.get_active_row_number();
-    job.qualityThreshold = m_QualityThreshold.get_value_as_int();
+    job.quality.criterion = (enum SKRY_quality_criterion)m_QualityCriterion.get_active_row_number();
+    job.quality.threshold = m_QualityThreshold.get_value_as_int();
     job.outputFmt = Utils::Vars::outputFormatDescription[m_AutoSaveOutputFormat.get_active_row_number()].skryOutpFmt;
     job.cfaPattern = m_TreatMonoAsCFA.get_active()
                      ? (enum SKRY_CFA_pattern)m_CFAPattern.get_active_row_number()
@@ -157,6 +159,8 @@ void c_SettingsDlg::ApplySettings(Job_t &job)
     job.refPtSearchRadius = (unsigned)m_RefPtSearchRadius.get_value();
     job.refPtAutoPlacementParams.structureThreshold = (float)m_StructureThreshold.get_value();
     job.refPtAutoPlacementParams.structureScale = (unsigned)m_StructureScale.get_value();
+
+    job.exportQualityData = m_ExportQualityData.get_active();
 }
 
 void c_SettingsDlg::InitRefPointControls()
@@ -311,6 +315,11 @@ void c_SettingsDlg::InitControls(const std::vector<std::string> &jobNames)
     get_content_area()->pack_start(*Utils::PackIntoBox<Gtk::HBox>({&m_OutpFmtLabel, &m_AutoSaveOutputFormat }),
         Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
+    m_ExportQualityData.set_label(_("Export frame quality data"));
+    m_ExportQualityData.set_tooltip_text(_("Save frame quality data to a text file in the same location as the image stack"));
+    m_ExportQualityData.show();
+    get_content_area()->pack_start(m_ExportQualityData, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+
     m_FlatFieldCheckBtn.set_label(_("Use flat-field for stacking:"));
     m_FlatFieldCheckBtn.set_active(false);
     m_FlatFieldCheckBtn.signal_toggled().connect(sigc::mem_fun(*this, &c_SettingsDlg::OnFlatFieldToggle));
@@ -363,6 +372,10 @@ void c_SettingsDlg::OnOutputSaveMode()
         (m_OutputSaveMode.get_active_row_number() == (int)Utils::Const::OutputSaveMode::NONE);
     m_OutpFmtLabel.set_sensitive(!autoSaveDisabled);
     m_AutoSaveOutputFormat.set_sensitive(!autoSaveDisabled);
+
+    m_ExportQualityData.set_sensitive(!autoSaveDisabled);
+    if (autoSaveDisabled)
+        m_ExportQualityData.set_active(false);
 }
 
 void c_SettingsDlg::OnRefPtMode()

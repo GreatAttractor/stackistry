@@ -21,6 +21,7 @@ File description:
     Worker thread implementation.
 */
 
+#include <algorithm>
 #include <cassert>
 #define _USE_MATH_DEFINES
 #include <cmath>   // for M_PI
@@ -155,6 +156,10 @@ ProcPhase GetProcessingPhase()
 
 void StartProcessing(Job_t *job)
 {
+    job->quality.framesChrono.clear();
+    job->quality.framesSorted.clear();
+    job->qualityDataReadyNotification = false;
+
     Vars::job = job;
 
     Vars::isWorkerRunning = true;
@@ -434,6 +439,20 @@ void WorkerThreadFunc()
         NotifyMainThread();
         return;
     }
+    else
+    {
+        LOCK();
+        Vars::job->quality.framesChrono = qualEstimation.GetImagesQuality();
+        Vars::job->quality.framesSorted = Vars::job->quality.framesChrono;
+
+        // Sort descending
+        std::sort(Vars::job->quality.framesSorted.begin(),
+                  Vars::job->quality.framesSorted.end(),
+                  [](const SKRY_quality_t &a, const SKRY_quality_t &b) { return a > b; });
+
+        Vars::job->qualityDataReadyNotification = true;
+        NotifyMainThread(); // in order to refresh the quality graph window
+    }
 
     if (!Vars::job->automaticRefPointsPlacement && Vars::job->refPoints.empty())
     {
@@ -455,8 +474,8 @@ void WorkerThreadFunc()
     libskry::c_RefPointAlignment refPtAlignment(qualEstimation,
                                                 Vars::job->refPoints,
 
-                                                Vars::job->qualityCriterion,
-                                                Vars::job->qualityThreshold,
+                                                Vars::job->quality.criterion,
+                                                Vars::job->quality.threshold,
 
                                                 Vars::job->refPtBlockSize,
                                                 Vars::job->refPtSearchRadius,

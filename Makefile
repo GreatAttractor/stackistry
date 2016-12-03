@@ -42,6 +42,7 @@ SRC_FILES = config.cpp        \
             main_window.cpp   \
             main.cpp          \
             preferences.cpp   \
+            quality_wnd.cpp   \
             select_points.cpp \
             settings_dlg.cpp  \
             utils.cpp         \

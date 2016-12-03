@@ -84,10 +84,21 @@ void c_PreferencesDlg::InitControls()
     boxToolIconSize->pack_start(*Gtk::manage(new Gtk::Label(_("Tool icon size:"))), Gtk::PackOptions::PACK_SHRINK);
     boxToolIconSize->pack_start(m_ToolIconSize);
     boxToolIconSize->set_spacing(10);
-    //?boxToolIconSize->set_baseline_position(Gtk::BaselinePosition::BASELINE_POSITION_BOTTOM);
     boxToolIconSize->show_all();
 
     get_content_area()->pack_start(*boxToolIconSize, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+
+    m_ExportInactiveFramesQuality.set_label(_("Include inactive frames when exporting quality data"));
+    m_ExportInactiveFramesQuality.set_active(Configuration::ExportInactiveFramesQuality);
+    m_ExportInactiveFramesQuality.show();
+    get_content_area()->pack_start(m_ExportInactiveFramesQuality, Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
+
+    m_NumQualHistBins.set_adjustment(Gtk::Adjustment::create(Configuration::NumQualityHistogramBins, 10, Utils::Const::MaxQualityHistogramBins,
+            1, 10, 10));
+    get_content_area()->pack_start(*Utils::PackIntoBox<Gtk::HBox>(
+            { Gtk::manage(new Gtk::Label(_("Number of frame quality histogram bins:"))),
+              &m_NumQualHistBins }),
+            Gtk::PackOptions::PACK_SHRINK, Utils::Const::widgetPaddingInPixels);
 
     auto separator = Gtk::manage(new Gtk::Separator());
     separator->show();
@@ -102,6 +113,12 @@ void c_PreferencesDlg::InitControls()
 void c_PreferencesDlg::OnResponse(int responseId)
 {
     Utils::SavePosSize(*this, Configuration::PreferencesDlgPosSize);
+
+    if (responseId == Gtk::ResponseType::RESPONSE_OK)
+    {
+        Configuration::ExportInactiveFramesQuality = m_ExportInactiveFramesQuality.get_active();
+        Configuration::NumQualityHistogramBins = (size_t)m_NumQualHistBins.get_value();
+    }
 }
 
 bool c_PreferencesDlg::HasCorrectInput()

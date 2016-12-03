@@ -36,6 +36,7 @@ namespace Configuration
 namespace Group
 {
     const char *UI = "UI";
+    const char *Output = "Output";
 }
 
 namespace Key
@@ -49,12 +50,16 @@ namespace Key
     const char *PreferencesDlgPosSize = "PreferencesDlgPosSize";
     const char *SettingsDlgPosSize = "SettingsDlgPosSize";
     const char *MainWndMaximized = "MainWndMaximized";
+    const char *QualityWndPosSize = "QualityWndPosSize";
 
     const char *JobColWidth = "JobColWidth";
     const char *StateColWidth = "StateColWidth";
     const char *ProgressColWidth = "ProgressColWidth";
     const char *LastOpenDir = "LastOpenDir";
     const char *mainWndPanedPos = "MainWndPanedPos";
+    const char *numQualityHistBins = "NumQualityHistogramBins";
+
+    const char *exportInactiveFramesQuality = "ExportInactiveFramesQuality";
 
     const char *UIlanguage = "UILanguage";
 }
@@ -93,7 +98,7 @@ static Glib::ustring RectToString(const Gdk::Rectangle &r)
 
 static int GetIntVal(const char *group, const char *key, int defaultVal)
 {
-    unsigned result;
+    int result;
     try
     {
         result = configFile.get_integer(group, key);
@@ -104,6 +109,23 @@ static int GetIntVal(const char *group, const char *key, int defaultVal)
     }
     return result;
 }
+
+static unsigned GetUnsignedVal(const char *group, const char *key, unsigned defaultVal)
+{
+    unsigned result;
+    try
+    {
+        result = (unsigned)configFile.get_uint64(group, key);
+        if (result == 0)
+            result = defaultVal;
+    }
+    catch (Glib::KeyFileError &exc)
+    {
+        result = defaultVal;
+    }
+    return result;
+}
+
 
 Gdk::Rectangle GetRect(const char *group, const char *key)
 {
@@ -177,6 +199,7 @@ WND_POS_SIZE_PROPERTY(AnchorSelectDlg);
 WND_POS_SIZE_PROPERTY(SelectRefPointsDlg);
 WND_POS_SIZE_PROPERTY(PreferencesDlg);
 WND_POS_SIZE_PROPERTY(SettingsDlg);
+WND_POS_SIZE_PROPERTY(QualityWnd);
 
 #define COL_WIDTH_PROPERTY(Column)                                                 \
     c_Property<int> Column(                                                   \
@@ -202,6 +225,15 @@ c_Property<std::string> LastOpenDir(
 c_Property<std::string> UILanguage(
     []() { return GetString(Group::UI, Key::UIlanguage); },
     [](const std::string &lang) { configFile.set_string(Group::UI, Key::UIlanguage, lang); });
+
+c_Property<bool> ExportInactiveFramesQuality(
+    []() { return 1 == GetInt(Group::Output, Key::exportInactiveFramesQuality); },
+    [](const bool &b) { configFile.set_integer(Group::Output, Key::exportInactiveFramesQuality, (int)b); });
+
+c_Property<size_t> NumQualityHistogramBins(
+    []() { return (size_t)GetUnsignedVal(Group::UI, Key::numQualityHistBins, Utils::Const::Defaults::NumQualityHistogramBins); },
+    [](const size_t &n) { configFile.set_integer(Group::UI, Key::numQualityHistBins, n); });
+
 
 bool Initialize()
 {

@@ -24,11 +24,15 @@ File description:
 #ifndef STACKISTRY_UTILS_HEADER
 #define STACKISTRY_UTILS_HEADER
 
+#include <algorithm>
+#include <array>
+#include <cassert>
 #include <string>
 #include <vector>
 
 #include <cairomm/context.h>
 #include <gdkmm/pixbuf.h>
+#include <gdkmm/rgba.h>
 #include <gdkmm/rectangle.h>
 #include <gtkmm/box.h>
 #include <gtkmm/window.h>
@@ -62,6 +66,43 @@ namespace Types
     public:
         virtual bool HasCorrectInput() = 0;
     };
+
+    class c_Histogram
+    {
+        std::vector<size_t> Bins;
+        size_t MaxBinCount; ///< Max value in 'Bins'
+
+    public:
+
+        c_Histogram(): MaxBinCount(0) { }
+
+        /// Uses only elements of 'vals' that are >= 'valMin' and <= 'valMax'
+        template<typename T>
+        void CreateFromData(size_t numBins, const std::vector<T> &vals, T valMin, T valMax)
+        {
+            assert(valMax >= valMin);
+            Bins.assign(numBins, 0);
+
+            for (const T &v: vals)
+            {
+                size_t binIdx;
+                if (v == valMin)
+                    binIdx = 0;
+                else if (v == valMax)
+                    binIdx = numBins - 1;
+                else
+                    binIdx = static_cast<size_t>((v - valMin) / (valMax - valMin) * numBins);
+
+                Bins[binIdx]++;
+            }
+
+            MaxBinCount = *std::max_element(Bins.begin(), Bins.end());
+        }
+
+        size_t GetMaxBinCount() const { return MaxBinCount; }
+
+        const std::vector<size_t> &GetBins() const { return Bins; }
+    };
 }
 
 namespace Const
@@ -79,6 +120,8 @@ namespace Const
 
     const char * const SYSTEM_DEFAULT_LANG = "";
 
+    const size_t MaxQualityHistogramBins = 2048;
+
     namespace Defaults
     {
         const OutputSaveMode saveMode = SOURCE_PATH;
@@ -93,13 +136,14 @@ namespace Const
         const unsigned refPtSearchRadius = 20;
         const unsigned refPtStructureScale = 1;
         const float refPtStructureThreshold = 1.2;
+        const size_t NumQualityHistogramBins = 32;
     }
 
-    typedef struct
+    struct Language_t
     {
         const char *langId; // format: <language>_<country>, e.g. "pl_PL"
         const char *name;
-    } Language_t;
+    };
 
     const Language_t languages[] =
     {
@@ -113,13 +157,13 @@ namespace Const
 
 namespace Vars
 {
-    typedef struct
+    struct OutputFormatDescr_t
     {
         enum SKRY_output_format skryOutpFmt;
         Glib::ustring name;
         std::vector<Glib::ustring> patterns;
         std::string defaultExtension;
-    } OutputFormatDescr_t;
+    };
 
     extern std::vector<OutputFormatDescr_t> outputFormatDescription;
 
@@ -165,6 +209,10 @@ GtkBoxClass *PackIntoBox(std::vector<Gtk::Widget*> widgets, bool showAll = true)
 
 
 Cairo::Filter GetFilter(Const::InterpolationMethod interpolationMethod);
+
+void SetBackgroundColor(Gtk::Widget &w, const Gdk::RGBA &color);
+
+void SetColor(const Cairo::RefPtr<Cairo::Context> &cr, const GdkRGBA &color);
 
 }
 

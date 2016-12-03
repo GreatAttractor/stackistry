@@ -26,9 +26,11 @@ File description:
 
 #include <string>
 
+#include <gtkmm/checkbutton.h>
+#include <gtkmm/comboboxtext.h>
 #include <gtkmm/dialog.h>
 #include <gtkmm/scale.h>
-#include <gtkmm/comboboxtext.h>
+#include <gtkmm/spinbutton.h>
 
 #include "utils.h"
 
@@ -37,6 +39,8 @@ class c_PreferencesDlg: public Gtk::Dialog, public Utils::Types::IValidatedInput
 {
     Gtk::Scale m_ToolIconSize;
     Gtk::ComboBoxText m_UILanguage;
+    Gtk::CheckButton m_ExportInactiveFramesQuality;
+    Gtk::SpinButton m_NumQualHistBins;
 
     void InitControls();
 

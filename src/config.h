@@ -67,6 +67,7 @@ namespace Configuration
     extern c_Property<Gdk::Rectangle> SelectRefPointsDlgPosSize;
     extern c_Property<Gdk::Rectangle> PreferencesDlgPosSize;
     extern c_Property<Gdk::Rectangle> SettingsDlgPosSize;
+    extern c_Property<Gdk::Rectangle> QualityWndPosSize;
 
     extern c_Property<int> JobColWidth;
     extern c_Property<int> StateColWidth;
@@ -74,6 +75,8 @@ namespace Configuration
     extern c_Property<int> MainWndPanedPos;
     extern c_Property<bool> MainWndMaximized;
     extern c_Property<std::string> LastOpenDir;
+    extern c_Property<bool> ExportInactiveFramesQuality;
+    extern c_Property<size_t> NumQualityHistogramBins;
 
     /// format: <language>_<country>, e.g. "pl_PL"; empty = system default language
     extern c_Property<std::string> UILanguage;

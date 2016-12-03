@@ -30,6 +30,7 @@ File description:
 #include <cairomm/surface.h>
 #include <glibmm/i18n.h>
 #include <glibmm/miscutils.h>
+#include <gtkmm/cssprovider.h>
 
 #include "config.h"
 #include "utils.h"
@@ -227,5 +228,21 @@ Cairo::Filter GetFilter(Const::InterpolationMethod interpolationMethod)
     return cairoFilter[(int)interpolationMethod];
 }
 
+void SetBackgroundColor(Gtk::Widget &w, const Gdk::RGBA &color)
+{
+    Glib::RefPtr<Gtk::CssProvider> css = Gtk::CssProvider::create();
+    css->load_from_data(Glib::ustring::compose(".stackistry_custom_bkgrnd { background-color: %1; }",
+                                               color.to_string()));
+
+    auto styleCtx = w.get_style_context();
+    styleCtx->add_provider(css, GTK_STYLE_PROVIDER_PRIORITY_USER);
+    styleCtx->add_class("stackistry_custom_bkgrnd");
+    styleCtx->context_save();
+}
+
+void SetColor(const Cairo::RefPtr<Cairo::Context> &cr, const GdkRGBA &color)
+{
+    cr->set_source_rgba(color.red, color.green, color.blue, color.alpha);
+}
 
 }

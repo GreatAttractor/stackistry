@@ -47,7 +47,8 @@ File description:
 #include <skry/skry_cpp.hpp>
 
 #include "img_viewer.h"
-#include "worker.h"
+#include "job.h"
+#include "quality_wnd.h"
 
 
 const size_t NONE = SIZE_MAX;
@@ -67,6 +68,8 @@ private:
     Glib::RefPtr<Gtk::UIManager> m_UIManager;
     Gtk::Statusbar m_StatusBar;
     Glib::RefPtr<Gtk::ToggleAction> m_ActVisualization;
+    Glib::RefPtr<Gtk::ToggleAction> m_ActQualityWnd;
+    c_QualityWindow m_QualityWnd;
 
     class c_JobsListModelColumns: public Gtk::TreeModelColumnRecord
     {
@@ -76,9 +79,8 @@ private:
         Gtk::TreeModelColumn<size_t> progress;
         Gtk::TreeModelColumn<unsigned> percentageProgress;
         Gtk::TreeModelColumn<Glib::ustring> progressText;
-        // Thanks to 'shared_ptr' we can emplace a new 'Job_t' in 'm_Jobs.data' without
-        // the need to copy anything (as libskry::c_ImageSequence is non-copyable).
-        // Cannot use 'unique_ptr', because a model column itself needs to be copyable.
+
+        // Another owner of the shared pointer can be 'm_QualityWnd'
         Gtk::TreeModelColumn<std::shared_ptr<Job_t>> job;
 
         c_JobsListModelColumns()
@@ -125,15 +127,18 @@ private:
     void OnAddVideos();
     void OnSettings();
     void OnToggleVisualization();
+    void OnToggleQualityWnd();
     void OnSelectionChanged();
     void OnRemoveJobs();
     void OnCreateFlatField();
     void OnQuit();
     void OnAbout();
+    void OnExportQualityData();
     //------------------------------
 
     Job_t &GetJobAt(const Gtk::TreeModel::Path &path);
     Job_t &GetJobAt(const Gtk::ListStore::iterator &iter);
+    std::shared_ptr<Job_t> GetJobPtrAt(const Gtk::ListStore::iterator &iter);
     void InitActions();
     void InitControls();
     void CreateJobsListView();
@@ -142,6 +147,7 @@ private:
     void SetStatusBarText(const Glib::ustring &text);
     Gtk::TreeModel::Path GetJobsListFocusedRow();
     Job_t &GetCurrentJob();
+    std::shared_ptr<Job_t> GetCurrentJobPtr();
     void SetToolbarIcons();
     Gtk::ToolButton *GetToolButton(const char *actionName);
     void SetDefaultSettings(Job_t &job);
@@ -152,6 +158,9 @@ private:
     void UpdateActionsState();
     /// Returns 'false' if user canceled the selection
     bool SetAnchors(Job_t &job);
+    std::string GetDestDir(const Job_t &job) const;
+    /// Returns 'false' on failure
+    bool ExportQualityData(const std::string &fileName, const Job_t &job) const;
 };
 
 #endif // STACKISTRY_MAIN_WINDOW_HEADER

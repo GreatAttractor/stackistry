@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Stackistry 0.1.1\n"
 "Report-Msgid-Bugs-To: Filip Szczerek <ga.software@yahoo.com>\n"
-"POT-Creation-Date: 2016-12-04\n"
-"PO-Revision-Date: 2016-12-04\n"
+"POT-Creation-Date: 2016-12-09\n"
+"PO-Revision-Date: 2016-12-09\n"
 "Last-Translator: Filip Szczerek <ga.software@yahoo.com>\n"
 "Language-Team: \n"
 "Language: Polish\n"
@@ -651,3 +651,54 @@ msgstr "Stacking"
 
 msgid "At least two frames have to be active."
 msgstr "Przynajmniej dwie klatki muszą być aktywne."
+
+msgid "Export frame quality data..."
+msgstr "Eksportuj dane o jakości klatek..."
+
+msgid "Show frame quality graph"
+msgstr "Pokaż wykres jakości klatek"
+
+msgid "Export frame quality data"
+msgstr "Eksportuj dane o jakości klatek"
+
+msgid "Text (*.txt)"
+msgstr "Tekst (*.txt)"
+
+msgid "Failed to export the quality data as %1."
+msgstr "Eksport danych o jakości do %1 nie powiódł się."
+
+msgid "Include inactive frames when exporting quality data"
+msgstr "Uwzględnij nieaktywne klatki podczas eksportowania danych o jakości"
+
+msgid "Save frame quality data to a text file in the same location as the image stack"
+msgstr "Zapisz dane o jakości klatek do pliku tekstowego w tym samym miejscu, co stack"
+
+msgid "Frame Quality"
+msgstr "Jakość klatek"
+
+msgid "Export..."
+msgstr "Eksportuj..."
+
+msgid "Export frame quality data to a file"
+msgstr "Eksportuj dane o jakości klatek do pliku"
+
+msgid "Number of frame quality histogram bins:"
+msgstr "Liczba przedziałów histogramu jakości klatek:"
+
+msgid "chrono"
+msgstr "chrono"
+
+msgid "Show quality values in chronological order"
+msgstr "Pokaż wartości w porządku chronologicznym"
+
+msgid "sorted"
+msgstr "malejąco"
+
+msgid "Show sorted quality values"
+msgstr "Pokaż posortowane wartości"
+
+msgid "hist"
+msgstr "hist"
+
+msgid "Show histogram"
+msgstr "Pokaż histogram"
