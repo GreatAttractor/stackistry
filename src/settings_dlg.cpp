@@ -188,7 +188,7 @@ void c_SettingsDlg::InitRefPointControls()
 
     m_StructureScale.set_adjustment(Gtk::Adjustment::create(1, 1, 5));
     m_StructureScale.set_digits(0);
-    m_StructureScale.set_tooltip_text(_("Pixel size of smallest structures. Should equal 1 for optimally-sampled "
+    m_StructureScale.set_tooltip_text(_("Pixel size of the smallest structures. Should equal 1 for optimally-sampled "
                                         "or undersampled images. Use higher values for oversampled (blurry) material."));
 
     m_RefPtAutoControls = Utils::PackIntoBox<Gtk::VBox>( {
