@@ -648,3 +648,6 @@ msgstr "Śledzenie punktów odniesienia"
 #: src/worker.cpp:574
 msgid "Image stacking"
 msgstr "Stacking"
+
+msgid "At least two frames have to be active."
+msgstr "Przynajmniej dwie klatki muszą być aktywne."

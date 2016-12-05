@@ -21,6 +21,7 @@ File description:
     Frame selection dialog implementation.
 */
 
+#include <algorithm>
 #include <iostream>
 
 #include <glibmm/i18n.h>
@@ -162,7 +163,7 @@ void c_FrameSelectDlg::InitControls()
 }
 
 c_FrameSelectDlg::c_FrameSelectDlg(libskry::c_ImageSequence &imgSeq)
-: Gtk::Dialog(), m_ImgSeq(imgSeq), m_ActiveFlags(nullptr)
+: Gtk::Dialog(), m_ImgSeq(imgSeq)
 {
     set_title(_("Select frames for processing"));
     InitControls();
@@ -223,20 +224,15 @@ void c_FrameSelectDlg::OnFrameListCursorChanged()
     }
 }
 
-c_FrameSelectDlg::~c_FrameSelectDlg()
+std::vector<uint8_t> c_FrameSelectDlg::GetActiveFlags() const
 {
-    delete[] m_ActiveFlags;
-}
-
-const uint8_t *c_FrameSelectDlg::GetActiveFlags()
-{
-    if (!m_ActiveFlags)
-        m_ActiveFlags = new uint8_t[m_ImgSeq.GetImageCount()];
+    std::vector<uint8_t> result;
+    result.reserve(m_ImgSeq.GetImageCount());
 
     for (auto &row: m_FrameList.data->children())
-        m_ActiveFlags[row[m_FrameList.columns.index]] = row[m_FrameList.columns.active];
+        result.push_back(row[m_FrameList.columns.active]);
 
-    return m_ActiveFlags;
+    return result;
 }
 
 bool c_FrameSelectDlg::OnListKeyPress(GdkEventKey *event)

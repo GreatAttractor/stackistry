@@ -434,13 +434,29 @@ void c_MainWindow::OnSelectFrames()
 {
     c_FrameSelectDlg dlg(GetCurrentJob().imgSeq);
     PrepareDialog(dlg);
-    if (dlg.run() == Gtk::ResponseType::RESPONSE_OK)
+    do
     {
-        GetCurrentJob().imgSeq.SetActiveImages(dlg.GetActiveFlags());
-        // Modified frame selection may modify video size and target framing
-        // after image alignment, so old ref. points may be invalid
-        GetCurrentJob().refPoints.clear();
-    }
+        if (dlg.run() == Gtk::ResponseType::RESPONSE_OK)
+        {
+            std::vector<uint8_t> activeFlags = dlg.GetActiveFlags();
+            if (std::count(activeFlags.begin(), activeFlags.end(), 1) < 2)
+            {
+                ShowMsg(*this, _("Error"), _("At least two frames have to be active."), Gtk::MessageType::MESSAGE_ERROR);
+            }
+            else
+            {
+                GetCurrentJob().imgSeq.SetActiveImages(activeFlags.data());
+                // Modified frame selection may modify video size and target framing
+                // after image alignment, so old ref. points may be invalid
+                GetCurrentJob().refPoints.clear();
+                break;
+            }
+        }
+        else
+            break;
+
+    } while (true);
+
     GetCurrentJob().imgSeq.Deactivate();
 }
 

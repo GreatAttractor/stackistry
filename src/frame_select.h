@@ -25,6 +25,7 @@ File description:
 #define STACKISTRY_FRAME_SELECT_DIALOG
 
 #include <cstdint>
+#include <vector>
 
 #include <cairomm/context.h>
 #include <gtkmm/dialog.h>
@@ -41,10 +42,9 @@ class c_FrameSelectDlg: public Gtk::Dialog
 {
 public:
     c_FrameSelectDlg(libskry::c_ImageSequence &imgSeq);
-    ~c_FrameSelectDlg();
 
     /// Element count = number of images in 'imgSeq'
-    const uint8_t *GetActiveFlags();
+    std::vector<uint8_t> GetActiveFlags() const;
 
 private:
     class c_FrameListModelColumns: public Gtk::TreeModelColumnRecord
@@ -71,8 +71,6 @@ private:
         Glib::RefPtr<Gtk::ListStore> data;
         Gtk::TreeView                view;
     } m_FrameList;
-
-    uint8_t *m_ActiveFlags;
 
     void InitControls();
     Gtk::Box *CreateVisualizationBox();
