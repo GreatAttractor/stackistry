@@ -75,8 +75,8 @@ directories:
 	$(MKDIR_P) $(OBJ_DIR)
 
 clean:
-	$(REMOVE) -f $(OBJECTS)
-	$(REMOVE) -f $(OBJECTS:.o=.d)
+	$(REMOVE) -f ${OBJ_DIR}/*.o
+	$(REMOVE) -f ${OBJ_DIR}/*.d
 	$(REMOVE) -f $(BIN_DIR)/$(EXE_NAME)
 
 $(BIN_DIR)/$(EXE_NAME): $(OBJECTS)
