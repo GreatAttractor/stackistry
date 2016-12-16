@@ -2,7 +2,7 @@
 
 Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
 
-wersja 0.1.1 (2016-08-05)
+wersja 0.2.0 (2016-12-14)
 
 *Niniejszy program ABSOLUTNIE nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jest to wolne oprogramowanie na licencji GNU GPL w wersji 3 (lub dowolnej późniejszej) i można je swobodnie rozpowszechniać pod pewnymi warunkami: zob. pełny tekst licencji w pliku LICENSE.*
 
@@ -231,6 +231,17 @@ share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
 ## 6. Historia zmian
 
 ```
+0.2.0 (2016-12-14)
+  Nowe funkcje:
+    - Stabilizacja wideo z użyciem centroidu jasności (przydatna do planet)
+    - Ulepszone automatycznie rozmieszczanie punktów odniesienia dzięki wykrywaniu struktur w obrazie
+    - Skalowanie podglądu obrazów
+    - Więcej ustawień dotyczących automatycznego rozmieszczania punktów odniesienia
+    - Wyświetlanie i eksport danych o jakości klatek
+    - Generowanie zestawienia najlepszych fragmentów wszystkich klatek
+  Poprawki błędów:
+    - Błąd przy otwieraniu plików AVI utworzonych przez FFMPEG
+
 0.1.1 (2016-08-05)
   Nowe funkcje:
     - Obsługa plików AVI Y8/Y800

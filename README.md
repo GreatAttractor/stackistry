@@ -4,7 +4,7 @@
 
 Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
 
-version 0.1.1 (2016-08-05)
+version 0.2.0 (2016-12-14)
 
 *This program comes with ABSOLUTELY NO WARRANTY. This is free software, licensed under GNU General Public License v3 or any later version and you are welcome to redistribute it under certain conditions. See the LICENSE file for details.*
 
@@ -230,6 +230,17 @@ share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
 ## 6. Change log
 
 ```
+0.2.0 (2016-12-14)
+  New features:
+    - Image alignment using the intensity centroid (useful for planets)
+    - Structure detection for better automatic placement of reference points
+    - Zoom function in image view widgets
+    - More controls for automatic reference point placement
+    - Displaying and exporting of frame quality data
+    - Generating the composite of best fragments of all frames
+  Bug fixes:
+    - Fixed opening AVI files produced by FFMPEG
+
 0.1.1 (2016-08-05)
   New features:
     - Support for Y8/Y800 AVI files
