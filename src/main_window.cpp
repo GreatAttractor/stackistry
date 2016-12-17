@@ -97,6 +97,7 @@ namespace WidgetName
     const char *MenuProcessing = "MenuProcessing";
     const char *MenuTest = "MenuTest";
     const char *MenuAbout = "MenuAbout";
+    const char *MenuView = "MenuView";
 }
 
 static
@@ -631,7 +632,9 @@ void c_MainWindow::InitActions()
     m_ActVisualization = Gtk::ToggleAction::create(ActionName::toggleVisualization, _("Show visualization"), _("Show visualization (slows down processing)"));
     m_ActionGroup->add(m_ActVisualization, sigc::mem_fun(*this, &c_MainWindow::OnToggleVisualization));
 
-    m_ActQualityWnd = Gtk::ToggleAction::create(ActionName::toggleQualityWnd, _("Show frame quality graph"), _("Show frame quality graph"));
+    m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuView, _("_View")));
+
+    m_ActQualityWnd = Gtk::ToggleAction::create(ActionName::toggleQualityWnd, _("Frame quality graph"), _("Show frame quality graph"));
     m_ActionGroup->add(m_ActQualityWnd, sigc::mem_fun(*this, &c_MainWindow::OnToggleQualityWnd));
 
     m_ActionGroup->add(Gtk::Action::create(WidgetName::MenuAbout, _("_About")));
@@ -672,6 +675,10 @@ void c_MainWindow::InitActions()
     "            <menuitem action='" + ActionName::stopProcessing + "' />"
     "            <separator />"
     "            <menuitem action='" + ActionName::toggleVisualization + "' />"
+    "        </menu>"
+
+    "        <menu action='" + WidgetName::MenuView + "'>"
+    "            <menuitem action='" + ActionName::toggleQualityWnd + "' />"
     "        </menu>"
 
     "        <menu action='" + WidgetName::MenuAbout + "'>"
