@@ -2,9 +2,9 @@
 
 ## lucky imaging tool
 
-Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
+Copyright (C) 2016, 2017 Filip Szczerek (ga.software@yahoo.com)
 
-version 0.2.0 (2016-12-14)
+version 0.2.0 (2017-01-07)
 
 *This program comes with ABSOLUTELY NO WARRANTY. This is free software, licensed under GNU General Public License v3 or any later version and you are welcome to redistribute it under certain conditions. See the LICENSE file for details.*
 
@@ -15,14 +15,16 @@ version 0.2.0 (2016-12-14)
 - 3\. User interface overview
   - 3\.1\. Frame selection
   - 3\.2\. Processing settings
-  - 3\.3\. Image stabilization
+  - 3\.3\. Image stabilization anchors
   - 3\.4\. Visualization
-- 4\. Downloading
-- 5\. Building from source code
-  - 5\.1\. Building under Linux (and similar platforms)
-  - 5\.2\. Building under MS Windows
-  - 5\.3\. UI language
-- 6\. Change log
+  - 3\.5\. Output preview
+- 4\. Frame quality
+- 5\. Downloading
+- 6\. Building from source code
+  - 6\.1\. Building under Linux (and similar platforms)
+  - 6\.2\. Building under MS Windows
+  - 6\.3\. UI language
+- 7\. Change log
 
 
 ----------------------------------------
@@ -76,13 +78,15 @@ The user can exclude some frames of a video from processing by using the ``Edit/
 
 Processing settings can be adjusted for multiple jobs at once by selecting them in the job list and using the ``Edit/Processing settings...`` option. Jobs being edited are shown in the list at the top of ``Processing settings`` dialog.
 
-- Video stabilization anchors placement
+- Video stabilization methods
 
-Automatic placement should be reliable in most cases. If manual placement is chosen, the anchor selection dialog will be displayed when processing of a job is about to start.
+Stackistry can stabilize videos via stabilization anchors or by using the image intensity centroid (“center of mass”). Using anchors is recommended for solar & lunar videos. Intensity centroid is useful only for planetary videos (where automatic placement of anchors is not always satisfactory).
+
+If manual placement of anchors is chosen, the anchor selection dialog will be displayed when processing of a job is about to start.
 
 - Reference points placement
 
-Automatic placement currently works best for solar/lunar surface videos. For solar prominence videos with an overexposed disk and for planetary videos it may add some points in suboptimal positions (where their alignment will be unreliable). If this happens, manual placement should be chosen; the placement dialog will be displayed for a job during its processing, when the points need to be defined (i.e. after the quality estimation step). Avoid placing the points at areas with little or no detail. Use sunspots, filaments, knotted prominence areas, craters, cloud belts etc.
+Automatic placement currently works best for solar/lunar surface videos. For planetary videos it may add some points in suboptimal positions (where their alignment will be unreliable). If this happens, manual placement should be chosen; the placement dialog will be displayed for a job during its processing, when the points need to be defined (i.e. after the quality estimation step). Avoid placing the points at areas with little or no detail. Use sunspots, filaments, knotted prominence areas, craters, cloud belts etc.
 
 - Stacking criterion
 
@@ -106,7 +110,7 @@ The option can be left disabled for SER raw color videos, as they are demosaiced
 
 
 ----------------------------------------
-### 3.3. Image stabilization
+### 3.3. Image stabilization anchors
 
 With its emphasis on unattended batch processing of multiple jobs, Stackistry usually does a good job of placing video stabilization anchors automatically. If it is not the case, use the ``Edit/Set video stabilization anchors...`` option (or select manual anchor placement in job’s processing settings, see section 3.2). As with reference points, avoid placing anchors at areas with little or no detail.
 
@@ -122,7 +126,72 @@ Toggled by ``Processing/Show visualization`` (can be done at any time), this fea
 
 
 ----------------------------------------
-## 4. Downloading
+### 3.5. Output preview
+
+Beside the processing visualization, the right-hand side area of the main window can show the stacked image or the best fragments composite of the currently selected job. The stack is available if the job has finished processing. The composite (consisting of the best fragments of all frames) is available after the job has finished quality estimation.
+
+Both the stack and the best fragments composite can be saved using the `File` menu commands (or the job list’s context menu, accessible by right-click).
+
+
+----------------------------------------
+## 4. Frame quality
+
+Once the quality estimation phase of a job has completed, the frame quality data can be viewed in the quality graph window (toggled by `View/Frame quality graph` or the corresponding toolbar button). The window shows data of the currently selected job. Quality values are normalized to the range [0; 1].
+
+Frame quality data can be exported on demand to a text file (which can be later e.g. imported into a spreadsheet program) via an option in the `File` menu or the quality window’s `Export...` button. Automatic exporting can be enabled in the job settings dialog (the resulting text file will be saved at the same location as the stack, with a `_frame_quality` suffix).
+
+The user can choose (in `Edit/Preferences...`) if inactive frames (section 3.1) are to be included in the exported quality data. For instance, if there are 10 frames and all are active, the result is:
+
+```
+Frame;Active frame;Quality
+0;0;0.55
+1;1;0.56
+2;2;0.56
+3;3;0.56
+4;4;0.56
+5;5;0.56
+6;6;0.56
+7;7;0.56
+8;8;0.56
+9;9;0.56
+```
+
+If frames 3, 4, 5 are inactive and the option to export inactive frames is disabled:
+
+```
+Frame;Active frame;Quality
+0;0;0.55
+1;1;0.56
+2;2;0.56
+6;3;0.56
+7;4;0.56
+8;5;0.56
+9;6;0.56
+```
+
+That is, the `Frame` column contains the absolute frame index, and `Active frame` counts only active frames.
+
+If the inactive frames’ export is enabled, one gets:
+
+```
+Frame;Active frame;Quality
+0;0;0.55
+1;1;0.56
+2;2;0.56
+3;-1;0
+4;-1;0
+5;-1;0
+6;3;0.56
+7;4;0.56
+8;5;0.56
+9;6;0.56
+```
+
+Including inactive frames can e.g. simplify data comparison with output from a solar scintillation monitor.
+
+
+----------------------------------------
+## 5. Downloading
 
 Source code and MS Windows executables can be downloaded from:
     
@@ -130,13 +199,13 @@ Source code and MS Windows executables can be downloaded from:
 
     
 ----------------------------------------
-## 5. Building from source code
+## 6. Building from source code
 
 Building from sources requires a C++ compiler toolchain (with C++11 support) and gtkmm 3.0 and *libskry* libraries. Versions (tags) of Stackistry and *libskry* should match; alternatively, one can use the latest revisions of both (note that they may be unstable).
 
 
 ----------------------------------------
-### 5.1. Building under Linux (and similar platforms)
+### 6.1. Building under Linux (and similar platforms)
 
 A GNU Make-compatible Makefile is provided. To build, install gtkmm 3.0 libraries (whose packages are usually named ``gtkmm30`` and ``gtkmm30-devel`` or similar), download (from ``https://github.com/GreatAttractor/libskry/releases``) and build *libskry*, navigate to the Stackistry source folder, set values in Makefile’s ``User-configurable variables`` section and execute:
 
@@ -148,7 +217,7 @@ This produces ``./bin/stackistry`` executable. It can be moved to any location, 
 
 
 ----------------------------------------
-### 5.2. Building under MS Windows
+### 6.2. Building under MS Windows
 
 Building has been tested using the supplied Makefile in the MinGW/MSYS environment. Stackistry executable (``stackistry.exe``) is produced by performing the same steps as in section **5.1** (in the MSYS shell).
 
@@ -197,7 +266,7 @@ Once built, Stackistry can be launched from MSYS shell (``./bin/stackistry.exe``
 
 
 ----------------------------------------
-### 5.3. UI Language
+### 6.3. UI Language
 
 Stackistry supports multi-language user interface via the `GNU gettext` package. The current language can be changed in `Edit/Preferences...`.
 
@@ -227,10 +296,10 @@ share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
 
 
 ----------------------------------------
-## 6. Change log
+## 7. Change log
 
 ```
-0.2.0 (2016-12-14)
+0.2.0 (2017-01-07)
   New features:
     - Image alignment using the intensity centroid (useful for planets)
     - Structure detection for better automatic placement of reference points
@@ -262,7 +331,7 @@ share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
 0.0.2 (2016-05-08)
   Bug fixes:
     - Fix errors when stacking a series of TIFFs
-    - Use all fragments if criterion is "number of the best"
+    - Use all fragments if criterion is “number of the best”
       and the threshold is more than active images count
     
 0.0.1 (2016-05-01)

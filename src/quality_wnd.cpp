@@ -1,6 +1,6 @@
 /*
 Stackistry - astronomical image stacking
-Copyright (C) 2016 Filip Szczerek <ga.software@yahoo.com>
+Copyright (C) 2016, 2017 Filip Szczerek <ga.software@yahoo.com>
 
 This file is part of Stackistry.
 
@@ -157,8 +157,10 @@ void DrawHistogram(const Cairo::RefPtr<Cairo::Context> &cr,
         cr->rectangle(i * canvasWidth/numBins, canvasHeight - binHeight,
                       canvasWidth/numBins + 1, binHeight);
 
-        cr->fill();
+
     }
+
+    cr->fill();
 }
 
 static
@@ -174,8 +176,9 @@ void DrawGrid(const Cairo::RefPtr<Cairo::Context> &cr, int width, int height, co
         int dy = (i == 0 ? 0 : 1);
         cr->move_to(0,       i * height/gridDiv - dy);
         cr->line_to(width-1, i * height/gridDiv - dy);
-        cr->stroke();
     }
+
+    cr->stroke();
 }
 
 bool c_QualityWindow::OnDraw(const Cairo::RefPtr<Cairo::Context>& cr)

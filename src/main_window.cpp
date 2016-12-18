@@ -1,6 +1,6 @@
 /*
 Stackistry - astronomical image stacking
-Copyright (C) 2016 Filip Szczerek <ga.software@yahoo.com>
+Copyright (C) 2016, 2017 Filip Szczerek <ga.software@yahoo.com>
 
 This file is part of Stackistry.
 
@@ -60,9 +60,9 @@ File description:
 #define LOCK() Glib::Threads::RecMutex::Lock lock(Worker::GetAccessGuard())
 
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 1
-#define VERSION_SUBMINOR 1
-#define VERSION_DATE "2016-08-05"
+#define VERSION_MINOR 2
+#define VERSION_SUBMINOR 0
+#define VERSION_DATE "2017-01-07"
 
 namespace ActionName
 {
@@ -1294,7 +1294,7 @@ void c_MainWindow::OnAbout()
 
         std::string("<big><big><b>Stackistry</b></big></big>\n\n") +
 
-        "Copyright \u00A9 2016 Filip Szczerek (ga.software@yahoo.com)\n" +
+        "Copyright \u00A9 2016, 2017 Filip Szczerek (ga.software@yahoo.com)\n" +
         Glib::ustring::compose(_("version %1.%2.%3 (%4)\n\n"), VERSION_MAJOR, VERSION_MINOR, VERSION_SUBMINOR, VERSION_DATE) +
 
         _("This program comes with ABSOLUTELY NO WARRANTY. This is free software, "

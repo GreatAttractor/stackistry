@@ -1,8 +1,8 @@
 # **Stackistry**
 
-Copyright (C) 2016 Filip Szczerek (ga.software@yahoo.com)
+Copyright (C) 2016, 2017 Filip Szczerek (ga.software@yahoo.com)
 
-wersja 0.2.0 (2016-12-14)
+wersja 0.2.0 (2017-01-07)
 
 *Niniejszy program ABSOLUTNIE nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jest to wolne oprogramowanie na licencji GNU GPL w wersji 3 (lub dowolnej późniejszej) i można je swobodnie rozpowszechniać pod pewnymi warunkami: zob. pełny tekst licencji w pliku LICENSE.*
 
@@ -13,14 +13,16 @@ wersja 0.2.0 (2016-12-14)
 - 3\. Interfejs użytkownika
   - 3\.1\. Wybór klatek
   - 3\.2\. Ustawienia przetwarzania
-  - 3\.3\. Stabilizacja obrazu
+  - 3\.3\. Punkty kotwiczące stabilizacji obrazu
   - 3\.4\. Wizualizacja
-- 4\. Pobieranie
-- 5\. Budowanie ze źródeł
-  - 5\.1\. Budowanie w systemie Linux (i podobnych)
-  - 5\.2\. Budowanie pod MS Windows
-  - 5\.3\. Język UI
-- 6\. Historia zmian
+  - 3\.5\. Podgląd wyników
+- 4\. Jakość klatek
+- 5\. Pobieranie
+- 6\. Budowanie ze źródeł
+  - 6\.1\. Budowanie w systemie Linux (i podobnych)
+  - 6\.2\. Budowanie pod MS Windows
+  - 6\.3\. Język UI
+- 7\. Historia zmian
 
 
 ----------------------------------------
@@ -74,27 +76,29 @@ Użytkownik może wyłączyć niektóre klatki z przetwarzania używając polece
 
 Ustawienia przetwarzania można zmieniać dla wielu zadań naraz po zaznaczeniu ich na liście i wybraniu ``Edycja/Ustawienia przetwarzania...``. Nazwy zadań, których ustawienia są edytowane, wymienione są w liście w górnej części okna dialogowego ``Ustawienia przetwarzania``.
 
-- ``Rozmieszczenie punktów kotwiczących stabilizacji wideo``
+- Metody stabilizacji obrazu
 
-Rozmieszczenie automatyczne powinno sprawdzić się w większości przypadków. W przypadku wybrania trybu ręcznego, okno dialogowe wyboru punktów zostanie wyświetlone w momencie rozpoczęcia przetwarzania danego zadania.
+Stackistry dokonuje stabilizacji obrazu metodą śledzenia punktów kotwiczących lub centroidu jasności (“środka masy”). Używanie punktów kotwiczących jest zalecane dla Słońca i Księżyca. Centroid jasności sprawdza się w przypadku wideo planetarnych (gdzie automatyczne rozmieszczanie punktów kotwiczących może być zawodne).
+
+W przypadku wybrania rozmieszczania ręcznego, okno dialogowe wyboru punktów zostanie wyświetlone w momencie rozpoczęcia przetwarzania danego zadania.
 
 - ``Rozmieszczenie punktów odniesienia``
 
-Obecnie rozmieszczenie automatyczne działa najlepiej dla wideo przedstawiających powierzchnię Słońca lub Księżyca. Dla wideo protuberancji z prześwietloną tarczą i wideo planetarnych niektóre punkty mogą zostać dodane w nieoptymalnych miejscach (gdzie ich śledzenie będzie zawodne). W takim przypadku należy wybrać rozmieszczenie ręczne; okno dialogowe wyboru punktów zostanie wyświetlone dla danego zadania w odpowiednim momencie w trakcie przetwarzania (tj. po zakończeniu fazy szacowania jakości). Należy unikać umieszczania punktów w obszarach z małą ilością szczegółów; dobrze sprawdzą się plamy słoneczne, filamenty, splątane fragmenty protuberancji, kratery, pasy chmur itp.
+Obecnie rozmieszczenie automatyczne działa najlepiej dla wideo przedstawiających powierzchnię Słońca lub Księżyca. Dla wideo planetarnych niektóre punkty mogą zostać dodane w nieoptymalnych miejscach (gdzie ich śledzenie będzie zawodne). W takim przypadku należy wybrać rozmieszczenie ręczne; okno dialogowe wyboru punktów zostanie wyświetlone dla danego zadania w odpowiednim momencie w trakcie przetwarzania (tj. po zakończeniu fazy szacowania jakości). Należy unikać umieszczania punktów w obszarach z małą ilością szczegółów; dobrze sprawdzą się plamy słoneczne, filamenty, splątane fragmenty protuberancji, kratery, pasy chmur itp.
 
-- ``Kryterium *stackowania*``
+- ``Kryterium stackowania``
 
 Kryterium to dotyczy zarówno śledzenia punktów odniesienia, jak i fazy *stackowania* (końcowego sumowania fragmentów klatek):
 
 Uwaga: zbytnie zwiększanie odsetka (lub liczby) akceptowanych fragmentów klatek wydłuża czas pracy i może pogorszyć jakoś wynikowego *stacku* (jako że zsumowanych będzie więcej fragmentów słabej jakości).
 
-- ``Automatyczny zapis *stacku*``
+- ``Automatyczny zapis stacku``
 
 Jeśli automatyczne zapisywanie nie jest wyłączone, plik wynikowy otrzyma nazwę taką samą jak wideo wejściowe z przyrostkiem ``_stacked``. W przypadku sekwencji plików graficznych nazwą będzie ``stack``.
 
 Niezależnie od wybranego trybu, w każdej chwili można zapisać *stack* dla każdego ukończonego zadania za pomocą polecenia ``Plik/Zapisz stack...``.
 
-- ``Użyj *flatu*``
+- ``Użyj flatu``
 
 *Flat* (*flat-field*) to obraz stosowany w celu kompensacji różnic jasności mających źródło w torze optycznym (np. winietowanie, *sweet spot* etalonu, pierścienie Newtona itp.). Stackistry może wykorzystać *flat* stworzony w innym programie (o ile jest w jednym z obsługiwanych formatów), może też wygenerować go samodzielnie, zob. polecenie ``Plik/Wygeneruj flat z wideo...``. Wideo użyte do tego celu musi być niewyostrzone i przedstawiać jednolicie oświetlony widok (bez szczegółów). Bezwględny poziom jasności nie jest istotny, natomiast krzywa tonalna musi mieć tę samą charakterystykę, co w przetwarzanym materiale (np. ustawienie krzywej gamma, o ile obecne w kamerze, musi być identyczne; wartości migawki i wzmocnienia mogą się różnić). W celu osiągnięcia najlepszych efektów należy użyć wideo o długości co najmniej kilkudziesięciu klatek, by szum został uśredniony.
 
@@ -106,7 +110,7 @@ Funkcję można pozostawić wyłączoną dla plików wideo SER w formacie „raw
 
 
 ----------------------------------------
-### 3.3. Stabilizacja obrazu
+### 3.3. Punkty kotwiczące stabilizacji obrazu
 
 Ważną cechą Stackistry jest zdolność do nienadzorowanego przetwarzania dużej liczby zadań, dlatego też automatyczne rozmieszczanie punktów kotwiczących stabilizacji działa zwykle zadowalająco. Jeśli jednak zawiedzie, należy użyć polecenia ``Edycja/Ustaw punkty kotwiczące stabilizacji wideo...`` (lub wybrać ręczne rozmieszczanie punktów kotwiczących w ustawieniach przetwarzania, zob. punkt 3.2). Podobnie jak w przypadku punktów odniesienia, punkty kotwiczące nie powinny znajdować się w obszarach o małej szczegółowości.
 
@@ -122,7 +126,72 @@ Włączana/wyłączana poleceniem ``Przetwarzanie/Pokaż wizualizację`` (można
 
 
 ----------------------------------------
-## 4. Pobieranie
+### 3.5. Podgląd wyników
+
+Oprócz wizualizacji przetwarzania, w prawej części okna głównego można wyświetlić również *stack* lub zestawienie najlepszych fragmentów klatek (dla podświetlonego na liście zadania). *Stack* jest dostępny, jeśli przetwarzanie zadania zostało zakończone. Zestawienie najlepszych fragmentów można wyświetlić po zakończeniu etapu szacowania jakości.
+
+Zarówno zestawienie, jak i *stack* można zapisać za pomocą poleceń z menu ``Plik`` (lub menu kontekstowego listy zadań, dostępnego po kliknięciu prawym przyciskiem myszy).
+
+
+----------------------------------------
+## 4. Jakość klatek
+
+Jeśli etap szacowania jakości został zakończony, dane o jakości klatek wybranego zadania można wyświetlić w dedykowanym oknie (włączanym poleceniem ``Widok/Wykres jakości klatek`` lub odpowiadającym mu przyciskiem na pasku narzędziowym). Wartości jakości są znormalizowane do zakresu [0; 1].
+
+Dane o jakości mogą zostać zapisane w pliku tekstowym (który później można np. zaimportować do arkusza kalkulacyjnego) poleceniem z menu ``Plik`` lub przyciskiem ``Eksportuj...`` w oknie wykresu jakości. Zapis automatyczny można włączyć w oknie ustawień przetwarzania (wynikowy plik tekstowy pojawi się w tym samym miejscu, co stack, pod nazwą z przyrostkiem ``_frame_quality``).
+
+W oknie ``Edycja/Preferencje...`` można zdecydować, czy podczas eksportu uwzględniane mają być również nieaktywne klatki (zob. punkt 3.1). Przykładowo, jeśli zadanie zawiera 10 klatek i wszystkie są aktywne, zapisane dane mają postać:
+
+```
+Frame;Active frame;Quality
+0;0;0.55
+1;1;0.56
+2;2;0.56
+3;3;0.56
+4;4;0.56
+5;5;0.56
+6;6;0.56
+7;7;0.56
+8;8;0.56
+9;9;0.56
+```
+
+Jeśli użytkownik wyłączy klatki 3, 4, 5, a opcja eksportu nieaktywnych jest wyłączona:
+
+```
+Frame;Active frame;Quality
+0;0;0.55
+1;1;0.56
+2;2;0.56
+6;3;0.56
+7;4;0.56
+8;5;0.56
+9;6;0.56
+```
+
+Tj. kolumna `Frame` zawiera indeks bezwględny klatki, a `Active frame` zlicza tylko te aktywne.
+
+Jeśli eksport nieaktywnych klatek jest włączony, wynikiem będzie:
+
+```
+Frame;Active frame;Quality
+0;0;0.55
+1;1;0.56
+2;2;0.56
+3;-1;0
+4;-1;0
+5;-1;0
+6;3;0.56
+7;4;0.56
+8;5;0.56
+9;6;0.56
+```
+
+Uwzględnienie nieaktywnych klatek może być przydatne np. przy porównywaniu z danymi zebranymi przez monitor scyntylacji słonecznej (SSM).
+
+
+----------------------------------------
+## 5. Pobieranie
 
 Kod źródłowy i pliki wykonywalne dla MS Windows można pobrać pod adresem:
     
@@ -130,13 +199,13 @@ Kod źródłowy i pliki wykonywalne dla MS Windows można pobrać pod adresem:
 
     
 ----------------------------------------
-## 5. Budowanie ze źródeł
+## 6. Budowanie ze źródeł
 
 Budowanie ze źródeł wymaga narzędzi do kompilacji C++ (z obsługą C++11) oraz bibliotek gtkmm 3.0 i *libskry*. Wersje (tagi) Stackistry i *libskry* powinny być te same; można też użyć najnowszych rewizji obydwu projektów (aczkolwiek mogą być niestabilne).
 
 
 ----------------------------------------
-### 5.1. Budowanie w systemie Linux (i podobnych)
+### 6.1. Budowanie w systemie Linux (i podobnych)
 
 Z kodem dostarczony jest plik ``Makefile`` zgodny z GNU Make. By zbudować aplikację, należy zainstalować biblioteki gtkmm 3.0 (których pakiety noszą zwykle nazwy ``gtkmm30`` i ``gtkmm30-devel`` lub podobne), pobrać (z ``https://github.com/GreatAttractor/libskry/releases``) i zbudować *libskry*, przejść do folderu z kodem źródłowym Stackistry, ustawić odpowiednio wartości w sekcji ``User-configurable variables`` w ``Makefile`` i wykonać:
 
@@ -148,7 +217,7 @@ Utworzony zostanie plik wykonywalny ``./bin/stackistry``. Można przenieść go 
 
 
 ----------------------------------------
-## 5.2. Budowanie pod MS Windows
+## 6.2. Budowanie pod MS Windows
 
 Budowanie z użyciem dostarczonego pliku ``Makefile`` zostało przetestowane w środowisku MinGW/MSYS. Plik wykonywalny (``stackistry.exe``) tworzony jest po wykonaniu tych samych kroków, co w punkcie **5.1** (w linii poleceń środowiska MSYS).
 
@@ -198,7 +267,7 @@ Po zbudowaniu, Stackistry można uruchomić z linii poleceń MSYS (``./bin/stack
 
 
 ----------------------------------------
-## 5.3. Język UI
+## 6.3. Język UI
 
 Stackistry obsługuje wielojęzyczny interfejs użytkownika poprzez pakiet `GNU gettext`. Bieżący język można zmienić poleceniem `Edycja/Preferencje...`.
 
@@ -228,10 +297,10 @@ share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
 
 
 ----------------------------------------
-## 6. Historia zmian
+## 7. Historia zmian
 
 ```
-0.2.0 (2016-12-14)
+0.2.0 (2017-01-07)
   Nowe funkcje:
     - Stabilizacja wideo z użyciem centroidu jasności (przydatna do planet)
     - Ulepszone automatycznie rozmieszczanie punktów odniesienia dzięki wykrywaniu struktur w obrazie
