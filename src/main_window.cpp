@@ -1411,14 +1411,14 @@ void c_MainWindow::OnOutputImgTypeChanged()
         if (GetJobsListFocusedRow())
             m_OutputView.SetImage(GetCurrentJob().stackedImg);
         else
-            m_OutputView.SetImage(libskry::c_Image());
+            m_OutputView.RemoveImage();
         break;
 
     case OutputImgType::BestFragments:
         if (GetJobsListFocusedRow())
             m_OutputView.SetImage(GetCurrentJob().bestFragmentsImg);
         else
-            m_OutputView.SetImage(libskry::c_Image());
+            m_OutputView.RemoveImage();
         break;
     }
 }

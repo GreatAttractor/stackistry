@@ -110,6 +110,8 @@ public:
         later accessed (and modified) via GetImage(). */
     void SetImage(const Cairo::RefPtr<Cairo::ImageSurface> &img, bool refresh = true);
 
+    void RemoveImage() { SetImage(Cairo::RefPtr<Cairo::ImageSurface>(nullptr)); }
+
     /// Changes to the returned surface will be visible after refresh
     Cairo::RefPtr<Cairo::ImageSurface> GetImage();
 
