@@ -37,7 +37,7 @@ namespace Color
     const GdkRGBA chronoGraph{ 0.3, 0.75, 0.35, 1.0 };
     const GdkRGBA sortedGraph{ 0.2, 0.8, 0.9, 1.0 };
     const GdkRGBA grid{ 0.67, 0.67, 0.67, 1.0 };
-    const GdkRGBA histogram{ 0.8, 0.94, 0.93, 1.0 };
+    const GdkRGBA histogram{ 0.95*0.8, 0.95*0.94, 0.95*0.93, 1.0 };
 }
 
 const double chronoLineWidth = 2.0;
