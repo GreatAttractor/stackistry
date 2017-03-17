@@ -34,6 +34,8 @@ version 0.2.0 (2017-01-07)
 
 For Windows binary distributions, use ``stackistry.bat`` to start the program (you can also create a shortcut to it).
 
+Video tutorials: https://www.youtube.com/watch?v=_68kEYBXkLw&list=PLCKkDZ7up_-VRMzGQ0bmmiXL39z78zwdE
+
 
 ----------------------------------------
 ## 2. Input/output formats support

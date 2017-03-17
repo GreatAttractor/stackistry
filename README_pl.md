@@ -32,6 +32,8 @@ wersja 0.2.0 (2017-01-07)
 
 By uruchomić program po pobraniu dystrybucji binarnej dla MS Windows, należy użyć skryptu ``stackistry.bat`` (można utworzyć do niego skrót).
 
+Wideoprzewodniki: https://www.youtube.com/watch?v=_68kEYBXkLw&list=PLCKkDZ7up_-VRMzGQ0bmmiXL39z78zwdE 
+
 
 ----------------------------------------
 ## 2. Obsługiwane formaty plików
