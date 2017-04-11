@@ -108,6 +108,9 @@ private:
 
     std::queue<Gtk::TreeModel::Path> m_JobsToProcess;
 
+    /// True if handling of manual reference point selection is in progress
+    bool m_HandlingManualRefPoints = false;
+
 
     // Signal handlers -------------
     void OnButtonClicked();

@@ -876,6 +876,13 @@ void c_MainWindow::OnWorkerProgress()
     if (!m_RunningJob)
         return; // an outdated notification, ignore
 
+    // As of GTK 3.22 on Linux, something got broken in Glib::Dispatcher() - calling Gtk::Dialog::run() (to have the user
+    // set the reference points manually) from OnWorkerProgress() causes a recursive entry into OnWorkerProgress() from
+    // the new dialog's main loop.
+    // Prevent this via an additional bool flag:
+    if (m_HandlingManualRefPoints)
+        return;
+
     // Update "Save stacked image", "Save best fragments composite image", "Export quality data"
     // actions' state
     UpdateActionsState();
@@ -925,6 +932,7 @@ void c_MainWindow::OnWorkerProgress()
 
     if (Worker::IsWaitingForReferencePoints())
     {
+        m_HandlingManualRefPoints = true;
         struct Job_t &job = GetJobAt(*m_RunningJob);
         c_SelectPointsDlg dlg(Worker::GetBestQualityAlignedImage(), job.refPoints, { });
         dlg.set_title(_("Set reference points"));
@@ -940,6 +948,7 @@ void c_MainWindow::OnWorkerProgress()
 
         Worker::NotifyReferencePointsSet();
         Utils::SavePosSize(dlg, Configuration::SelectRefPointsDlgPosSize);
+        m_HandlingManualRefPoints = false;
     }
 
     if (Worker::GetStep() != m_LastStepNotify)
