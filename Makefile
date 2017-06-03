@@ -7,16 +7,28 @@
 #
 # prerequisite libraries: gtkmm30-devel, libskry
 #
+# If libskry was built with libav support, ffmpeg/libav (libavformat, libavutil, libavcodec) are required.
+# See README.md for details.
+#
 
 #-------- User-configurable variables --------------------------
 
 SKRY_INCLUDE_PATH = ../libskry/include
-SKRY_LIB_PATH = ../libskry/bin
+SKRY_LIB_PATH = -L ../libskry/bin
+
+# Has to be set to 1 if libskry was also built with USE_LIBAV=1
+USE_LIBAV = 1
+# Has to be set to -L followed a correct path if USE_LIBAV=1 and the libraries are not in a standard location
+LIBAV_LIB_PATH =
 
 #---------------------------------------------------------------
 
 CC = g++
 CCFLAGS = -c -O3 -ffast-math -std=c++11 -fopenmp -Wno-parentheses -Wno-missing-field-initializers -Wall -Wextra -pedantic $(shell pkg-config gtkmm-3.0 --cflags) -I $(SKRY_INCLUDE_PATH)
+
+ifeq ($(USE_LIBAV),1)
+AV_LIBS = -lavformat -lavcodec -lavutil
+endif
 
 # Cmdline option for CC to generate dependencies list to std. output
 C_DEP_GEN_OPT = -MM
@@ -82,7 +94,7 @@ clean:
 	$(REMOVE) -f $(BIN_DIR)/$(EXE_NAME)
 
 $(BIN_DIR)/$(EXE_NAME): $(OBJECTS)
-	$(CC) $(OBJECTS) $(shell pkg-config gtkmm-3.0 --libs) $(EXE_FLAGS) -L $(SKRY_LIB_PATH) -lskry -lgomp -s -o $(BIN_DIR)/$(EXE_NAME)
+	$(CC) $(OBJECTS) $(shell pkg-config gtkmm-3.0 --libs) $(EXE_FLAGS) $(SKRY_LIB_PATH) $(LIBAV_LIB_PATH) -lskry -lgomp $(AV_LIBS) -s -o $(BIN_DIR)/$(EXE_NAME)
 
 # Pull in dependency info for existing object files
 -include $(OBJECTS:.o=.d)

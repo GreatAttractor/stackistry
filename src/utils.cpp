@@ -211,6 +211,12 @@ std::string GetErrorMsg(enum SKRY_result errorCode)
     case SKRY_INVALID_IMG_DIMENSIONS:           return _("Invalid image dimensions");
     case SKRY_SER_MALFORMED_FILE:               return _("Malformed SER file");
     case SKRY_SER_UNSUPPORTED_FORMAT:           return _("Unsupported SER format");
+
+    case SKRY_LIBAV_NO_VID_STREAM:              return _("Video stream not found");
+    case SKRY_LIBAV_UNSUPPORTED_FORMAT:         return _("Unsupported format");
+    case SKRY_LIBAV_DECODING_ERROR:             return _("Decoding error");
+    case SKRY_LIBAV_INTERNAL_ERROR:             return _("Internal libav error");
+
     default:                                    return _("Unknown error");
     }
 }

@@ -6,10 +6,10 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Stackistry 0.1.1\n"
+"Project-Id-Version: Stackistry 0.2.1\n"
 "Report-Msgid-Bugs-To: Filip Szczerek <ga.software@yahoo.com>\n"
-"POT-Creation-Date: 2016-12-17\n"
-"PO-Revision-Date: 2016-12-17\n"
+"POT-Creation-Date: 2017-05-07\n"
+"PO-Revision-Date: 2017-05-07\n"
 "Last-Translator: Filip Szczerek <ga.software@yahoo.com>\n"
 "Language-Team: \n"
 "Language: Polish\n"
@@ -632,6 +632,18 @@ msgstr "Nieobsługiwany format SER"
 #: src/utils.cpp:213
 msgid "Unknown error"
 msgstr "Nieznany błąd"
+
+msgid "Video stream not found"
+msgstr "Nie znaleziono strumienia wideo"
+
+msgid "Unsupported format"
+msgstr "Nieobsługiwany format"
+
+msgid "Decoding error"
+msgstr "Błąd podczas dekodowania"
+
+msgid "Internal libav error"
+msgstr "Błąd wewnętrzny libav"
 
 #: src/worker.cpp:571
 msgid "Image alignment"
