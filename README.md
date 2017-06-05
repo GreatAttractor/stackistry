@@ -4,7 +4,7 @@
 
 Copyright (C) 2016, 2017 Filip Szczerek (ga.software@yahoo.com)
 
-version 0.2.0 (2017-01-07)
+version 0.3.0 (2017-06-05)
 
 *This program comes with ABSOLUTELY NO WARRANTY. This is free software, licensed under GNU General Public License v3 or any later version and you are welcome to redistribute it under certain conditions. See the LICENSE file for details.*
 
@@ -319,6 +319,12 @@ share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
 ## 7. Change log
 
 ```
+0.3.0 (2017-06-05)
+  New features:
+    - Better AVI support via libav
+  Bug fixes:
+    - Fixed crashes during triangulation
+    
 0.2.0 (2017-01-07)
   New features:
     - Image alignment using the intensity centroid (useful for planets)

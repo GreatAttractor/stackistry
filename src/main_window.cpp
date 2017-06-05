@@ -60,9 +60,9 @@ File description:
 #define LOCK() Glib::Threads::RecMutex::Lock lock(Worker::GetAccessGuard())
 
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 2
+#define VERSION_MINOR 3
 #define VERSION_SUBMINOR 0
-#define VERSION_DATE "2017-01-07"
+#define VERSION_DATE "2017-06-05"
 
 namespace ActionName
 {

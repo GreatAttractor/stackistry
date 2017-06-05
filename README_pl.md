@@ -2,7 +2,7 @@
 
 Copyright (C) 2016, 2017 Filip Szczerek (ga.software@yahoo.com)
 
-wersja 0.2.0 (2017-01-07)
+wersja 0.3.0 (2017-06-05)
 
 *Niniejszy program ABSOLUTNIE nie jest objęty JAKĄKOLWIEK GWARANCJĄ. Jest to wolne oprogramowanie na licencji GNU GPL w wersji 3 (lub dowolnej późniejszej) i można je swobodnie rozpowszechniać pod pewnymi warunkami: zob. pełny tekst licencji w pliku LICENSE.*
 
@@ -321,6 +321,12 @@ share/locale/<lang>/LC_MESSAGES/gtk30-properties.mo
 ## 7. Historia zmian
 
 ```
+0.3.0 (2017-06-05)
+  Nowe funkcje:
+    - Lepsza obsługa plików AVI dzięki libav
+  Poprawki błędów:
+    - Naprawiono błędy występujące podczas triangulacji
+
 0.2.0 (2017-01-07)
   Nowe funkcje:
     - Stabilizacja wideo z użyciem centroidu jasności (przydatna do planet)
