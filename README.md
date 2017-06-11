@@ -228,6 +228,16 @@ $ make install
 ```
 
 
+#### Ubuntu and *libav*
+
+On Ubuntu the following packages are needed: `ffmpeg libavcodec-dev libavformat-dev libavutil-dev`.
+
+In case of Ubuntu 16.04, versions provided by default are too old. Add the following repository before installing the packages:
+
+    sudo add-apt-repository ppa:jonathonf/ffmpeg-3
+    sudo apt update
+
+
 ----------------------------------------
 ### 6.2. Building under MS Windows
 
