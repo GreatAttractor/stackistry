@@ -28,6 +28,11 @@ version 0.3.0 (2017-06-05)
 
 
 ----------------------------------------
+
+![Main window](screenshot.png)
+
+
+----------------------------------------
 ## 1. Introduction
 
 **Stackistry** implements the *lucky imaging* principle of astronomical imaging: creating a high-quality still image out of a series of many (possibly thousands) low quality ones (blurred, deformed, noisy). The resulting *image stack* typically requires post-processing, including sharpening (e.g. via deconvolution). Such post-processing is not performed by Stackistry.
