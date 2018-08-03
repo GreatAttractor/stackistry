@@ -30,6 +30,7 @@ File description:
 #include <gtkmm/layout.h>
 
 #include "img_viewer.h"
+#include "sig_functors.h"
 #include "utils.h"
 
 

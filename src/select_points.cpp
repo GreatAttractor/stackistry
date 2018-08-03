@@ -28,6 +28,7 @@ File description:
 
 #include "select_points.h"
 #include "config.h"
+#include "sig_functors.h"
 #include "utils.h"
 
 
